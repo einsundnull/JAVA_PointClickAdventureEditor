@@ -53,7 +53,88 @@ public class ItemSaver {
 
         // IsInInventory
         writer.write("#IsInInventory:\n");
-        writer.write("-" + item.isInInventory() + "\n");
+        writer.write("-" + item.isInInventory() + "\n\n");
+
+        // MouseHover (similar to KeyArea)
+        writer.write("#MouseHover:\n");
+        writer.write("--conditions\n");
+        Map<String, String> hoverConditions = item.getHoverDisplayConditions();
+        if (hoverConditions != null && !hoverConditions.isEmpty()) {
+            for (Map.Entry<String, String> entry : hoverConditions.entrySet()) {
+                String condition = entry.getKey();
+                String displayText = entry.getValue();
+                writer.write("---" + condition + ";\n");
+                writer.write("----Display:\n");
+                writer.write("------\"" + displayText + "\"\n");
+            }
+        } else {
+            writer.write("---none\n");
+            writer.write("----Display:\n");
+            writer.write("------\"" + item.getName() + "\"\n");
+        }
+        writer.write("\n");
+
+        // Image Conditions
+        writer.write("#ImageConditions:\n");
+        writer.write("--conditions:\n");
+        Map<String, String> imageConditions = item.getImageConditions();
+        if (imageConditions != null && !imageConditions.isEmpty()) {
+            for (Map.Entry<String, String> entry : imageConditions.entrySet()) {
+                String condition = entry.getKey();
+                String imagePath = entry.getValue();
+                writer.write("---" + condition + ";\n");
+                writer.write("----Image: " + imagePath + ";\n");
+            }
+        } else {
+            writer.write("---none\n");
+            writer.write("----Image: " + item.getImageFilePath() + ";\n");
+        }
+        writer.write("\n");
+
+        // Actions
+        writer.write("#Actions:\n");
+        Map<String, KeyArea.ActionHandler> actions = item.getActions();
+        if (actions != null && !actions.isEmpty()) {
+            for (Map.Entry<String, KeyArea.ActionHandler> actionEntry : actions.entrySet()) {
+                String actionName = actionEntry.getKey();
+                KeyArea.ActionHandler handler = actionEntry.getValue();
+
+                writer.write("-" + actionName + "\n");
+                writer.write("--conditions\n");
+
+                Map<String, String> actionConditions = handler.getConditionalResults();
+                if (actionConditions != null && !actionConditions.isEmpty()) {
+                    for (Map.Entry<String, String> condEntry : actionConditions.entrySet()) {
+                        String condition = condEntry.getKey();
+                        String result = condEntry.getValue();
+
+                        writer.write("---" + condition + ";\n");
+
+                        if (result.startsWith("#Dialog:")) {
+                            writer.write("----#Dialog:\n");
+                            writer.write("------" + result.substring(8).trim() + "\n");
+                        } else if (result.startsWith("##load")) {
+                            writer.write("----" + result + "\n");
+                        } else if (result.startsWith("#SetBoolean:")) {
+                            writer.write("----" + result + "\n");
+                        } else {
+                            writer.write("----" + result + "\n");
+                        }
+                    }
+                } else {
+                    writer.write("---none\n");
+                    writer.write("----#Dialog:\n");
+                    writer.write("------dialog-" + item.getName().toLowerCase() + "-" + actionName.toLowerCase() + "\n");
+                }
+            }
+        } else {
+            // Default action
+            writer.write("-Anschauen\n");
+            writer.write("--conditions\n");
+            writer.write("---none\n");
+            writer.write("----#Dialog:\n");
+            writer.write("------dialog-" + item.getName().toLowerCase() + "-anschauen\n");
+        }
 
         writer.close();
         System.out.println("Saved item: " + item.getName() + " to " + filename);

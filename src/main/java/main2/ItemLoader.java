@@ -21,6 +21,10 @@ public class ItemLoader {
         String line;
         Item item = null;
         String currentSection = "";
+        String currentSubSection = "";
+        String pendingCondition = null;
+        String currentAction = null;
+        KeyArea.ActionHandler currentActionHandler = null;
 
         while ((line = reader.readLine()) != null) {
             line = line.trim();
@@ -44,6 +48,12 @@ public class ItemLoader {
                 currentSection = "CONDITIONS";
             } else if (line.startsWith("#IsInInventory:")) {
                 currentSection = "INVENTORY";
+            } else if (line.startsWith("#MouseHover:")) {
+                currentSection = "MOUSEHOVER";
+            } else if (line.startsWith("#ImageConditions:")) {
+                currentSection = "IMAGECONDITIONS";
+            } else if (line.startsWith("#Actions:")) {
+                currentSection = "ACTIONS";
             }
             // Data lines
             else if (line.startsWith("-")) {
@@ -117,6 +127,61 @@ public class ItemLoader {
                             item.setInInventory(Boolean.parseBoolean(value));
                         }
                         break;
+
+                    case "ACTIONS":
+                        // Action name (starts with single -)
+                        currentAction = value;
+                        currentActionHandler = new KeyArea.ActionHandler();
+                        if (item != null) {
+                            item.addAction(currentAction, currentActionHandler);
+                        }
+                        break;
+                }
+            }
+            // Sub-sections for MouseHover, ImageConditions, Actions
+            else if (line.startsWith("--conditions") || line.startsWith("--conditions:")) {
+                currentSubSection = "CONDITIONS";
+            }
+            else if (line.startsWith("---") && !line.startsWith("----")) {
+                // Condition line
+                pendingCondition = line.substring(3).trim().replace(";", "");
+            }
+            else if (line.startsWith("----Display:")) {
+                currentSubSection = "DISPLAY";
+            }
+            else if (line.startsWith("----Image:")) {
+                String imagePath = line.substring(10).trim().replace(";", "");
+                if (item != null && pendingCondition != null && currentSection.equals("IMAGECONDITIONS")) {
+                    item.addImageCondition(pendingCondition, imagePath);
+                }
+                pendingCondition = null;
+            }
+            else if (line.startsWith("----#Dialog:")) {
+                currentSubSection = "DIALOG";
+            }
+            else if (line.startsWith("----##load")) {
+                String result = line.substring(4).trim();
+                if (currentActionHandler != null && pendingCondition != null) {
+                    currentActionHandler.addConditionalResult(pendingCondition, result);
+                }
+                pendingCondition = null;
+            }
+            else if (line.startsWith("------")) {
+                String value = line.substring(6).trim();
+
+                if (currentSection.equals("MOUSEHOVER") && currentSubSection.equals("DISPLAY")) {
+                    // Hover text
+                    String displayText = value.replace("\"", "");
+                    if (item != null && pendingCondition != null) {
+                        item.addHoverDisplayCondition(pendingCondition, displayText);
+                    }
+                    pendingCondition = null;
+                } else if (currentSection.equals("ACTIONS") && currentSubSection.equals("DIALOG")) {
+                    // Action dialog result
+                    if (currentActionHandler != null && pendingCondition != null) {
+                        currentActionHandler.addConditionalResult(pendingCondition, "#Dialog:" + value);
+                    }
+                    pendingCondition = null;
                 }
             }
         }

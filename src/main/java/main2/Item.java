@@ -17,6 +17,11 @@ public class Item {
     private int width;  // Image display width
     private int height; // Image display height
 
+    // KeyArea-like properties
+    private Map<String, String> imageConditions; // condition -> image path
+    private Map<String, KeyArea.ActionHandler> actions; // action name -> handler
+    private Map<String, String> hoverDisplayConditions; // condition -> display text
+
     public Item(String name) {
         this.name = name;
         this.position = new Point(0, 0);
@@ -26,6 +31,9 @@ public class Item {
         this.isInInventory = false;
         this.width = 100;  // Default width
         this.height = 100; // Default height
+        this.imageConditions = new HashMap<>();
+        this.actions = new HashMap<>();
+        this.hoverDisplayConditions = new HashMap<>();
     }
 
     // Getters and Setters
@@ -104,6 +112,85 @@ public class Item {
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
+    }
+
+    // ImageConditions methods
+    public Map<String, String> getImageConditions() {
+        return imageConditions;
+    }
+
+    public void addImageCondition(String condition, String imagePath) {
+        imageConditions.put(condition, imagePath);
+    }
+
+    public String getCurrentImagePath() {
+        // Check image conditions similar to KeyArea
+        for (Map.Entry<String, String> entry : imageConditions.entrySet()) {
+            String condition = entry.getKey();
+            String imagePath = entry.getValue();
+
+            if (condition.equals("none") || evaluateCondition(condition)) {
+                return imagePath;
+            }
+        }
+        // Fallback to default image path
+        return imageFilePath;
+    }
+
+    // HoverDisplayConditions methods
+    public Map<String, String> getHoverDisplayConditions() {
+        return hoverDisplayConditions;
+    }
+
+    public void addHoverDisplayCondition(String condition, String displayText) {
+        hoverDisplayConditions.put(condition, displayText);
+    }
+
+    public String getHoverDisplayText() {
+        for (Map.Entry<String, String> entry : hoverDisplayConditions.entrySet()) {
+            String condition = entry.getKey();
+            String displayText = entry.getValue();
+
+            if (condition.equals("none") || evaluateCondition(condition)) {
+                return displayText;
+            }
+        }
+        return name; // Default to item name
+    }
+
+    // Actions methods
+    public Map<String, KeyArea.ActionHandler> getActions() {
+        return actions;
+    }
+
+    public void addAction(String actionName, KeyArea.ActionHandler handler) {
+        actions.put(actionName, handler);
+    }
+
+    public String performAction(String actionName, GameProgress progress) {
+        KeyArea.ActionHandler handler = actions.get(actionName);
+        if (handler != null) {
+            return handler.execute(progress);
+        }
+        return null;
+    }
+
+    // Evaluate condition helper
+    private boolean evaluateCondition(String condition) {
+        if (condition.equals("none")) {
+            return true;
+        }
+
+        // Parse "fieldName = true/false"
+        String[] parts = condition.split("=");
+        if (parts.length == 2) {
+            String fieldName = parts[0].trim();
+            boolean expectedValue = Boolean.parseBoolean(parts[1].trim());
+            boolean actualValue = Conditions.getCondition(fieldName);
+            return actualValue == expectedValue;
+        }
+
+        return false;
     }
 
     /**

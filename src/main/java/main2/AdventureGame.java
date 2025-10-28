@@ -252,8 +252,8 @@ public class AdventureGame extends JFrame {
 				if (currentScene != null) {
 					for (Item item : currentScene.getItems()) {
 						if (item.isVisible()) {
-							// Load item image
-							String imagePath = item.getImageFilePath();
+							// Load item image (with condition-based path)
+							String imagePath = item.getCurrentImagePath();
 							File imageFile = new File(imagePath);
 
 							if (imageFile.exists()) {
@@ -556,6 +556,19 @@ public class AdventureGame extends JFrame {
 			hoverTextLabel.setText(" ");
 			hoveredKeyArea = null;
 			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			return;
+		}
+
+		// Check if hovering over an Item first
+		Item hoveredItem = currentScene.getItemAt(point);
+		if (hoveredItem != null && hoveredItem.isVisible()) {
+			String displayText = hoveredItem.getHoverDisplayText();
+			if (displayText != null && !displayText.isEmpty()) {
+				hoverTextLabel.setText(displayText);
+			} else {
+				hoverTextLabel.setText(hoveredItem.getName());
+			}
+			hoveredKeyArea = null;
 			return;
 		}
 
