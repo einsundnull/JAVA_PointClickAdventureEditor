@@ -255,6 +255,7 @@ public class AdventureGame extends JFrame {
 							// Load item image
 							String imagePath = item.getImageFilePath();
 							File imageFile = new File(imagePath);
+
 							if (imageFile.exists()) {
 								ImageIcon icon = new ImageIcon(imagePath);
 								Image img = icon.getImage();
@@ -290,7 +291,37 @@ public class AdventureGame extends JFrame {
 									// Bottom-right
 									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
 								}
+							} else {
+								// Draw placeholder if image not found
+								if (showPaths) {
+									Point pos = item.getPosition();
+									int imgWidth = item.getWidth();
+									int imgHeight = item.getHeight();
+									int x = pos.x - imgWidth / 2;
+									int y = pos.y - imgHeight / 2;
+
+									g2d.setColor(Color.RED);
+									g2d.setStroke(new BasicStroke(2));
+									g2d.drawRect(x, y, imgWidth, imgHeight);
+									g2d.drawLine(x, y, x + imgWidth, y + imgHeight);
+									g2d.drawLine(x + imgWidth, y, x, y + imgHeight);
+									g2d.setColor(Color.WHITE);
+									g2d.drawString(item.getName() + " (IMAGE NOT FOUND)", x, y - 5);
+									g2d.drawString("Path: " + imagePath, x, y + imgHeight + 15);
+								}
 							}
+						} else if (showPaths) {
+							// Show invisible items in editor mode
+							Point pos = item.getPosition();
+							int imgWidth = item.getWidth();
+							int imgHeight = item.getHeight();
+							int x = pos.x - imgWidth / 2;
+							int y = pos.y - imgHeight / 2;
+
+							g2d.setColor(new Color(128, 128, 128, 100));
+							g2d.fillRect(x, y, imgWidth, imgHeight);
+							g2d.setColor(Color.GRAY);
+							g2d.drawString(item.getName() + " (INVISIBLE)", x, y - 5);
 						}
 					}
 				}

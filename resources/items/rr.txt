@@ -1,0 +1,22 @@
+#Name:
+-rr
+
+#ImageFile:
+-schreiben_3.png
+
+#ImagePath:
+-resources/images/items/schreiben_3.png
+
+#Position:
+-x = 441;
+-y = 302;
+
+#Size:
+-width = 168;
+-height = 200;
+
+#Conditions:
+-none
+
+#IsInInventory:
+-false

@@ -1,5 +1,5 @@
 #Name:
--Me
+-te
 
 #ImageFile:
 -pronound you 2.svg
@@ -8,12 +8,12 @@
 -resources/images/items/pronound you 2.svg
 
 #Position:
--x = 800;
--y = 223;
+-x = 516;
+-y = 343;
 
 #Size:
--width = 158;
--height = 161;
+-width = 100;
+-height = 100;
 
 #Conditions:
 -none

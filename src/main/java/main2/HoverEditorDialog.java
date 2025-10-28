@@ -146,17 +146,25 @@ public class HoverEditorDialog extends JDialog {
 			String text = (String) tableModel.getValueAt(row, 1);
 
 			if (text != null && !text.trim().isEmpty()) {
-				keyArea.addHoverDisplayCondition(condition, text.trim());
-				parent.log("  " + condition + " → \"" + text.trim() + "\"");
+				// Remove quotes if user entered them
+				String cleanText = text.trim();
+				if (cleanText.startsWith("\"") && cleanText.endsWith("\"")) {
+					cleanText = cleanText.substring(1, cleanText.length() - 1);
+				}
+				keyArea.addHoverDisplayCondition(condition, cleanText);
+				parent.log("  " + condition + " → \"" + cleanText + "\"");
 			}
 		}
 
 		// Auto-save scene
 		parent.autoSaveCurrentScene();
 
-		parent.log("✓ Hover text saved!");
+		// Reload scene to ensure changes are visible
+		parent.getGame().reloadCurrentScene();
 
-		JOptionPane.showMessageDialog(this, "Hover text saved successfully!", "Success",
+		parent.log("✓ Hover text saved and scene reloaded!");
+
+		JOptionPane.showMessageDialog(this, "Hover text saved successfully!\n\nScene has been reloaded.", "Success",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
