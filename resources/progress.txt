@@ -1,0 +1,10 @@
+# Game Progress
+currentScene=sceneBeach
+
+# Boolean Variables
+pathToWoodIsClear=false
+hasLighter=false
+hasKey=false
+shelfIsBurned=false
+doorIsLocked=true
+doorIsOpen=false

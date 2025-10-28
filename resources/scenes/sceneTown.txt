@@ -1,0 +1,69 @@
+#Backgroundimage:
+-sceneTown.png
+
+#KeyArea:
+-Type: Transition
+-Name: PathToBeach;
+-Location:
+--x1 = 800;
+--x2 = 900;
+--y1 = 400;
+--y2 = 500;
+#Actions:
+--conditions
+---none
+----##loadsceneBeach
+
+#KeyArea:
+-Type: Interaction
+-Name: Door;
+-Location:
+--x1 = 380;
+--x2 = 520;
+--y1 = 280;
+--y2 = 600;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-door-anschauen
+-Drücke
+--conditions
+---doorIsLocked = false;
+----#Dialog:
+------dialog-door-open
+---doorIsLocked = true;
+----#Dialog:
+------dialog-door-locked
+-Benutze
+--conditions
+---hasKey = true;
+----#Dialog:
+------dialog-door-unlock
+----#SetBoolean:doorIsLocked=false
+---hasKey = false;
+----#Dialog:
+------dialog-door-need-key
+
+#Dialogs:
+-dialog-door-anschauen
+--Das ist eine alte Holztür.
+--Sie sieht robust aus, aber das Schloss ist verrostet.
+
+-dialog-door-open
+--Die Tür ist nicht verschlossen.
+--Du öffnest sie und gehst hindurch.
+
+-dialog-door-locked
+--Die Tür ist verschlossen!
+--Du brauchst einen Schlüssel um sie zu öffnen.
+
+-dialog-door-unlock
+--Du benutzt den Schlüssel.
+--*KLICK* Die Tür ist jetzt entriegelt!
+
+-dialog-door-need-key
+--Du versuchst die Tür zu benutzen, aber sie ist verschlossen.
+--Du brauchst einen Schlüssel.

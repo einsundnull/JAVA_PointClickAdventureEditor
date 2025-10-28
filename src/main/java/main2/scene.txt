@@ -1,0 +1,11 @@
+# Hintergrund
+background=images/room.png
+
+# Flags
+flag=hatSchluessel=false
+flag=tuerOffen=false
+
+# Objekte
+keyarea=Schlüssel;100;200;160;250;flag=hatSchluessel:false;Anschauen=Ein alter Schlüssel liegt am Boden.;Nimm=Du hebst den Schlüssel auf.;set:hatSchluessel=true
+keyarea=Tür;500;200;600;400;flag=hatSchluessel:true;Anschauen=Eine verschlossene Holztür.;Benutze=Du öffnest die Tür mit dem Schlüssel.;set:tuerOffen=true
+keyarea=Bild;300;150;400;250;Anschauen=Ein altes Gemälde hängt an der Wand.;Ziehe=Du ziehst es zur Seite, aber nichts dahinter.

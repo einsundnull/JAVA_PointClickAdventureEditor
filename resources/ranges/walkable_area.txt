@@ -1,0 +1,8 @@
+# Walkable area example - MovingRange_0 (closed polygon)
+# This defines a trapezoid-shaped walkable area with z-axis scaling
+# Objects appear smaller at the top (y=0.3) and larger at the bottom (y=0.9)
+
+punkt: x=0.05; y=0.30; z1=0.5; z2=0.5;
+punkt: x=0.95; y=0.30; z1=0.5; z2=0.5;
+punkt: x=0.95; y=0.90; z1=1.5; z2=1.5;
+punkt: x=0.05; y=0.90; z1=1.5; z2=1.5;

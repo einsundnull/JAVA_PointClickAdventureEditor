@@ -1,0 +1,73 @@
+#Backgroundimage:
+-sceneWood.png
+
+#KeyArea:
+-Type: Transition
+-Name: PathToBeach;
+-Location:
+--x1 = 10;
+--x2 = 110;
+--y1 = 300;
+--y2 = 400;
+#Actions:
+--conditions
+---none
+----##loadsceneBeach
+
+#KeyArea:
+-Type: Interaction
+-Name: Tree;
+-Location:
+--x1 = 380;
+--x2 = 520;
+--y1 = 100;
+--y2 = 400;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-tree-anschauen
+-Nimm
+--conditions
+---none
+----#Dialog:
+------dialog-tree-nimm
+-Ziehe
+--conditions
+---none
+----#Dialog:
+------dialog-tree-ziehe
+-Drücke
+--conditions
+---none
+----#Dialog:
+------dialog-tree-druecke
+-Benutze
+--conditions
+---none
+----#Dialog:
+------dialog-tree-benutze
+
+#Dialogs:
+-dialog-tree-anschauen
+--Das ist ein großer alter Baum.
+--Seine Rinde ist rau und mit Moos bedeckt.
+--Du kannst Vögel in den Ästen zwitschern hören.
+
+-dialog-tree-nimm
+--Der Baum ist fest verwurzelt.
+--Du kannst ihn unmöglich mitnehmen!
+
+-dialog-tree-ziehe
+--Du ziehst am Baum, aber er bewegt sich keinen Millimeter.
+--Deine Kräfte reichen dafür nicht aus.
+
+-dialog-tree-druecke
+--Du drückst gegen den Baum.
+--Er steht wie eine Eiche. Weil er auch eine ist.
+
+-dialog-tree-benutze
+--Du benutzt den Baum als Stütze.
+--Es fühlt sich gut an, sich anzulehnen.

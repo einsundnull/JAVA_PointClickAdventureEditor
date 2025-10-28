@@ -1,0 +1,204 @@
+#Backgroundimage:
+-sceneBeach.png
+
+#KeyArea:
+-Type: INTERACTION
+-Name: PathToWood;
+-MouseHover
+--conditions
+---none;
+----Display:
+------"PathToWood"
+-Image
+--conditions:
+---none;
+----Image: default.png;
+#Actions:
+-Anschauen
+--conditions
+---none;
+----#Dialog:
+------dialog-pathtowood-anschauen
+##Location:
+###
+--x = 670;
+--y = 500;
+###
+--x = 780;
+--y = 500;
+###
+--x = 780;
+--y = 550;
+###
+--x = 670;
+--y = 550;
+
+#KeyArea:
+-Type: INTERACTION
+-Name: PathToTown;
+-MouseHover
+--conditions
+---none;
+----Display:
+------"PathToTown"
+-Image
+--conditions:
+---none;
+----Image: default.png;
+#Actions:
+-Anschauen
+--conditions
+---none;
+----#Dialog:
+------dialog-pathtotown-anschauen
+##Location:
+###
+--x = 1365;
+--y = 399;
+###
+--x = 1335;
+--y = 357;
+###
+--x = 1286;
+--y = 366;
+###
+--x = 1247;
+--y = 387;
+###
+--x = 1335;
+--y = 419;
+
+#KeyArea:
+-Type: INTERACTION
+-Name: BeachBarSign;
+-MouseHover
+--conditions
+---none;
+----Display:
+------"Shelf"
+-Image
+--conditions:
+---none;
+----Image: default.png;
+#Actions:
+-Anschauen
+--conditions
+---none;
+----#Dialog:
+------dialog-shelf-anschauen
+##Location:
+###
+--x = 250;
+--y = 44;
+###
+--x = 734;
+--y = 77;
+###
+--x = 718;
+--y = 146;
+###
+--x = 249;
+--y = 123;
+
+#KeyArea:
+-Type: INTERACTION
+-Name: glass;
+-MouseHover
+--conditions
+---none;
+----Display:
+------"glass"
+-Image
+--conditions:
+---none;
+----Image: default.png;
+#Actions:
+-Anschauen
+--conditions
+---none;
+----#Dialog:
+------dialog-glass-anschauen
+##Location:
+###
+--x = 437;
+--y = 538;
+###
+--x = 464;
+--y = 530;
+###
+--x = 465;
+--y = 508;
+###
+--x = 417;
+--y = 468;
+###
+--x = 444;
+--y = 460;
+###
+--x = 493;
+--y = 459;
+###
+--x = 530;
+--y = 468;
+###
+--x = 483;
+--y = 507;
+###
+--x = 485;
+--y = 528;
+###
+--x = 505;
+--y = 537;
+###
+--x = 480;
+--y = 544;
+###
+--x = 459;
+--y = 545;
+
+#Dialogs:
+-dialog-shelf-beach-drücke
+--Du drückst gegen das Regal.
+--Es ist fest verankert.
+
+-dialog-shelf-beach-sprich
+--Du sprichst mit dem Regal.
+--Es antwortet nicht.
+--Vielleicht solltest du mit jemandem sprechen, der tatsächlich antworten kann.
+
+-dialog-shelf-beach-2
+--Das Regal sieht interessant aus.
+--Es scheint alt und verwittert zu sein.
+
+-dialog-shelf-beach-drehe
+--Das Regal lässt sich nicht drehen.
+--Es steht fest an der Wand.
+
+-dialog-shelf-beach-benutze
+--Du benutzt das Regal.
+--Es dient als Aufbewahrungsort für verschiedene Gegenstände.
+
+-dialog-shelf-beach-ziehe
+--Du ziehst am Regal.
+--Es bewegt sich ein wenig, aber nicht genug.
+
+-dialog-shelf-beach-hebe
+--Das Regal ist viel zu schwer zum Heben.
+
+-dialog-shelf-beach-1
+--Du versuchst das Regal zu nehmen, aber es ist zu schwer.
+--Vielleicht solltest du etwas anderes versuchen?
+
+-dialog-shelf-beach-gib
+--Du gibst dem Regal etwas.
+--Das Regal reagiert nicht darauf.
+
+-dialog-path-blocked
+--Der Weg ist blockiert!
+--Du kannst hier nicht durchgehen.
+
+-dialog-shelf-beach-anschauen
+--Das ist ein altes Holzregal.
+--Es sieht aus, als würde es schon lange hier stehen.
+--Einige Bretter sind locker.
+
