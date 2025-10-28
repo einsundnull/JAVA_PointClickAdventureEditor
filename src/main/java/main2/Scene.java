@@ -12,12 +12,14 @@ public class Scene {
     private List<KeyArea> keyAreas;
     private List<Path> paths;
     private Map<String, String> dialogs; // dialogName -> dialogText
-    
+    private List<Item> items; // Items placed in this scene
+
     public Scene(String name) {
         this.name = name;
         this.keyAreas = new ArrayList<>();
         this.paths = new ArrayList<>();
         this.dialogs = new HashMap<>();
+        this.items = new ArrayList<>();
     }
     
     public String getName() {
@@ -51,13 +53,42 @@ public class Scene {
     public Map<String, String> getDialogs() {
         return dialogs;
     }
-    
+
     public List<KeyArea> getKeyAreas() {
         return keyAreas;
     }
-    
+
     public List<Path> getPaths() {
         return paths;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    public void removeItem(Item item) {
+        items.remove(item);
+    }
+
+    /**
+     * Get item at specific point
+     */
+    public Item getItemAt(Point point) {
+        for (Item item : items) {
+            if (item.isVisible()) {
+                // Simple click detection (you may want to use image bounds)
+                int clickRadius = 30;
+                if (Math.abs(item.getPosition().x - point.x) < clickRadius &&
+                    Math.abs(item.getPosition().y - point.y) < clickRadius) {
+                    return item;
+                }
+            }
+        }
+        return null;
     }
     
     /**
@@ -74,6 +105,6 @@ public class Scene {
     
     @Override
     public String toString() {
-        return "Scene{name='" + name + "', keyAreas=" + keyAreas.size() + ", paths=" + paths.size() + ", dialogs=" + dialogs.size() + "}";
+        return "Scene{name='" + name + "', keyAreas=" + keyAreas.size() + ", paths=" + paths.size() + ", dialogs=" + dialogs.size() + ", items=" + items.size() + "}";
     }
 }

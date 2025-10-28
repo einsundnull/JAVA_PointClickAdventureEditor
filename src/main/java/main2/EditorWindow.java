@@ -366,6 +366,21 @@ public class EditorWindow extends JFrame {
 		manageDialogsBtn.addActionListener(e -> openDialogManager());
 		sceneManagerPanel.add(manageDialogsBtn);
 
+		JButton manageItemsBtn = new JButton("🎒 Manage Items");
+		manageItemsBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+		manageItemsBtn.addActionListener(e -> openItemEditor());
+		sceneManagerPanel.add(manageItemsBtn);
+
+		JButton openSceneFileBtn = new JButton("📂 Open Scene File");
+		openSceneFileBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+		openSceneFileBtn.addActionListener(e -> openSceneFileInExplorer());
+		sceneManagerPanel.add(openSceneFileBtn);
+
+		JButton openResourcesFolderBtn = new JButton("📁 Open Resources Folder");
+		openResourcesFolderBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+		openResourcesFolderBtn.addActionListener(e -> openResourcesFolder());
+		sceneManagerPanel.add(openResourcesFolderBtn);
+
 		controlPanel.add(sceneManagerPanel);
 
 		add(new JScrollPane(controlPanel), BorderLayout.CENTER);
@@ -737,6 +752,61 @@ public class EditorWindow extends JFrame {
 		DialogManagerDialog dialog = new DialogManagerDialog(this);
 		dialog.setVisible(true);
 		log("Dialog Manager opened");
+	}
+
+	private void openItemEditor() {
+		log("Opening Item Editor...");
+		ItemEditorDialog dialog = new ItemEditorDialog(this);
+		dialog.setVisible(true);
+		log("Item Editor opened");
+	}
+
+	private void openSceneFileInExplorer() {
+		Scene currentScene = game.getCurrentScene();
+		if (currentScene == null) {
+			log("ERROR: No scene loaded");
+			JOptionPane.showMessageDialog(this, "No scene loaded!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		String sceneName = currentScene.getName();
+		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+
+		if (!sceneFile.exists()) {
+			log("ERROR: Scene file not found: " + sceneFile.getAbsolutePath());
+			JOptionPane.showMessageDialog(this, "Scene file not found!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		try {
+			// Open file in default text editor
+			java.awt.Desktop.getDesktop().open(sceneFile);
+			log("Opened scene file: " + sceneFile.getAbsolutePath());
+		} catch (Exception e) {
+			log("ERROR opening file: " + e.getMessage());
+			JOptionPane.showMessageDialog(this, "Error opening file: " + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void openResourcesFolder() {
+		File resourcesFolder = new File("resources");
+
+		if (!resourcesFolder.exists()) {
+			log("ERROR: Resources folder not found");
+			JOptionPane.showMessageDialog(this, "Resources folder not found!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		try {
+			// Open folder in file explorer
+			java.awt.Desktop.getDesktop().open(resourcesFolder);
+			log("Opened resources folder");
+		} catch (Exception e) {
+			log("ERROR opening folder: " + e.getMessage());
+			JOptionPane.showMessageDialog(this, "Error opening folder: " + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void openActionsEditor() {

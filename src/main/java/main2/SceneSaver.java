@@ -134,11 +134,22 @@ public class SceneSaver {
                 writer.write("\n");
             }
         }
-        
+
+        // Items
+        List<Item> items = scene.getItems();
+        if (!items.isEmpty()) {
+            writer.write("#Items:\n");
+            for (Item item : items) {
+                writer.write("-" + item.getName() + "\n");
+            }
+            writer.write("\n");
+        }
+
         writer.close();
         System.out.println("Scene saved to: " + filename);
         System.out.println("  KeyAreas: " + scene.getKeyAreas().size());
         System.out.println("  Total points: " + scene.getKeyAreas().stream()
             .mapToInt(a -> a.getPoints().size()).sum());
+        System.out.println("  Items: " + scene.getItems().size());
     }
 }

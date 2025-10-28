@@ -15,6 +15,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -35,8 +37,14 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 
 public class AdventureGame extends JFrame {
+	// Item corner enum for drag-resize
+	private enum ItemCorner {
+		NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+	}
+
 	private Scene currentScene;
 	private GameProgress progress;
 	private JPanel gamePanel;
@@ -56,6 +64,9 @@ public class AdventureGame extends JFrame {
 	private int selectedPathPointIndex = -1;
 	private boolean addPointMode = false;
 	private EditorWindow addPointModeEditor = null;
+	private Item draggedItem = null;
+	private ItemCorner draggedCorner = ItemCorner.NONE;
+	private Point initialDragPoint = null;
 
 	// Cursor blinking
 	private javax.swing.Timer cursorBlinkTimer;
@@ -241,6 +252,53 @@ public class AdventureGame extends JFrame {
 				g.setColor(Color.RED);
 				g.fillOval(playerPosition.x - 10, playerPosition.y - 10, 20, 20);
 
+				// Draw items
+				if (currentScene != null) {
+					for (Item item : currentScene.getItems()) {
+						if (item.isVisible()) {
+							// Load item image
+							String imagePath = item.getImageFilePath();
+							File imageFile = new File(imagePath);
+							if (imageFile.exists()) {
+								ImageIcon icon = new ImageIcon(imagePath);
+								Image img = icon.getImage();
+								Point pos = item.getPosition();
+
+								// Use stored width/height from item
+								int imgWidth = item.getWidth();
+								int imgHeight = item.getHeight();
+
+								// Calculate top-left corner
+								int x = pos.x - imgWidth / 2;
+								int y = pos.y - imgHeight / 2;
+
+								// Draw image scaled to item size
+								g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+
+								// Draw item boundary and drag points in editor mode
+								if (showPaths) {
+									g2d.setColor(Color.CYAN);
+									g2d.setStroke(new BasicStroke(2));
+									g2d.drawRect(x, y, imgWidth, imgHeight);
+									g2d.drawString(item.getName(), x, y - 5);
+
+									// Draw 4 corner drag points
+									int handleSize = 8;
+									g2d.setColor(Color.ORANGE);
+									// Top-left
+									g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+									// Top-right
+									g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+									// Bottom-left
+									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+									// Bottom-right
+									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+								}
+							}
+						}
+					}
+				}
+
 				// Draw editor visualizations ON TOP
 				if (showPaths && currentScene != null) {
 					// Draw KeyArea polygons
@@ -323,7 +381,13 @@ public class AdventureGame extends JFrame {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (showPaths) {
-					handlePathPointPress(e.getPoint());
+					// Check for item click first
+					handleItemPress(e.getPoint());
+
+					// If no item selected, check for path points
+					if (draggedItem == null) {
+						handlePathPointPress(e.getPoint());
+					}
 				}
 			}
 
@@ -331,6 +395,11 @@ public class AdventureGame extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				if (showPaths && selectedPathPoint != null) {
 					handlePathPointRelease();
+				}
+
+				// Handle item drag release
+				if (showPaths && draggedItem != null) {
+					handleItemRelease();
 				}
 			}
 		});
@@ -347,6 +416,62 @@ public class AdventureGame extends JFrame {
 				if (showPaths && selectedPathPoint != null) {
 					handlePathPointDrag(e.getPoint());
 				}
+
+				// Handle item dragging
+				if (showPaths && draggedItem != null) {
+					handleItemDrag(e.getPoint());
+				}
+			}
+		});
+
+		// Setup Drag & Drop for images
+		gamePanel.setTransferHandler(new TransferHandler() {
+			@Override
+			public boolean canImport(TransferSupport support) {
+				// Only accept file drops when editor is visible
+				if (!editorWindow.isVisible()) {
+					return false;
+				}
+				return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+			}
+
+			@Override
+			public boolean importData(TransferSupport support) {
+				if (!canImport(support)) {
+					return false;
+				}
+
+				try {
+					Transferable transferable = support.getTransferable();
+					@SuppressWarnings("unchecked")
+					List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+
+					if (files.isEmpty()) {
+						return false;
+					}
+
+					File imageFile = files.get(0);
+					String fileName = imageFile.getName().toLowerCase();
+
+					// Check if it's an image file (including SVG)
+					if (fileName.endsWith(".png") || fileName.endsWith(".jpg") ||
+					    fileName.endsWith(".jpeg") || fileName.endsWith(".gif") ||
+					    fileName.endsWith(".svg")) {
+
+						// Get drop location
+						Point dropPoint = support.getDropLocation().getDropPoint();
+
+						// Create new item from dropped image
+						handleImageDrop(imageFile, dropPoint);
+						return true;
+					}
+				} catch (Exception e) {
+					if (editorWindow != null) {
+						editorWindow.log("ERROR dropping file: " + e.getMessage());
+					}
+					e.printStackTrace();
+				}
+				return false;
 			}
 		});
 
@@ -504,6 +629,262 @@ public class AdventureGame extends JFrame {
 		}
 		selectedPathPoint = null;
 		selectedPathPointIndex = -1;
+	}
+
+	private void handleItemPress(Point clickPoint) {
+		if (currentScene == null)
+			return;
+
+		int handleSize = 8;
+		int handleTolerance = 6; // Extra pixels for easier clicking
+
+		// Check if clicking on an item corner or body
+		for (Item item : currentScene.getItems()) {
+			if (item.isVisible()) {
+				Point pos = item.getPosition();
+				int imgWidth = item.getWidth();
+				int imgHeight = item.getHeight();
+
+				// Calculate corners
+				int x = pos.x - imgWidth / 2;
+				int y = pos.y - imgHeight / 2;
+
+				// Check corners first (in editor mode)
+				if (showPaths) {
+					// Top-left
+					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance &&
+					    Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
+						draggedItem = item;
+						draggedCorner = ItemCorner.TOP_LEFT;
+						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
+						if (editorWindow != null) {
+							editorWindow.log("Dragging top-left corner of " + item.getName());
+						}
+						return;
+					}
+					// Top-right
+					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance &&
+					    Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
+						draggedItem = item;
+						draggedCorner = ItemCorner.TOP_RIGHT;
+						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
+						if (editorWindow != null) {
+							editorWindow.log("Dragging top-right corner of " + item.getName());
+						}
+						return;
+					}
+					// Bottom-left
+					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance &&
+					    Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
+						draggedItem = item;
+						draggedCorner = ItemCorner.BOTTOM_LEFT;
+						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
+						if (editorWindow != null) {
+							editorWindow.log("Dragging bottom-left corner of " + item.getName());
+						}
+						return;
+					}
+					// Bottom-right
+					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance &&
+					    Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
+						draggedItem = item;
+						draggedCorner = ItemCorner.BOTTOM_RIGHT;
+						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
+						if (editorWindow != null) {
+							editorWindow.log("Dragging bottom-right corner of " + item.getName());
+						}
+						return;
+					}
+				}
+
+				// Check if clicking inside item body (for move)
+				if (clickPoint.x >= x && clickPoint.x <= x + imgWidth &&
+				    clickPoint.y >= y && clickPoint.y <= y + imgHeight) {
+					draggedItem = item;
+					draggedCorner = ItemCorner.NONE;
+					if (editorWindow != null) {
+						editorWindow.log("Moving item: " + item.getName());
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	private void handleItemDrag(Point newPosition) {
+		if (draggedItem == null) return;
+
+		if (draggedCorner == ItemCorner.NONE) {
+			// Move entire item
+			draggedItem.setPosition(newPosition.x, newPosition.y);
+		} else {
+			// Resize item by dragging corner
+			Point pos = draggedItem.getPosition();
+			int currentWidth = draggedItem.getWidth();
+			int currentHeight = draggedItem.getHeight();
+
+			// Calculate current bounds
+			int left = pos.x - currentWidth / 2;
+			int top = pos.y - currentHeight / 2;
+			int right = pos.x + currentWidth / 2;
+			int bottom = pos.y + currentHeight / 2;
+
+			// Adjust bounds based on which corner is being dragged
+			switch (draggedCorner) {
+				case TOP_LEFT:
+					left = newPosition.x;
+					top = newPosition.y;
+					break;
+				case TOP_RIGHT:
+					right = newPosition.x;
+					top = newPosition.y;
+					break;
+				case BOTTOM_LEFT:
+					left = newPosition.x;
+					bottom = newPosition.y;
+					break;
+				case BOTTOM_RIGHT:
+					right = newPosition.x;
+					bottom = newPosition.y;
+					break;
+			}
+
+			// Calculate new size and position
+			int newWidth = Math.max(20, right - left); // Minimum 20px
+			int newHeight = Math.max(20, bottom - top);
+			int newCenterX = left + newWidth / 2;
+			int newCenterY = top + newHeight / 2;
+
+			// Update item
+			draggedItem.setSize(newWidth, newHeight);
+			draggedItem.setPosition(newCenterX, newCenterY);
+		}
+
+		gamePanel.repaint();
+	}
+
+	private void handleItemRelease() {
+		if (draggedItem != null && editorWindow != null) {
+			Point pos = draggedItem.getPosition();
+			if (draggedCorner == ItemCorner.NONE) {
+				editorWindow.log("Moved item " + draggedItem.getName() + " to (" + pos.x + ", " + pos.y + ")");
+			} else {
+				editorWindow.log("Resized item " + draggedItem.getName() + " to " + draggedItem.getWidth() + "x" + draggedItem.getHeight());
+			}
+
+			// Auto-save both the item and the scene
+			try {
+				ItemSaver.saveItemByName(draggedItem);
+				editorWindow.autoSaveCurrentScene();
+			} catch (Exception e) {
+				editorWindow.log("ERROR saving item: " + e.getMessage());
+			}
+		}
+		draggedItem = null;
+		draggedCorner = ItemCorner.NONE;
+		initialDragPoint = null;
+	}
+
+	private void handleImageDrop(File imageFile, Point dropPoint) {
+		if (currentScene == null) {
+			JOptionPane.showMessageDialog(this, "No scene loaded!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		// Ask for item name
+		String itemName = JOptionPane.showInputDialog(this,
+			"Enter item name for image:\n" + imageFile.getName(),
+			"Create Item from Image",
+			JOptionPane.PLAIN_MESSAGE);
+
+		if (itemName == null || itemName.trim().isEmpty()) {
+			return; // User cancelled
+		}
+
+		itemName = itemName.trim();
+
+		// Check if item already exists
+		File itemFile = new File("resources/items/" + itemName + ".txt");
+		if (itemFile.exists()) {
+			int overwrite = JOptionPane.showConfirmDialog(this,
+				"Item '" + itemName + "' already exists!\nOverwrite?",
+				"Item Exists",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE);
+			if (overwrite != JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+
+		try {
+			// Copy image to resources/images/items/ directory
+			File itemsImagesDir = new File("resources/images/items");
+			if (!itemsImagesDir.exists()) {
+				itemsImagesDir.mkdirs();
+			}
+
+			String imageFileName = imageFile.getName();
+			File targetImageFile = new File(itemsImagesDir, imageFileName);
+
+			// Copy file
+			java.nio.file.Files.copy(
+				imageFile.toPath(),
+				targetImageFile.toPath(),
+				java.nio.file.StandardCopyOption.REPLACE_EXISTING
+			);
+
+			// Create new item
+			Item newItem = new Item(itemName);
+			newItem.setImageFileName(imageFileName);
+			newItem.setImageFilePath("resources/images/items/" + imageFileName);
+			newItem.setPosition(dropPoint.x, dropPoint.y);
+			newItem.setInInventory(false);
+
+			// Get original image size
+			ImageIcon icon = new ImageIcon(targetImageFile.getAbsolutePath());
+			int originalWidth = icon.getIconWidth();
+			int originalHeight = icon.getIconHeight();
+
+			// Set size (use original size or default if invalid)
+			if (originalWidth > 0 && originalHeight > 0) {
+				newItem.setSize(originalWidth, originalHeight);
+			} else {
+				newItem.setSize(100, 100); // Default size
+			}
+
+			// Save item
+			ItemSaver.saveItemByName(newItem);
+
+			// Add to current scene
+			currentScene.addItem(newItem);
+			editorWindow.autoSaveCurrentScene();
+
+			// Repaint to show the item
+			gamePanel.repaint();
+
+			editorWindow.log("Created item '" + itemName + "' from dropped image at (" + dropPoint.x + ", " + dropPoint.y + ")");
+
+			// Open ItemEditor with the new item selected
+			openItemEditorWithItem(itemName);
+
+		} catch (Exception e) {
+			editorWindow.log("ERROR creating item from image: " + e.getMessage());
+			JOptionPane.showMessageDialog(this,
+				"Error creating item:\n" + e.getMessage(),
+				"Error",
+				JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+
+	private void openItemEditorWithItem(String itemName) {
+		// Open ItemEditor (non-modal so it won't block)
+		SwingUtilities.invokeLater(() -> {
+			ItemEditorDialog dialog = new ItemEditorDialog(editorWindow);
+			dialog.setVisible(true);
+			// Auto-select the newly created item
+			dialog.selectItemByName(itemName);
+		});
 	}
 
 	private void selectAction(String action) {

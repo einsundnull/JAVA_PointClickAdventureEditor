@@ -65,6 +65,14 @@ public class SceneLoader {
                 inActions = false;
                 inMouseHover = false;
                 continue;
+            } else if (trimmed.equals("#Items:")) {
+                currentMainSection = "Items";
+                inDialogs = false;
+                inLocation = false;
+                inImage = false;
+                inActions = false;
+                inMouseHover = false;
+                continue;
             }
             
             // Parse Backgroundimage
@@ -216,19 +224,33 @@ public class SceneLoader {
                     }
                 }
             }
+            // Parse Items
+            else if ("Items".equals(currentMainSection)) {
+                if (trimmed.startsWith("-")) {
+                    String itemName = trimmed.substring(1).trim();
+                    try {
+                        Item item = ItemLoader.loadItemByName(itemName);
+                        scene.addItem(item);
+                        System.out.println("  Loaded item: " + itemName);
+                    } catch (Exception e) {
+                        System.err.println("WARNING: Could not load item: " + itemName + " - " + e.getMessage());
+                    }
+                }
+            }
         }
-        
+
         // Add last dialog
         if (currentDialogName != null && currentDialogText != null) {
             scene.addDialog(currentDialogName, currentDialogText.toString().trim());
         }
-        
+
         reader.close();
-        
+
         System.out.println("Loaded scene: " + sceneName);
         System.out.println("  KeyAreas: " + scene.getKeyAreas().size());
         System.out.println("  Dialogs: " + scene.getDialogs().size());
-        
+        System.out.println("  Items: " + scene.getItems().size());
+
         return scene;
     }
     
