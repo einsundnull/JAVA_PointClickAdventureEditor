@@ -85,7 +85,7 @@
 --conditions
 ---none;
 ----#Dialog:
-------dialog-shelf-anschauen
+------dialog-beachbarsign-anschauen
 ##Location:
 ###
 --x = 250;
@@ -184,6 +184,9 @@
 
 -dialog-shelf-beach-hebe
 --Das Regal ist viel zu schwer zum Heben.
+
+-dialog-signBeach-anschauen
+--It says "Beach Bar" I think that it is the most beautiful sign that a beach bar ever had.
 
 -dialog-shelf-beach-1
 --Du versuchst das Regal zu nehmen, aber es ist zu schwer.
