@@ -1,0 +1,22 @@
+#Name:
+-Me
+
+#ImageFile:
+-pronound you 2.svg
+
+#ImagePath:
+-resources/images/items/pronound you 2.svg
+
+#Position:
+-x = 843;
+-y = 424;
+
+#Size:
+-width = 100;
+-height = 100;
+
+#Conditions:
+-none
+
+#IsInInventory:
+-false

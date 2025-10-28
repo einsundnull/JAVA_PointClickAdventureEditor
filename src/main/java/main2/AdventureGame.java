@@ -248,11 +248,7 @@ public class AdventureGame extends JFrame {
 					g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
 				}
 
-				// Draw player character
-				g.setColor(Color.RED);
-				g.fillOval(playerPosition.x - 10, playerPosition.y - 10, 20, 20);
-
-				// Draw items
+				// Draw items (after background, before player)
 				if (currentScene != null) {
 					for (Item item : currentScene.getItems()) {
 						if (item.isVisible()) {
@@ -298,6 +294,10 @@ public class AdventureGame extends JFrame {
 						}
 					}
 				}
+
+				// Draw player character (on top of items)
+				g.setColor(Color.RED);
+				g.fillOval(playerPosition.x - 10, playerPosition.y - 10, 20, 20);
 
 				// Draw editor visualizations ON TOP
 				if (showPaths && currentScene != null) {
