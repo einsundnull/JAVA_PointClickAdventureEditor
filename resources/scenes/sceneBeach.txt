@@ -206,8 +206,5 @@
 --Einige Bretter sind locker.
 
 #Items:
--Me
--te
--rr
--zz
+-beach_clock
 

@@ -1,0 +1,40 @@
+#Name:
+-beach_clock
+
+#ImageFile:
+-uhr-screenshot-1761397278783.png
+
+#ImagePath:
+-resources/images/items/uhr-screenshot-1761397278783.png
+
+#Position:
+-x = 374;
+-y = 264;
+
+#Size:
+-width = 80;
+-height = 79;
+
+#Conditions:
+-none
+
+#IsInInventory:
+-false
+
+#MouseHover:
+--conditions
+---none
+----Display:
+------"beach_clock"
+
+#ImageConditions:
+--conditions:
+---none
+----Image: resources/images/items/uhr-screenshot-1761397278783.png;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-beach_clock-anschauen

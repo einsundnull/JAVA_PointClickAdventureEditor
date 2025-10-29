@@ -1,7 +1,10 @@
 package main2;
 
 import java.awt.Point;
+import java.awt.Polygon;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +20,10 @@ public class Item {
     private int width;  // Image display width
     private int height; // Image display height
 
+    // Click detection (similar to KeyArea)
+    private List<Point> clickAreaPoints; // Polygon points for click detection
+    private Polygon clickAreaPolygon;
+
     // KeyArea-like properties
     private Map<String, String> imageConditions; // condition -> image path
     private Map<String, KeyArea.ActionHandler> actions; // action name -> handler
@@ -31,9 +38,27 @@ public class Item {
         this.isInInventory = false;
         this.width = 100;  // Default width
         this.height = 100; // Default height
+        this.clickAreaPoints = new ArrayList<>();
         this.imageConditions = new HashMap<>();
         this.actions = new HashMap<>();
         this.hoverDisplayConditions = new HashMap<>();
+
+        // Create default rectangular click area
+        createDefaultClickArea();
+    }
+
+    /**
+     * Creates a default rectangular click area based on position and size
+     */
+    private void createDefaultClickArea() {
+        clickAreaPoints.clear();
+        int x = position.x;
+        int y = position.y;
+        clickAreaPoints.add(new Point(x, y));
+        clickAreaPoints.add(new Point(x + width, y));
+        clickAreaPoints.add(new Point(x + width, y + height));
+        clickAreaPoints.add(new Point(x, y + height));
+        updateClickAreaPolygon();
     }
 
     // Getters and Setters
@@ -51,10 +76,14 @@ public class Item {
 
     public void setPosition(Point position) {
         this.position = position;
+        if (clickAreaPoints.isEmpty() || clickAreaPoints.size() == 4) {
+            // Update default rectangular click area
+            createDefaultClickArea();
+        }
     }
 
     public void setPosition(int x, int y) {
-        this.position = new Point(x, y);
+        setPosition(new Point(x, y));
     }
 
     public String getImageFileName() {
@@ -112,6 +141,10 @@ public class Item {
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
+        if (clickAreaPoints.isEmpty() || clickAreaPoints.size() == 4) {
+            // Update default rectangular click area
+            createDefaultClickArea();
+        }
     }
 
     // ImageConditions methods
@@ -212,6 +245,52 @@ public class Item {
         }
 
         return true;
+    }
+
+    // Click Area methods
+    public List<Point> getClickAreaPoints() {
+        return clickAreaPoints;
+    }
+
+    public void addClickAreaPoint(Point p) {
+        clickAreaPoints.add(p);
+        updateClickAreaPolygon();
+    }
+
+    public void addClickAreaPoint(int x, int y) {
+        addClickAreaPoint(new Point(x, y));
+    }
+
+    public void updateClickAreaPolygon() {
+        if (clickAreaPoints.isEmpty()) {
+            clickAreaPolygon = null;
+            return;
+        }
+
+        int[] xPoints = new int[clickAreaPoints.size()];
+        int[] yPoints = new int[clickAreaPoints.size()];
+
+        for (int i = 0; i < clickAreaPoints.size(); i++) {
+            xPoints[i] = clickAreaPoints.get(i).x;
+            yPoints[i] = clickAreaPoints.get(i).y;
+        }
+
+        clickAreaPolygon = new Polygon(xPoints, yPoints, clickAreaPoints.size());
+    }
+
+    public Polygon getClickAreaPolygon() {
+        return clickAreaPolygon;
+    }
+
+    public boolean containsPoint(Point point) {
+        if (clickAreaPolygon == null) {
+            // Fallback to simple bounds check
+            int x = position.x;
+            int y = position.y;
+            return point.x >= x && point.x <= x + width &&
+                   point.y >= y && point.y <= y + height;
+        }
+        return clickAreaPolygon.contains(point);
     }
 
     @Override

@@ -58,7 +58,7 @@ public class AdventureGame extends JFrame {
 
 	// Editor features
 	private EditorWindow editorWindow;
-	private boolean showPaths = true; // Default ON
+	private boolean showPaths = false; // Default OFF, only ON when editor is visible
 	private boolean pathEditMode = false;
 	private Point selectedPathPoint = null;
 	private int selectedPathPointIndex = -1;
@@ -157,7 +157,13 @@ public class AdventureGame extends JFrame {
 		if (editorWindow.isVisible()) {
 			editorWindow.updateSceneInfo();
 			editorWindow.refreshKeyAreaList();
+			// Enable path visualization when editor opens
+			showPaths = true;
+		} else {
+			// Disable path visualization when editor closes
+			showPaths = false;
 		}
+		gamePanel.repaint();
 		editorWindow.log("Editor toggled: " + editorWindow.isVisible());
 	}
 
@@ -934,6 +940,52 @@ public class AdventureGame extends JFrame {
 	private void selectAction(String action) {
 		selectedAction = action;
 		System.out.println("Aktion gewählt: " + action);
+
+		// Update cursor based on selected action
+		updateCursorForAction(action);
+	}
+
+	/**
+	 * Updates the cursor based on the selected action
+	 */
+	private void updateCursorForAction(String action) {
+		if (action == null) {
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			return;
+		}
+
+		switch (action) {
+			case "Nimm":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case "Gib":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case "Ziehe":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+				break;
+			case "Drücke":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case "Drehe":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case "Hebe":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			case "Anschauen":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				break;
+			case "Sprich":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+				break;
+			case "Benutze":
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				break;
+			default:
+				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+				break;
+		}
 	}
 
 	private void handleGamePanelClick(Point clickPoint) {
@@ -992,6 +1044,8 @@ public class AdventureGame extends JFrame {
 			}
 
 			selectedAction = null;
+			// Reset cursor to default
+			updateCursorForAction(null);
 		} else if (selectedAction == null) {
 			// Move player (simple implementation)
 			playerPosition = clickPoint;

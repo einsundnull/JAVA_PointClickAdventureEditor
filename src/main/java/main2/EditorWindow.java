@@ -1,16 +1,21 @@
 package main2;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -26,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
 public class EditorWindow extends JFrame {
@@ -61,9 +67,6 @@ public class EditorWindow extends JFrame {
 	// Reference to open PointsManager
 	private PointsManagerDialog pointsManager;
 
-	// Item Display Panel
-	private JPanel itemDisplayPanel;
-
 	public EditorWindow(AdventureGame game) {
 		this.game = game;
 
@@ -98,30 +101,26 @@ public class EditorWindow extends JFrame {
 		controlPanel.add(titleLabel);
 		controlPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-		// Always On Top Checkbox
+		// Always On Top Checkbox and Current Scene on same line
+		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+		topPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		topPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
 		alwaysOnTopCheckbox = new JCheckBox("Always On Top");
 		alwaysOnTopCheckbox.setSelected(true); // Default = true
-		alwaysOnTopCheckbox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		alwaysOnTopCheckbox.addActionListener(e -> {
 			setAlwaysOnTop(alwaysOnTopCheckbox.isSelected());
 			log("Always On Top: " + alwaysOnTopCheckbox.isSelected());
 		});
 		setAlwaysOnTop(true); // Set it on startup
-		controlPanel.add(alwaysOnTopCheckbox);
-		controlPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+		topPanel.add(alwaysOnTopCheckbox);
 
-		// Current Scene Info
-		JPanel infoPanel = new JPanel();
-		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-		infoPanel.setBorder(BorderFactory.createTitledBorder("Current Scene"));
-		infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		sceneLabel = new JLabel("  |  Current Scene: " + game.getCurrentSceneName());
+		sceneLabel.setFont(new Font("Arial", Font.BOLD, 12));
+		topPanel.add(sceneLabel);
 
-		sceneLabel = new JLabel("Scene: " + game.getCurrentSceneName());
-		sceneLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		infoPanel.add(sceneLabel);
-
-		controlPanel.add(infoPanel);
-		controlPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+		controlPanel.add(topPanel);
+		controlPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Scene ListView (Collapseable)
 		JPanel sceneListPanel = new JPanel(new BorderLayout());
@@ -201,6 +200,16 @@ public class EditorWindow extends JFrame {
 		keyAreaList.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				onKeyAreaSelected();
+			}
+		});
+
+		// Add DELETE key support for KeyAreas
+		keyAreaList.addKeyListener(new java.awt.event.KeyAdapter() {
+			@Override
+			public void keyPressed(java.awt.event.KeyEvent e) {
+				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
+					deleteKeyArea();
+				}
 			}
 		});
 
@@ -287,9 +296,20 @@ public class EditorWindow extends JFrame {
 		itemListModel = new DefaultListModel<>();
 		itemList = new JList<>(itemListModel);
 		itemList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		itemList.setCellRenderer(new ItemCellRenderer());
 		itemList.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				onItemSelected();
+			}
+		});
+
+		// Add DELETE key support for Items
+		itemList.addKeyListener(new java.awt.event.KeyAdapter() {
+			@Override
+			public void keyPressed(java.awt.event.KeyEvent e) {
+				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
+					deleteItem();
+				}
 			}
 		});
 
@@ -347,39 +367,30 @@ public class EditorWindow extends JFrame {
 		controlPanel.add(itemListPanel);
 		controlPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-		// Item Display Panel (shows details of selected item)
-		itemDisplayPanel = createItemDisplayPanel();
-		controlPanel.add(itemDisplayPanel);
-		controlPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
 		// Point Editor
 		JPanel pointPanel = new JPanel();
 		pointPanel.setLayout(new BoxLayout(pointPanel, BoxLayout.Y_AXIS));
 		pointPanel.setBorder(BorderFactory.createTitledBorder("Point Editor"));
 		pointPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		// Point Dropdown
-		JPanel dropdownPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		// Point Dropdown with X/Y on same line
+		JPanel dropdownPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		dropdownPanel.add(new JLabel("Select Point:"));
 		pointDropdownModel = new DefaultComboBoxModel<>();
 		pointDropdown = new JComboBox<>(pointDropdownModel);
 		pointDropdown.addActionListener(e -> onPointSelected());
 		dropdownPanel.add(pointDropdown);
+
+		// X and Y Coordinates on same line as dropdown
+		dropdownPanel.add(new JLabel("  X:"));
+		xField = new JTextField(6);
+		dropdownPanel.add(xField);
+
+		dropdownPanel.add(new JLabel("Y:"));
+		yField = new JTextField(6);
+		dropdownPanel.add(yField);
+
 		pointPanel.add(dropdownPanel);
-
-		// X Coordinate
-		JPanel xPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		xPanel.add(new JLabel("X:"));
-		xField = new JTextField(10);
-		xPanel.add(xField);
-		pointPanel.add(xPanel);
-
-		// Y Coordinate
-		JPanel yPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		yPanel.add(new JLabel("Y:"));
-		yField = new JTextField(10);
-		yPanel.add(yField);
-		pointPanel.add(yPanel);
 
 		// Buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -1062,6 +1073,8 @@ public class EditorWindow extends JFrame {
 
 			log("Deleted KeyArea: " + name);
 			selectedKeyArea = null;
+
+			// Update all UI components
 			refreshKeyAreaList();
 			clearPointEditor();
 			game.repaintGamePanel();
@@ -1098,7 +1111,7 @@ public class EditorWindow extends JFrame {
 
 	public void updateSceneInfo() {
 		String sceneName = game.getCurrentSceneName();
-		sceneLabel.setText("Scene: " + sceneName);
+		sceneLabel.setText("  |  Current Scene: " + sceneName);
 		log("Scene info updated: " + sceneName);
 	}
 
@@ -1189,7 +1202,6 @@ public class EditorWindow extends JFrame {
 		int selectedIndex = itemList.getSelectedIndex();
 		if (selectedIndex < 0) {
 			selectedItem = null;
-			updateItemDisplayPanel();
 			return;
 		}
 
@@ -1203,9 +1215,6 @@ public class EditorWindow extends JFrame {
 
 		selectedItem = items.get(selectedIndex);
 		log("Selected Item: " + selectedItem.getName());
-
-		// Update display panel
-		updateItemDisplayPanel();
 	}
 
 	private void addNewItem() {
@@ -1306,161 +1315,17 @@ public class EditorWindow extends JFrame {
 
 			log("Deleted Item: " + name);
 			selectedItem = null;
+
+			// Update all UI components
 			refreshItemList();
-			updateItemDisplayPanel();
 			game.repaintGamePanel();
 			autoSaveCurrentScene();
 
+			// Force list repaint to update thumbnails
+			itemList.repaint();
+
 			JOptionPane.showMessageDialog(this, "Item deleted successfully!", "Success",
 					JOptionPane.INFORMATION_MESSAGE);
-		}
-	}
-
-	/**
-	 * Creates the item display panel showing all Items in the scene
-	 */
-	private JPanel createItemDisplayPanel() {
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		panel.setBorder(BorderFactory.createTitledBorder("Items in Scene"));
-		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 250));
-
-		// Toggle button for collapse/expand
-		JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JButton toggleBtn = new JButton("▼");
-		toggleBtn.setPreferredSize(new Dimension(40, 25));
-		headerPanel.add(toggleBtn);
-
-		JPanel contentPanel = new JPanel();
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		JTextArea propertiesArea = new JTextArea(12, 40);
-		propertiesArea.setEditable(false);
-		propertiesArea.setFont(new Font("Monospaced", Font.PLAIN, 11));
-		propertiesArea.setText("Loading items...");
-
-		JScrollPane scrollPane = new JScrollPane(propertiesArea);
-		scrollPane.setPreferredSize(new Dimension(0, 200));
-		contentPanel.add(scrollPane);
-
-		panel.add(headerPanel, BorderLayout.NORTH);
-		panel.add(contentPanel, BorderLayout.CENTER);
-
-		// Toggle functionality
-		toggleBtn.addActionListener(e -> {
-			boolean isVisible = contentPanel.isVisible();
-			contentPanel.setVisible(!isVisible);
-			toggleBtn.setText(isVisible ? "►" : "▼");
-			panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, isVisible ? 40 : 250));
-			panel.revalidate();
-			panel.repaint();
-		});
-
-		return panel;
-	}
-
-	/**
-	 * Updates the item display panel with selected item details
-	 */
-	private void updateItemDisplayPanel() {
-		if (itemDisplayPanel == null)
-			return;
-
-		// Find the text area inside the panel
-		Component[] components = itemDisplayPanel.getComponents();
-		for (Component comp : components) {
-			if (comp instanceof JPanel) {
-				JPanel contentPanel = (JPanel) comp;
-				for (Component innerComp : contentPanel.getComponents()) {
-					if (innerComp instanceof JScrollPane) {
-						JScrollPane scrollPane = (JScrollPane) innerComp;
-						JTextArea textArea = (JTextArea) scrollPane.getViewport().getView();
-
-						if (selectedItem == null) {
-							textArea.setText("Select an item from the list to view its details...");
-							return;
-						}
-
-						Item item = selectedItem;
-						StringBuilder sb = new StringBuilder();
-						sb.append("╔═════════════════════════════════════════╗\n");
-						sb.append("  Item: ").append(item.getName()).append("\n");
-						sb.append("╚═════════════════════════════════════════╝\n\n");
-
-						// Basic info
-						sb.append("Position: (").append(item.getPosition().x).append(", ")
-								.append(item.getPosition().y).append(")\n");
-						sb.append("Size: ").append(item.getWidth()).append(" x ").append(item.getHeight())
-								.append("\n");
-						sb.append("In Inventory: ").append(item.isInInventory() ? "Yes" : "No").append("\n");
-						sb.append("Visible: ").append(item.isVisible() ? "Yes" : "No").append("\n\n");
-
-						// Image info
-						sb.append("── Images ──\n");
-						if (!item.getImageFilePath().isEmpty()) {
-							sb.append("  Default: ").append(item.getImageFilePath()).append("\n");
-						}
-						Map<String, String> imgConds = item.getImageConditions();
-						if (!imgConds.isEmpty()) {
-							for (Map.Entry<String, String> entry : imgConds.entrySet()) {
-								sb.append("  • ").append(entry.getKey()).append(" → ").append(entry.getValue())
-										.append("\n");
-							}
-						}
-						if (item.getImageFilePath().isEmpty() && imgConds.isEmpty()) {
-							sb.append("  (no images set)\n");
-						}
-						sb.append("\n");
-
-						// Conditions for visibility
-						sb.append("── Visibility Conditions ──\n");
-						Map<String, Boolean> conditions = item.getConditions();
-						if (conditions.isEmpty()) {
-							sb.append("  (always visible)\n");
-						} else {
-							for (Map.Entry<String, Boolean> entry : conditions.entrySet()) {
-								sb.append("  • ").append(entry.getKey()).append(" = ").append(entry.getValue())
-										.append("\n");
-							}
-						}
-						sb.append("\n");
-
-						// Actions
-						sb.append("── Actions ──\n");
-						Map<String, KeyArea.ActionHandler> actions = item.getActions();
-						if (actions.isEmpty()) {
-							sb.append("  (no actions)\n");
-						} else {
-							for (Map.Entry<String, KeyArea.ActionHandler> entry : actions.entrySet()) {
-								sb.append("  • ").append(entry.getKey()).append(":\n");
-								Map<String, String> results = entry.getValue().getConditionalResults();
-								for (Map.Entry<String, String> result : results.entrySet()) {
-									sb.append("    - ").append(result.getKey()).append(" → ")
-											.append(result.getValue()).append("\n");
-								}
-							}
-						}
-						sb.append("\n");
-
-						// Hover Display
-						sb.append("── Hover Display ──\n");
-						Map<String, String> hoverConds = item.getHoverDisplayConditions();
-						if (hoverConds.isEmpty()) {
-							sb.append("  Default: ").append(item.getName()).append("\n");
-						} else {
-							for (Map.Entry<String, String> entry : hoverConds.entrySet()) {
-								sb.append("  • ").append(entry.getKey()).append(" → ").append(entry.getValue())
-										.append("\n");
-							}
-						}
-
-						textArea.setText(sb.toString());
-						textArea.setCaretPosition(0);
-						return;
-					}
-				}
-			}
 		}
 	}
 
@@ -1492,5 +1357,85 @@ public class EditorWindow extends JFrame {
 		log("Flipping image " + (horizontal ? "horizontally" : "vertically") + "...");
 		game.flipBackgroundImage(horizontal);
 		autoSaveCurrentScene();
+	}
+
+	/**
+	 * Custom cell renderer for Items with image tiles
+	 */
+	private class ItemCellRenderer extends JLabel implements ListCellRenderer<String> {
+		private Map<String, ImageIcon> imageCache = new HashMap<>();
+		private static final int TILE_SIZE = 32;
+
+		public ItemCellRenderer() {
+			setOpaque(true);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+
+			setText(value);
+			setFont(new Font("Arial", Font.PLAIN, 11));
+
+			// Get the item from the scene
+			Scene currentScene = game.getCurrentScene();
+			if (currentScene != null && index >= 0 && index < currentScene.getItems().size()) {
+				Item item = currentScene.getItems().get(index);
+
+				// Try to load and display item image
+				String imagePath = item.getImageFilePath();
+				if (imagePath != null && !imagePath.isEmpty()) {
+					ImageIcon icon = loadThumbnail(imagePath);
+					if (icon != null) {
+						setIcon(icon);
+					} else {
+						setIcon(null);
+					}
+				} else {
+					setIcon(null);
+				}
+			} else {
+				setIcon(null);
+			}
+
+			// Selection colors
+			if (isSelected) {
+				setBackground(new Color(100, 150, 255));
+				setForeground(Color.WHITE);
+			} else {
+				setBackground(Color.WHITE);
+				setForeground(Color.BLACK);
+			}
+
+			setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+			return this;
+		}
+
+		private ImageIcon loadThumbnail(String imagePath) {
+			// Check cache first
+			if (imageCache.containsKey(imagePath)) {
+				return imageCache.get(imagePath);
+			}
+
+			try {
+				File imageFile = new File(imagePath);
+				if (imageFile.exists()) {
+					ImageIcon originalIcon = new ImageIcon(imagePath);
+					Image img = originalIcon.getImage();
+
+					// Scale to tile size
+					Image scaledImg = img.getScaledInstance(TILE_SIZE, TILE_SIZE, Image.SCALE_SMOOTH);
+					ImageIcon thumbnail = new ImageIcon(scaledImg);
+
+					// Cache it
+					imageCache.put(imagePath, thumbnail);
+					return thumbnail;
+				}
+			} catch (Exception e) {
+				// Image load failed, return null
+			}
+
+			return null;
+		}
 	}
 }
