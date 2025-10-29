@@ -1,0 +1,40 @@
+#Name:
+-BeachBarBook
+
+#ImageFile:
+-Buch.png
+
+#ImagePath:
+-resources/images/items/Buch.png
+
+#Position:
+-x = 575;
+-y = 350;
+
+#Size:
+-width = 267;
+-height = 182;
+
+#Conditions:
+-none
+
+#IsInInventory:
+-false
+
+#MouseHover:
+--conditions
+---none
+----Display:
+------"BeachBarBook"
+
+#ImageConditions:
+--conditions:
+---none
+----Image: resources/images/items/Buch.png;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-beachbarbook-anschauen

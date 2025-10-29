@@ -139,6 +139,12 @@ public class HoverEditorDialog extends JDialog {
 		parent.log("KeyArea Name: " + keyArea.getName());
 		parent.log("KeyArea Instance: " + System.identityHashCode(keyArea));
 
+		// CRITICAL: Stop any active cell editing to commit changes
+		if (hoverTable.isEditing()) {
+			hoverTable.getCellEditor().stopCellEditing();
+			parent.log("Stopped active cell editing");
+		}
+
 		// Debug: Show what's in the table before saving
 		parent.log("Table data:");
 		for (int row = 0; row < tableModel.getRowCount(); row++) {

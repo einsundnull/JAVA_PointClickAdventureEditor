@@ -75,7 +75,7 @@
 --conditions
 ---none;
 ----Display:
-------"Shelf"
+------"Wooden Sign"
 -Image
 --conditions:
 ---none;
@@ -207,4 +207,5 @@
 
 #Items:
 -beach_clock
+-BeachBarBook
 
