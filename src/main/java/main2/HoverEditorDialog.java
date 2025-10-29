@@ -135,12 +135,24 @@ public class HoverEditorDialog extends JDialog {
 	}
 
 	private void saveHoverData() {
-		parent.log("Saving hover text for " + keyArea.getName() + "...");
+		parent.log("=== SAVING HOVER DATA ===");
+		parent.log("KeyArea Name: " + keyArea.getName());
+		parent.log("KeyArea Instance: " + System.identityHashCode(keyArea));
+
+		// Debug: Show what's in the table before saving
+		parent.log("Table data:");
+		for (int row = 0; row < tableModel.getRowCount(); row++) {
+			String condition = (String) tableModel.getValueAt(row, 0);
+			String text = (String) tableModel.getValueAt(row, 1);
+			parent.log("  Row " + row + ": " + condition + " -> " + text);
+		}
 
 		// Clear existing hover conditions
+		parent.log("Clearing existing hover conditions...");
 		keyArea.getHoverDisplayConditions().clear();
 
 		// Save from table
+		parent.log("Saving from table to KeyArea...");
 		for (int row = 0; row < tableModel.getRowCount(); row++) {
 			String condition = (String) tableModel.getValueAt(row, 0);
 			String text = (String) tableModel.getValueAt(row, 1);
@@ -152,19 +164,42 @@ public class HoverEditorDialog extends JDialog {
 					cleanText = cleanText.substring(1, cleanText.length() - 1);
 				}
 				keyArea.addHoverDisplayCondition(condition, cleanText);
-				parent.log("  " + condition + " → \"" + cleanText + "\"");
+				parent.log("  Added: " + condition + " → \"" + cleanText + "\"");
 			}
 		}
 
+		// Debug: Show what was saved
+		parent.log("Hover conditions now in KeyArea: " + keyArea.getHoverDisplayConditions());
+
+		// Verify the KeyArea is in the current scene
+		Scene currentScene = parent.getGame().getCurrentScene();
+		boolean found = false;
+		for (KeyArea area : currentScene.getKeyAreas()) {
+			if (area == keyArea) {
+				found = true;
+				parent.log("✓ KeyArea found in scene (same instance)");
+				break;
+			}
+			if (area.getName().equals(keyArea.getName())) {
+				parent.log("⚠ KeyArea with same name found but DIFFERENT instance!");
+				parent.log("  Scene KeyArea instance: " + System.identityHashCode(area));
+				parent.log("  Editor KeyArea instance: " + System.identityHashCode(keyArea));
+			}
+		}
+		if (!found) {
+			parent.log("❌ ERROR: KeyArea NOT found in current scene!");
+		}
+
 		// Auto-save scene
+		parent.log("Calling autoSaveCurrentScene()...");
 		parent.autoSaveCurrentScene();
 
-		// Reload scene to ensure changes are visible
-		parent.getGame().reloadCurrentScene();
+		// Repaint game panel to show changes immediately
+		parent.getGame().repaintGamePanel();
 
-		parent.log("✓ Hover text saved and scene reloaded!");
+		parent.log("✓ Hover text save process completed!");
 
-		JOptionPane.showMessageDialog(this, "Hover text saved successfully!\n\nScene has been reloaded.", "Success",
+		JOptionPane.showMessageDialog(this, "Hover text saved successfully!", "Success",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 

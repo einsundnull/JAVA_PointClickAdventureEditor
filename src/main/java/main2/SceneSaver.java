@@ -25,20 +25,23 @@ public class SceneSaver {
             // MouseHover
             writer.write("-MouseHover\n");
             writer.write("--conditions\n");
-            
+
             Map<String, String> hoverConditions = area.getHoverDisplayConditions();
+            System.out.println("DEBUG: Saving hover conditions for " + area.getName() + ": " + hoverConditions);
             if (hoverConditions != null && !hoverConditions.isEmpty()) {
                 for (Map.Entry<String, String> entry : hoverConditions.entrySet()) {
                     String condition = entry.getKey();
                     String displayText = entry.getValue();
-                    
+
+                    System.out.println("  Writing: " + condition + " -> " + displayText);
                     writer.write("---" + condition + ";\n");
                     writer.write("----Display:\n");
                     writer.write("------\"" + displayText + "\"\n");
                 }
             } else {
                 // Default
-                writer.write("---none\n");
+                System.out.println("  No hover conditions, using default: " + area.getName());
+                writer.write("---none;\n");
                 writer.write("----Display:\n");
                 writer.write("------\"" + area.getName() + "\"\n");
             }

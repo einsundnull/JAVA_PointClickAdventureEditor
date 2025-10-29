@@ -24,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -1110,8 +1111,27 @@ public class AdventureGame extends JFrame {
 		String dialogText = currentScene.getDialog(dialogName);
 
 		if (dialogText == null) {
+			// Show detailed error with available dialogs
+			StringBuilder errorMsg = new StringBuilder();
+			errorMsg.append("❌ Dialog nicht gefunden: ").append(dialogName).append("\n\n");
+			errorMsg.append("Verfügbare Dialoge in dieser Scene:\n");
+
+			Map<String, String> availableDialogs = currentScene.getDialogs();
+			if (availableDialogs.isEmpty()) {
+				errorMsg.append("  (keine Dialoge definiert)\n");
+			} else {
+				for (String dialogKey : availableDialogs.keySet()) {
+					errorMsg.append("  • ").append(dialogKey).append("\n");
+				}
+			}
+
+			errorMsg.append("\nBitte prüfen Sie die Scene-Datei!");
+
 			System.err.println("Dialog nicht gefunden: " + dialogName);
-			dialogText = "Dialog nicht gefunden: " + dialogName;
+			System.err.println("Verfügbare Dialoge: " + availableDialogs.keySet());
+
+			JOptionPane.showMessageDialog(this, errorMsg.toString(), "Dialog Fehler", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 
 		JOptionPane.showMessageDialog(this, dialogText, "Dialog", JOptionPane.INFORMATION_MESSAGE);
