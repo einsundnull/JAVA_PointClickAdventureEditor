@@ -267,6 +267,12 @@ public class ItemEditorDialog extends JDialog {
 		posPanel.add(new JLabel("Y:"));
 		posYField = new JTextField(5);
 		posPanel.add(posYField);
+
+		JButton editPointsBtn = new JButton("📍 Edit Points");
+		editPointsBtn.setToolTipText("Edit click area polygon points");
+		editPointsBtn.addActionListener(e -> openPointEditor());
+		posPanel.add(editPointsBtn);
+
 		rightPanel.add(posPanel);
 
 		// In Inventory
@@ -529,8 +535,12 @@ public class ItemEditorDialog extends JDialog {
 	 * Update all item lists to show changes immediately
 	 */
 	private void updateAllItemLists() {
+		// Clear image caches to force reload
+		clearImageCaches();
+
 		// Update local list in dialog
 		itemList.repaint();
+		itemList.revalidate();
 
 		// Update parent EditorWindow list
 		parent.refreshItemList();
@@ -539,6 +549,17 @@ public class ItemEditorDialog extends JDialog {
 		parent.getGame().repaintGamePanel();
 
 		parent.log("✓ All item lists updated");
+	}
+
+	/**
+	 * Clear all image caches to force reload of images
+	 */
+	private void clearImageCaches() {
+		// Clear cache in local renderer
+		if (itemList.getCellRenderer() instanceof ItemTileRenderer) {
+			ItemTileRenderer renderer = (ItemTileRenderer) itemList.getCellRenderer();
+			renderer.clearCache();
+		}
 	}
 
 	private void addCondition() {
@@ -640,6 +661,21 @@ public class ItemEditorDialog extends JDialog {
 	}
 
 	/**
+	 * Open the universal point editor for the selected item
+	 */
+	private void openPointEditor() {
+		if (selectedItem == null) {
+			JOptionPane.showMessageDialog(this, "Please select an item first!", "No Item Selected",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		parent.log("Opening Point Editor for item: " + selectedItem.getName());
+		UniversalPointEditorDialog pointEditor = new UniversalPointEditorDialog(parent, selectedItem);
+		pointEditor.setVisible(true);
+	}
+
+	/**
 	 * Check if a file is an image file
 	 */
 	private boolean isImageFile(File file) {
@@ -682,6 +718,18 @@ public class ItemEditorDialog extends JDialog {
 			javax.imageio.ImageIO.write(rotated, format, imageFile);
 
 			parent.log("Rotated item image by " + degrees + " degrees");
+
+			// Update all lists and views immediately
+			updateAllItemLists();
+
+			// Save item to persist changes
+			try {
+				ItemSaver.saveItemByName(selectedItem);
+				parent.autoSaveCurrentScene();
+			} catch (Exception saveEx) {
+				parent.log("ERROR saving after rotation: " + saveEx.getMessage());
+			}
+
 			JOptionPane.showMessageDialog(this, "Image rotated successfully!", "Success",
 					JOptionPane.INFORMATION_MESSAGE);
 
@@ -726,6 +774,18 @@ public class ItemEditorDialog extends JDialog {
 			javax.imageio.ImageIO.write(flipped, format, imageFile);
 
 			parent.log("Flipped item image " + (horizontal ? "horizontally" : "vertically"));
+
+			// Update all lists and views immediately
+			updateAllItemLists();
+
+			// Save item to persist changes
+			try {
+				ItemSaver.saveItemByName(selectedItem);
+				parent.autoSaveCurrentScene();
+			} catch (Exception saveEx) {
+				parent.log("ERROR saving after flip: " + saveEx.getMessage());
+			}
+
 			JOptionPane.showMessageDialog(this, "Image flipped successfully!", "Success",
 					JOptionPane.INFORMATION_MESSAGE);
 
@@ -794,6 +854,11 @@ public class ItemEditorDialog extends JDialog {
 
 		public ItemTileRenderer() {
 			setOpaque(true);
+		}
+
+		public void clearCache() {
+			imageCache.clear();
+			parent.log("Image cache cleared");
 		}
 
 		@Override

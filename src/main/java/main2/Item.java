@@ -61,6 +61,54 @@ public class Item {
         updateClickAreaPolygon();
     }
 
+    /**
+     * Creates a default click area based on actual image dimensions + 10px padding
+     */
+    public void createClickAreaFromImage() {
+        // Only create if we don't have custom points already
+        if (clickAreaPoints.size() == 4) {
+            clickAreaPoints.clear();
+
+            // Get image dimensions
+            int imgWidth = width;
+            int imgHeight = height;
+
+            // Try to load actual image to get real dimensions
+            if (imageFilePath != null && !imageFilePath.isEmpty()) {
+                try {
+                    java.io.File imageFile = new java.io.File(imageFilePath);
+                    if (imageFile.exists()) {
+                        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(imageFile);
+                        if (img != null) {
+                            imgWidth = img.getWidth();
+                            imgHeight = img.getHeight();
+                            // Update item size to match image
+                            this.width = imgWidth;
+                            this.height = imgHeight;
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Could not load image for click area: " + e.getMessage());
+                }
+            }
+
+            // Create click area with 10px padding around image
+            int centerX = position.x;
+            int centerY = position.y;
+            int halfWidth = imgWidth / 2 + 10;  // +10px padding
+            int halfHeight = imgHeight / 2 + 10; // +10px padding
+
+            clickAreaPoints.add(new Point(centerX - halfWidth, centerY - halfHeight));
+            clickAreaPoints.add(new Point(centerX + halfWidth, centerY - halfHeight));
+            clickAreaPoints.add(new Point(centerX + halfWidth, centerY + halfHeight));
+            clickAreaPoints.add(new Point(centerX - halfWidth, centerY + halfHeight));
+
+            updateClickAreaPolygon();
+            System.out.println("Created click area for " + name + " with dimensions: " +
+                             (halfWidth*2) + "x" + (halfHeight*2));
+        }
+    }
+
     // Getters and Setters
     public String getName() {
         return name;
@@ -100,6 +148,8 @@ public class Item {
 
     public void setImageFilePath(String imageFilePath) {
         this.imageFilePath = imageFilePath;
+        // Auto-create click area based on image dimensions when image is set
+        createClickAreaFromImage();
     }
 
     public Map<String, Boolean> getConditions() {

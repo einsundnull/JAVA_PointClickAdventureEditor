@@ -600,6 +600,9 @@ public class EditorWindow extends JFrame {
 	}
 
 	public void refreshItemList() {
+		// Clear image cache first
+		clearItemImageCache();
+
 		itemListModel.clear();
 		Scene currentScene = game.getCurrentScene();
 
@@ -613,6 +616,20 @@ public class EditorWindow extends JFrame {
 			String inventory = item.isInInventory() ? "[INV]" : "";
 			itemListModel.addElement(visibility + " " + item.getName() + " " + inventory + " @ ("
 					+ item.getPosition().x + "," + item.getPosition().y + ")");
+		}
+
+		// Force repaint
+		itemList.repaint();
+		itemList.revalidate();
+	}
+
+	/**
+	 * Clear the item image cache to force reload
+	 */
+	public void clearItemImageCache() {
+		if (itemList.getCellRenderer() instanceof ItemCellRenderer) {
+			ItemCellRenderer renderer = (ItemCellRenderer) itemList.getCellRenderer();
+			renderer.clearCache();
 		}
 
 		log("Item list refreshed: " + itemListModel.size() + " items");
@@ -833,7 +850,9 @@ public class EditorWindow extends JFrame {
 		String name = JOptionPane.showInputDialog(this, "Enter KeyArea name:");
 		if (name != null && !name.trim().isEmpty()) {
 			String typeStr = (String) JOptionPane.showInputDialog(this, "Select KeyArea type:", "Type",
-					JOptionPane.QUESTION_MESSAGE, null, new String[] { "Interaction", "Transition" }, "Interaction");
+					JOptionPane.QUESTION_MESSAGE, null,
+					new String[] { "Interaction", "Transition", "Movement_Bounds", "Character_Range" },
+					"Interaction");
 
 			if (typeStr != null) {
 				log("Creating new " + typeStr + " KeyArea: " + name);
@@ -1009,10 +1028,17 @@ public class EditorWindow extends JFrame {
 	}
 
 	private void openPointsManager() {
-		log("Opening Points Manager...");
-		pointsManager = new PointsManagerDialog(this);
-		pointsManager.setVisible(true);
-		log("Points Manager opened");
+		if (selectedKeyArea == null) {
+			log("ERROR: Select a KeyArea first!");
+			JOptionPane.showMessageDialog(this, "Please select a KeyArea first!", "No Selection",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		log("Opening Point Editor for " + selectedKeyArea.getName() + "...");
+		UniversalPointEditorDialog pointEditor = new UniversalPointEditorDialog(this, selectedKeyArea);
+		pointEditor.setVisible(true);
+		log("Point Editor closed");
 	}
 
 	public PointsManagerDialog getPointsManager() {
@@ -1368,6 +1394,11 @@ public class EditorWindow extends JFrame {
 
 		public ItemCellRenderer() {
 			setOpaque(true);
+		}
+
+		public void clearCache() {
+			imageCache.clear();
+			log("EditorWindow image cache cleared");
 		}
 
 		@Override

@@ -11,7 +11,9 @@ import java.util.Map;
 public class KeyArea {
     public enum Type {
         TRANSITION,
-        INTERACTION
+        INTERACTION,
+        MOVEMENT_BOUNDS,  // Defines where the player can move
+        CHARACTER_RANGE   // Defines movement area for NPCs/characters
     }
     
     private Type type;

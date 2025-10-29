@@ -87,8 +87,27 @@ public class SceneLoader {
                 // Type
                 if (trimmed.startsWith("-Type:")) {
                     String typeStr = trimmed.substring(6).trim();
-                    currentType = typeStr.equals("Transition") ? 
-                        KeyArea.Type.TRANSITION : KeyArea.Type.INTERACTION;
+                    switch (typeStr) {
+                        case "TRANSITION":
+                        case "Transition":
+                            currentType = KeyArea.Type.TRANSITION;
+                            break;
+                        case "INTERACTION":
+                        case "Interaction":
+                            currentType = KeyArea.Type.INTERACTION;
+                            break;
+                        case "MOVEMENT_BOUNDS":
+                        case "Movement_Bounds":
+                            currentType = KeyArea.Type.MOVEMENT_BOUNDS;
+                            break;
+                        case "CHARACTER_RANGE":
+                        case "Character_Range":
+                            currentType = KeyArea.Type.CHARACTER_RANGE;
+                            break;
+                        default:
+                            currentType = KeyArea.Type.INTERACTION;
+                            break;
+                    }
                 }
                 // Name
                 else if (trimmed.startsWith("-Name:")) {

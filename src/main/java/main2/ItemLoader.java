@@ -59,6 +59,7 @@ public class ItemLoader {
                 // Clear default click area points when loading custom ones
                 if (item != null) {
                     item.getClickAreaPoints().clear();
+                    System.out.println("Loading click area for: " + item.getName());
                 }
             } else if (line.startsWith("#Actions:")) {
                 currentSection = "ACTIONS";
@@ -173,6 +174,7 @@ public class ItemLoader {
                         // Add point after reading both x and y
                         if (item != null) {
                             item.addClickAreaPoint(clickAreaX, clickAreaY);
+                            System.out.println("  Added click point: (" + clickAreaX + ", " + clickAreaY + ")");
                         }
                     }
                 }
@@ -227,7 +229,14 @@ public class ItemLoader {
             throw new IOException("Invalid item file format - no name found");
         }
 
-        System.out.println("Loaded item: " + item.getName());
+        // If no click area was loaded from file, create one based on image
+        if (item.getClickAreaPoints().isEmpty()) {
+            item.createClickAreaFromImage();
+            System.out.println("Created default click area for: " + item.getName());
+        } else {
+            System.out.println("Loaded item: " + item.getName() + " with " + item.getClickAreaPoints().size() + " click points");
+        }
+
         return item;
     }
 

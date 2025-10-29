@@ -65,6 +65,7 @@ public class AdventureGame extends JFrame {
 	private int selectedPathPointIndex = -1;
 	private boolean addPointMode = false;
 	private EditorWindow addPointModeEditor = null;
+	private UniversalPointEditorDialog pointEditorDialog = null;
 	private Item draggedItem = null;
 	private ItemCorner draggedCorner = ItemCorner.NONE;
 	private Point initialDragPoint = null;
@@ -211,6 +212,10 @@ public class AdventureGame extends JFrame {
 		gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 	}
 
+	public void setPointEditorForAddMode(UniversalPointEditorDialog dialog) {
+		this.pointEditorDialog = dialog;
+	}
+
 	public void createNewKeyArea(String name, String type) {
 		if (currentScene == null)
 			return;
@@ -221,7 +226,22 @@ public class AdventureGame extends JFrame {
 		int width = 100;
 		int height = 100;
 
-		KeyArea.Type areaType = type.equals("Transition") ? KeyArea.Type.TRANSITION : KeyArea.Type.INTERACTION;
+		KeyArea.Type areaType;
+		switch (type) {
+			case "Transition":
+				areaType = KeyArea.Type.TRANSITION;
+				break;
+			case "Movement_Bounds":
+				areaType = KeyArea.Type.MOVEMENT_BOUNDS;
+				break;
+			case "Character_Range":
+				areaType = KeyArea.Type.CHARACTER_RANGE;
+				break;
+			case "Interaction":
+			default:
+				areaType = KeyArea.Type.INTERACTION;
+				break;
+		}
 
 		KeyArea newArea = new KeyArea(areaType, name, x, y, x + width, y + height);
 		currentScene.addKeyArea(newArea);
@@ -264,9 +284,11 @@ public class AdventureGame extends JFrame {
 							File imageFile = new File(imagePath);
 
 							if (imageFile.exists()) {
-								ImageIcon icon = new ImageIcon(imagePath);
-								Image img = icon.getImage();
-								Point pos = item.getPosition();
+								try {
+									// Use ImageIO.read to avoid caching issues
+									java.awt.image.BufferedImage buffered = javax.imageio.ImageIO.read(imageFile);
+									Image img = buffered;
+									Point pos = item.getPosition();
 
 								// Use stored width/height from item
 								int imgWidth = item.getWidth();
@@ -286,9 +308,9 @@ public class AdventureGame extends JFrame {
 									g2d.drawRect(x, y, imgWidth, imgHeight);
 									g2d.drawString(item.getName(), x, y - 5);
 
-									// Draw 4 corner drag points
+									// Draw 4 corner drag points in GREEN
 									int handleSize = 8;
-									g2d.setColor(Color.ORANGE);
+									g2d.setColor(Color.GREEN);
 									// Top-left
 									g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
 									// Top-right
@@ -297,6 +319,10 @@ public class AdventureGame extends JFrame {
 									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
 									// Bottom-right
 									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+								}
+								} catch (Exception e) {
+									// Failed to load image
+									System.err.println("Failed to load item image: " + imagePath + " - " + e.getMessage());
 								}
 							} else {
 								// Draw placeholder if image not found
@@ -368,6 +394,42 @@ public class AdventureGame extends JFrame {
 							}
 
 							g2d.setColor(new Color(0, 255, 0, 100));
+						}
+					}
+
+					// Draw Item click area polygons
+					g2d.setColor(new Color(0, 255, 255, 100)); // Cyan for items
+					g2d.setStroke(new BasicStroke(2));
+					for (Item item : currentScene.getItems()) {
+						if (item.isVisible()) {
+							Polygon poly = item.getClickAreaPolygon();
+							if (poly != null && poly.npoints > 0) {
+								g2d.drawPolygon(poly);
+
+								// Fill semi-transparent
+								g2d.setColor(new Color(0, 255, 255, 30));
+								g2d.fillPolygon(poly);
+
+								// Draw name at centroid
+								Rectangle bounds = poly.getBounds();
+								g2d.setColor(Color.CYAN);
+								g2d.drawString("ITEM: " + item.getName(), bounds.x + 5, bounds.y + 15);
+
+								// Draw points
+								g2d.setColor(new Color(255, 255, 0)); // Yellow points
+								int handleSize = 6;
+								List<Point> points = item.getClickAreaPoints();
+								for (int i = 0; i < points.size(); i++) {
+									Point p = points.get(i);
+									g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+									// Draw point index
+									g2d.setColor(Color.WHITE);
+									g2d.drawString(String.valueOf(i), p.x + 5, p.y - 5);
+									g2d.setColor(new Color(255, 255, 0));
+								}
+
+								g2d.setColor(new Color(0, 255, 255, 100));
+							}
 						}
 					}
 
@@ -990,6 +1052,12 @@ public class AdventureGame extends JFrame {
 	}
 
 	private void handleGamePanelClick(Point clickPoint) {
+		// Check if Universal Point Editor is in add point mode
+		if (pointEditorDialog != null && addPointMode) {
+			pointEditorDialog.addPointAtPosition(clickPoint.x, clickPoint.y);
+			return;
+		}
+
 		// Check if PointsManager is in add point mode
 		if (editorWindow != null && editorWindow.getPointsManager() != null) {
 			PointsManagerDialog pm = editorWindow.getPointsManager();
@@ -1227,11 +1295,34 @@ public class AdventureGame extends JFrame {
 			g2d.drawImage(buffered, 0, 0, null);
 			g2d.dispose();
 
-			// Scale and update
-			backgroundImage = rotated.getScaledInstance(1024, 668, Image.SCALE_SMOOTH);
-			gamePanel.repaint();
+			// Save rotated image back to file
+			String bgPath = currentScene.getBackgroundImagePath();
+			File imageFile = new File("resources/images/" + bgPath);
+			if (imageFile.exists()) {
+				String format = bgPath.substring(bgPath.lastIndexOf('.') + 1);
+				javax.imageio.ImageIO.write(rotated, format, imageFile);
+				System.out.println("Saved rotated image to: " + imageFile.getAbsolutePath());
 
-			System.out.println("Image rotated by " + degrees + " degrees");
+				// Force flush any cached image data
+				if (backgroundImage != null) {
+					backgroundImage.flush();
+				}
+
+				// Small delay to ensure file system write completes
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException ie) {
+					// Ignore
+				}
+
+				// Reload image to update display (this clears any cached versions)
+				ImageIcon bgImage = new ImageIcon(imageFile.getAbsolutePath());
+				backgroundImage = bgImage.getImage();
+				gamePanel.repaint();
+				gamePanel.revalidate();
+
+				System.out.println("Image rotated by " + degrees + " degrees and display updated");
+			}
 		} catch (Exception e) {
 			System.err.println("ERROR rotating image: " + e.getMessage());
 			e.printStackTrace();
@@ -1269,11 +1360,34 @@ public class AdventureGame extends JFrame {
 
 			g2d.dispose();
 
-			// Scale and update
-			backgroundImage = flipped.getScaledInstance(1024, 668, Image.SCALE_SMOOTH);
-			gamePanel.repaint();
+			// Save flipped image back to file
+			String bgPath = currentScene.getBackgroundImagePath();
+			File imageFile = new File("resources/images/" + bgPath);
+			if (imageFile.exists()) {
+				String format = bgPath.substring(bgPath.lastIndexOf('.') + 1);
+				javax.imageio.ImageIO.write(flipped, format, imageFile);
+				System.out.println("Saved flipped image to: " + imageFile.getAbsolutePath());
 
-			System.out.println("Image flipped " + (horizontal ? "horizontally" : "vertically"));
+				// Force flush any cached image data
+				if (backgroundImage != null) {
+					backgroundImage.flush();
+				}
+
+				// Small delay to ensure file system write completes
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException ie) {
+					// Ignore
+				}
+
+				// Reload image to update display (this clears any cached versions)
+				ImageIcon bgImage = new ImageIcon(imageFile.getAbsolutePath());
+				backgroundImage = bgImage.getImage();
+				gamePanel.repaint();
+				gamePanel.revalidate();
+
+				System.out.println("Image flipped " + (horizontal ? "horizontally" : "vertically") + " and display updated");
+			}
 		} catch (Exception e) {
 			System.err.println("ERROR flipping image: " + e.getMessage());
 			e.printStackTrace();
