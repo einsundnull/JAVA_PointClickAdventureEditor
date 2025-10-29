@@ -8,8 +8,8 @@
 -resources/images/items/schreiben_3.png
 
 #Position:
--x = 437;
--y = 321;
+-x = 472;
+-y = 326;
 
 #Size:
 -width = 216;
@@ -33,8 +33,28 @@
 ----Image: resources/images/items/schreiben_3.png;
 
 #Actions:
+--conditions
+--conditions
+---none
+----#Dialog:
+------dialog-rr--conditions
+------dialog-rr-anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-rr------dialog-rr-anschauen
+----#Dialog:
+--conditions
+---none
+----#Dialog:
+------dialog-rr----#dialog:
 -Anschauen
 --conditions
 ---none
 ----#Dialog:
 ------dialog-rr-anschauen
+---none
+--conditions
+---none
+----#Dialog:
+------dialog-rr---none

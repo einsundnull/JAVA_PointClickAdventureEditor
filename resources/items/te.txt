@@ -33,8 +33,28 @@
 ----Image: resources/images/items/pronound you 2.svg;
 
 #Actions:
+--conditions
+--conditions
+---none
+----#Dialog:
+------dialog-te--conditions
+----#Dialog:
+--conditions
+---none
+----#Dialog:
+------dialog-te----#dialog:
+------dialog-te-anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-te------dialog-te-anschauen
 -Anschauen
 --conditions
 ---none
 ----#Dialog:
 ------dialog-te-anschauen
+---none
+--conditions
+---none
+----#Dialog:
+------dialog-te---none

@@ -58,7 +58,7 @@ public class AdventureGame extends JFrame {
 
 	// Editor features
 	private EditorWindow editorWindow;
-	private boolean showPaths = false;
+	private boolean showPaths = true; // Default ON
 	private boolean pathEditMode = false;
 	private Point selectedPathPoint = null;
 	private int selectedPathPointIndex = -1;
@@ -1120,6 +1120,109 @@ public class AdventureGame extends JFrame {
 		});
 
 		inventoryPanel.add(itemBtn);
+	}
+
+	/**
+	 * Rotate the background image by specified degrees
+	 */
+	public void rotateBackgroundImage(int degrees) {
+		if (backgroundImage == null) {
+			System.err.println("ERROR: No background image to rotate");
+			return;
+		}
+
+		try {
+			// Convert to BufferedImage
+			java.awt.image.BufferedImage buffered = toBufferedImage(backgroundImage);
+
+			// Calculate rotation
+			double radians = Math.toRadians(degrees);
+			double sin = Math.abs(Math.sin(radians));
+			double cos = Math.abs(Math.cos(radians));
+
+			int newWidth = (int) Math.floor(buffered.getWidth() * cos + buffered.getHeight() * sin);
+			int newHeight = (int) Math.floor(buffered.getHeight() * cos + buffered.getWidth() * sin);
+
+			java.awt.image.BufferedImage rotated = new java.awt.image.BufferedImage(
+					newWidth, newHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+
+			Graphics2D g2d = rotated.createGraphics();
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g2d.translate((newWidth - buffered.getWidth()) / 2, (newHeight - buffered.getHeight()) / 2);
+			g2d.rotate(radians, buffered.getWidth() / 2.0, buffered.getHeight() / 2.0);
+			g2d.drawImage(buffered, 0, 0, null);
+			g2d.dispose();
+
+			// Scale and update
+			backgroundImage = rotated.getScaledInstance(1024, 668, Image.SCALE_SMOOTH);
+			gamePanel.repaint();
+
+			System.out.println("Image rotated by " + degrees + " degrees");
+		} catch (Exception e) {
+			System.err.println("ERROR rotating image: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Flip the background image horizontally or vertically
+	 */
+	public void flipBackgroundImage(boolean horizontal) {
+		if (backgroundImage == null) {
+			System.err.println("ERROR: No background image to flip");
+			return;
+		}
+
+		try {
+			// Convert to BufferedImage
+			java.awt.image.BufferedImage buffered = toBufferedImage(backgroundImage);
+
+			int width = buffered.getWidth();
+			int height = buffered.getHeight();
+
+			java.awt.image.BufferedImage flipped = new java.awt.image.BufferedImage(
+					width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+
+			Graphics2D g2d = flipped.createGraphics();
+
+			if (horizontal) {
+				// Flip horizontally
+				g2d.drawImage(buffered, width, 0, -width, height, null);
+			} else {
+				// Flip vertically
+				g2d.drawImage(buffered, 0, height, width, -height, null);
+			}
+
+			g2d.dispose();
+
+			// Scale and update
+			backgroundImage = flipped.getScaledInstance(1024, 668, Image.SCALE_SMOOTH);
+			gamePanel.repaint();
+
+			System.out.println("Image flipped " + (horizontal ? "horizontally" : "vertically"));
+		} catch (Exception e) {
+			System.err.println("ERROR flipping image: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Convert Image to BufferedImage
+	 */
+	private java.awt.image.BufferedImage toBufferedImage(Image img) {
+		if (img instanceof java.awt.image.BufferedImage) {
+			return (java.awt.image.BufferedImage) img;
+		}
+
+		// Create buffered image with transparency
+		java.awt.image.BufferedImage buffered = new java.awt.image.BufferedImage(
+				img.getWidth(null), img.getHeight(null), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2d = buffered.createGraphics();
+		g2d.drawImage(img, 0, 0, null);
+		g2d.dispose();
+
+		return buffered;
 	}
 
 	public static void main(String[] args) {
