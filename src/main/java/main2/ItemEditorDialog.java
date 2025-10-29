@@ -159,6 +159,20 @@ public class ItemEditorDialog extends JDialog {
 							dropLabel.setText("<html><center>✓<br>" + file.getName() + "<br>Image loaded!</center></html>");
 							dropLabel.setForeground(new Color(0, 150, 0));
 							dropLabel.setBackground(new Color(230, 255, 230));
+
+							// Auto-save and update lists immediately
+							if (selectedItem != null) {
+								selectedItem.setImageFileName(file.getName());
+								selectedItem.setImageFilePath(file.getAbsolutePath());
+								try {
+									ItemSaver.saveItemByName(selectedItem);
+									updateAllItemLists();
+									parent.autoSaveCurrentScene();
+									parent.log("✓ Image updated: " + file.getName());
+								} catch (Exception saveEx) {
+									parent.log("ERROR saving after image drop: " + saveEx.getMessage());
+								}
+							}
 						} else {
 							JOptionPane.showMessageDialog(ItemEditorDialog.this,
 									"Please drop an image file (PNG, JPG, GIF)", "Invalid File",
@@ -496,6 +510,12 @@ public class ItemEditorDialog extends JDialog {
 			ItemSaver.saveItemByName(selectedItem);
 			parent.log("Saved item: " + selectedItem.getName());
 
+			// Update all ListViews immediately
+			updateAllItemLists();
+
+			// Auto-save scene to persist changes
+			parent.autoSaveCurrentScene();
+
 			JOptionPane.showMessageDialog(this, "Item saved successfully!", "Success",
 					JOptionPane.INFORMATION_MESSAGE);
 		} catch (Exception e) {
@@ -503,6 +523,22 @@ public class ItemEditorDialog extends JDialog {
 			JOptionPane.showMessageDialog(this, "Error saving item: " + e.getMessage(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	/**
+	 * Update all item lists to show changes immediately
+	 */
+	private void updateAllItemLists() {
+		// Update local list in dialog
+		itemList.repaint();
+
+		// Update parent EditorWindow list
+		parent.refreshItemList();
+
+		// Update game panel
+		parent.getGame().repaintGamePanel();
+
+		parent.log("✓ All item lists updated");
 	}
 
 	private void addCondition() {

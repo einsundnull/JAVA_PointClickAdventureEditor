@@ -75,17 +75,12 @@ public class Scene {
     }
 
     /**
-     * Get item at specific point
+     * Get item at specific point using polygon-based click detection
      */
     public Item getItemAt(Point point) {
         for (Item item : items) {
-            if (item.isVisible()) {
-                // Simple click detection (you may want to use image bounds)
-                int clickRadius = 30;
-                if (Math.abs(item.getPosition().x - point.x) < clickRadius &&
-                    Math.abs(item.getPosition().y - point.y) < clickRadius) {
-                    return item;
-                }
+            if (item.isVisible() && item.containsPoint(point)) {
+                return item;
             }
         }
         return null;

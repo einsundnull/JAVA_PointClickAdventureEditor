@@ -33,8 +33,28 @@
 ----Image: resources/images/items/Buch.png;
 
 #Actions:
+--conditions
+--conditions
+---none
+----#Dialog:
+------dialog-beachbarbook--conditions
+------dialog-beachbarbook-anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-beachbarbook------dialog-beachbarbook-anschauen
+----#Dialog:
+--conditions
+---none
+----#Dialog:
+------dialog-beachbarbook----#dialog:
 -Anschauen
 --conditions
 ---none
 ----#Dialog:
 ------dialog-beachbarbook-anschauen
+---none
+--conditions
+---none
+----#Dialog:
+------dialog-beachbarbook---none
