@@ -91,32 +91,6 @@ public class ItemSaver {
         }
         writer.write("\n");
 
-        // Click Area (Polygon points)
-        writer.write("#ClickArea:\n");
-        java.util.List<java.awt.Point> clickPoints = item.getClickAreaPoints();
-        if (clickPoints != null && !clickPoints.isEmpty()) {
-            for (java.awt.Point p : clickPoints) {
-                writer.write("###\n");
-                writer.write("--x = " + p.x + ";\n");
-                writer.write("--y = " + p.y + ";\n");
-            }
-        } else {
-            // Default rectangular click area
-            writer.write("###\n");
-            writer.write("--x = " + item.getPosition().x + ";\n");
-            writer.write("--y = " + item.getPosition().y + ";\n");
-            writer.write("###\n");
-            writer.write("--x = " + (item.getPosition().x + item.getWidth()) + ";\n");
-            writer.write("--y = " + item.getPosition().y + ";\n");
-            writer.write("###\n");
-            writer.write("--x = " + (item.getPosition().x + item.getWidth()) + ";\n");
-            writer.write("--y = " + (item.getPosition().y + item.getHeight()) + ";\n");
-            writer.write("###\n");
-            writer.write("--x = " + item.getPosition().x + ";\n");
-            writer.write("--y = " + (item.getPosition().y + item.getHeight()) + ";\n");
-        }
-        writer.write("\n");
-
         // Actions
         writer.write("#Actions:\n");
         Map<String, KeyArea.ActionHandler> actions = item.getActions();

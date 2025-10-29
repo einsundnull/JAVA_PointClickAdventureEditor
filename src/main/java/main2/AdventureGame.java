@@ -63,6 +63,7 @@ public class AdventureGame extends JFrame {
 	private boolean pathEditMode = false;
 	private Point selectedPathPoint = null;
 	private int selectedPathPointIndex = -1;
+	private Item selectedItemForPointDrag = null; // Item whose point is being dragged
 	private boolean addPointMode = false;
 	private EditorWindow addPointModeEditor = null;
 	private UniversalPointEditorDialog pointEditorDialog = null;
@@ -671,7 +672,29 @@ public class AdventureGame extends JFrame {
 		if (currentScene == null)
 			return;
 
-		// Check if clicking on KeyArea points first
+		// Check if clicking on Item click area points first
+		for (Item item : currentScene.getItems()) {
+			if (!item.isVisible()) continue;
+
+			List<Point> points = item.getClickAreaPoints();
+			for (int i = 0; i < points.size(); i++) {
+				Point p = points.get(i);
+				if (p.distance(clickPoint) < 10) {
+					selectedPathPoint = p;
+					selectedPathPointIndex = i;
+					selectedItemForPointDrag = item;
+
+					// Auto-select in editor window
+					if (editorWindow != null) {
+						editorWindow.selectItem(item);
+						editorWindow.log("Selected Item point " + i + " from " + item.getName() + " at (" + p.x + "," + p.y + ")");
+					}
+					return;
+				}
+			}
+		}
+
+		// Check if clicking on KeyArea points
 		for (KeyArea area : currentScene.getKeyAreas()) {
 			List<Point> points = area.getPoints();
 			for (int i = 0; i < points.size(); i++) {
@@ -679,6 +702,7 @@ public class AdventureGame extends JFrame {
 				if (p.distance(clickPoint) < 10) {
 					selectedPathPoint = p;
 					selectedPathPointIndex = i;
+					selectedItemForPointDrag = null;
 
 					// Auto-select in editor window
 					if (editorWindow != null) {
@@ -700,6 +724,7 @@ public class AdventureGame extends JFrame {
 				if (p.distance(clickPoint) < 10) {
 					selectedPathPoint = p;
 					selectedPathPointIndex = i;
+					selectedItemForPointDrag = null;
 					if (editorWindow != null) {
 						editorWindow.log("Selected path point " + i + " at (" + p.x + "," + p.y + ")");
 					}
@@ -714,8 +739,17 @@ public class AdventureGame extends JFrame {
 			selectedPathPoint.x = dragPoint.x;
 			selectedPathPoint.y = dragPoint.y;
 
+			// Update Item click area polygon if dragging Item point
+			if (selectedItemForPointDrag != null) {
+				selectedItemForPointDrag.updateClickAreaPolygon();
+				selectedItemForPointDrag.setHasCustomClickArea(true);
+
+				if (editorWindow != null) {
+					editorWindow.log("Dragging Item point " + selectedPathPointIndex + " to (" + dragPoint.x + "," + dragPoint.y + ")");
+				}
+			}
 			// Update KeyArea polygons if dragging KeyArea point
-			if (currentScene != null) {
+			else if (currentScene != null) {
 				for (KeyArea area : currentScene.getKeyAreas()) {
 					if (area.getPoints().contains(selectedPathPoint)) {
 						// Update polygon with new coordinates
@@ -738,10 +772,25 @@ public class AdventureGame extends JFrame {
 	private void handlePathPointRelease() {
 		if (selectedPathPoint != null && editorWindow != null) {
 			editorWindow.log("Moved point to (" + selectedPathPoint.x + "," + selectedPathPoint.y + ")");
-			// TODO: Auto-save to file
+
+			// Auto-save Item when releasing Item point
+			if (selectedItemForPointDrag != null) {
+				try {
+					ItemSaver.saveItemByName(selectedItemForPointDrag);
+					editorWindow.log("✓ Auto-saved Item: " + selectedItemForPointDrag.getName());
+				} catch (Exception e) {
+					editorWindow.log("ERROR saving Item: " + e.getMessage());
+				}
+				editorWindow.autoSaveCurrentScene();
+			}
+			// Auto-save scene when releasing KeyArea point
+			else {
+				editorWindow.autoSaveCurrentScene();
+			}
 		}
 		selectedPathPoint = null;
 		selectedPathPointIndex = -1;
+		selectedItemForPointDrag = null;
 	}
 
 	private void handleItemPress(Point clickPoint) {

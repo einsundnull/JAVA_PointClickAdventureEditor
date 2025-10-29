@@ -900,6 +900,23 @@ public class EditorWindow extends JFrame {
 	}
 
 	/**
+	 * Select an Item programmatically (called from game when dragging Item points)
+	 */
+	public void selectItem(Item item) {
+		Scene currentScene = game.getCurrentScene();
+		if (currentScene == null)
+			return;
+
+		List<Item> items = currentScene.getItems();
+		int index = items.indexOf(item);
+
+		if (index >= 0 && index < itemListModel.size()) {
+			itemList.setSelectedIndex(index);
+			// This triggers onItemSelected automatically
+		}
+	}
+
+	/**
 	 * Select a point programmatically (called from game when dragging)
 	 */
 	public void selectPoint(int pointIndex) {

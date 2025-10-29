@@ -25,8 +25,6 @@ public class ItemLoader {
         String pendingCondition = null;
         String currentAction = null;
         KeyArea.ActionHandler currentActionHandler = null;
-        int clickAreaX = 0;
-        int clickAreaY = 0;
 
         while ((line = reader.readLine()) != null) {
             line = line.trim();
@@ -54,13 +52,6 @@ public class ItemLoader {
                 currentSection = "MOUSEHOVER";
             } else if (line.startsWith("#ImageConditions:")) {
                 currentSection = "IMAGECONDITIONS";
-            } else if (line.startsWith("#ClickArea:")) {
-                currentSection = "CLICKAREA";
-                // Clear default click area points when loading custom ones
-                if (item != null) {
-                    item.getClickAreaPoints().clear();
-                    System.out.println("Loading click area for: " + item.getName());
-                }
             } else if (line.startsWith("#Actions:")) {
                 currentSection = "ACTIONS";
             }
@@ -147,37 +138,9 @@ public class ItemLoader {
                         break;
                 }
             }
-            // ClickArea coordinates (###)
-            else if (line.startsWith("###")) {
-                // Marker for new click area point - do nothing, just continue
-                continue;
-            }
-            // Sub-sections for MouseHover, ImageConditions, Actions, ClickArea
+            // Sub-sections for MouseHover, ImageConditions, Actions
             else if (line.startsWith("--conditions") || line.startsWith("--conditions:")) {
                 currentSubSection = "CONDITIONS";
-            }
-            else if (line.startsWith("--x") && currentSection.equals("CLICKAREA")) {
-                String value = line.substring(3).trim();
-                if (value.contains("=")) {
-                    String[] parts = value.split("=");
-                    if (parts.length == 2) {
-                        clickAreaX = Integer.parseInt(parts[1].trim().replace(";", ""));
-                    }
-                }
-            }
-            else if (line.startsWith("--y") && currentSection.equals("CLICKAREA")) {
-                String value = line.substring(3).trim();
-                if (value.contains("=")) {
-                    String[] parts = value.split("=");
-                    if (parts.length == 2) {
-                        clickAreaY = Integer.parseInt(parts[1].trim().replace(";", ""));
-                        // Add point after reading both x and y
-                        if (item != null) {
-                            item.addClickAreaPoint(clickAreaX, clickAreaY);
-                            System.out.println("  Added click point: (" + clickAreaX + ", " + clickAreaY + ")");
-                        }
-                    }
-                }
             }
             else if (line.startsWith("---") && !line.startsWith("----")) {
                 // Condition line
@@ -229,14 +192,7 @@ public class ItemLoader {
             throw new IOException("Invalid item file format - no name found");
         }
 
-        // If no click area was loaded from file, create one based on image
-        if (item.getClickAreaPoints().isEmpty()) {
-            item.createClickAreaFromImage();
-            System.out.println("Created default click area for: " + item.getName());
-        } else {
-            System.out.println("Loaded item: " + item.getName() + " with " + item.getClickAreaPoints().size() + " click points");
-        }
-
+        System.out.println("Loaded item: " + item.getName());
         return item;
     }
 

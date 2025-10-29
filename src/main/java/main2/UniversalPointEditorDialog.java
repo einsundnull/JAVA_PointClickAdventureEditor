@@ -27,6 +27,7 @@ public class UniversalPointEditorDialog extends JDialog {
 	private String objectName;
 	private List<Point> points;
 	private Runnable onSave;
+	private Item editingItem = null; // Reference to item being edited (if any)
 
 	private JList<String> pointList;
 	private DefaultListModel<String> pointListModel;
@@ -50,6 +51,8 @@ public class UniversalPointEditorDialog extends JDialog {
 	 */
 	public UniversalPointEditorDialog(EditorWindow parent, Item item) {
 		this(parent, item.getName(), item.getClickAreaPoints(), () -> {
+			// Mark as custom when saving
+			item.setHasCustomClickArea(true);
 			item.updateClickAreaPolygon();
 			try {
 				ItemSaver.saveItemByName(item);
@@ -59,6 +62,14 @@ public class UniversalPointEditorDialog extends JDialog {
 			parent.autoSaveCurrentScene();
 			parent.getGame().repaintGamePanel();
 		});
+		this.editingItem = item;
+		System.out.println("UniversalPointEditorDialog created for Item: " + item.getName());
+		System.out.println("  Click area points: " + item.getClickAreaPoints().size());
+		System.out.println("  Has custom click area: " + item.hasCustomClickArea());
+		for (int i = 0; i < item.getClickAreaPoints().size(); i++) {
+			Point p = item.getClickAreaPoints().get(i);
+			System.out.println("    Point " + i + ": (" + p.x + ", " + p.y + ")");
+		}
 	}
 
 	/**
@@ -184,6 +195,11 @@ public class UniversalPointEditorDialog extends JDialog {
 			loadPoints();
 			pointList.setSelectedIndex(selectedPointIndex);
 
+			// Mark item as having custom click area
+			if (editingItem != null) {
+				editingItem.setHasCustomClickArea(true);
+			}
+
 			parent.log("Updated point " + selectedPointIndex + " to (" + x + ", " + y + ")");
 			game.repaintGamePanel();
 
@@ -202,6 +218,12 @@ public class UniversalPointEditorDialog extends JDialog {
 
 				points.add(new Point(x, y));
 				loadPoints();
+
+				// Mark item as having custom click area
+				if (editingItem != null) {
+					editingItem.setHasCustomClickArea(true);
+				}
+
 				parent.log("Added point: (" + x + ", " + y + ")");
 				game.repaintGamePanel();
 
@@ -231,6 +253,12 @@ public class UniversalPointEditorDialog extends JDialog {
 		if (confirm == JOptionPane.YES_OPTION) {
 			points.remove(selectedPointIndex);
 			loadPoints();
+
+			// Mark item as having custom click area
+			if (editingItem != null) {
+				editingItem.setHasCustomClickArea(true);
+			}
+
 			parent.log("Deleted point " + selectedPointIndex);
 			selectedPointIndex = -1;
 			xField.setText("");
@@ -257,6 +285,12 @@ public class UniversalPointEditorDialog extends JDialog {
 	public void addPointAtPosition(int x, int y) {
 		points.add(new Point(x, y));
 		loadPoints();
+
+		// Mark item as having custom click area
+		if (editingItem != null) {
+			editingItem.setHasCustomClickArea(true);
+		}
+
 		parent.log("Added point at (" + x + ", " + y + ")");
 		game.repaintGamePanel();
 	}

@@ -23,6 +23,7 @@ public class Item {
     // Click detection (similar to KeyArea)
     private List<Point> clickAreaPoints; // Polygon points for click detection
     private Polygon clickAreaPolygon;
+    private boolean hasCustomClickArea = false; // True if user has customized the click area
 
     // KeyArea-like properties
     private Map<String, String> imageConditions; // condition -> image path
@@ -43,8 +44,7 @@ public class Item {
         this.actions = new HashMap<>();
         this.hoverDisplayConditions = new HashMap<>();
 
-        // Create default rectangular click area
-        createDefaultClickArea();
+        // Don't create default click area yet - wait until image is loaded
     }
 
     /**
@@ -62,51 +62,84 @@ public class Item {
     }
 
     /**
+     * Updates existing click area points to match current position and size
+     * Only used for non-custom click areas (when user drags item or resizes)
+     */
+    private void updateClickAreaToMatchBounds() {
+        if (clickAreaPoints.size() != 4) {
+            // If not a simple rectangle, don't update
+            return;
+        }
+
+        // Get center position
+        int centerX = position.x;
+        int centerY = position.y;
+        int halfWidth = width / 2 + 10;  // +10px padding
+        int halfHeight = height / 2 + 10; // +10px padding
+
+        // Update the 4 corner points
+        clickAreaPoints.get(0).setLocation(centerX - halfWidth, centerY - halfHeight);
+        clickAreaPoints.get(1).setLocation(centerX + halfWidth, centerY - halfHeight);
+        clickAreaPoints.get(2).setLocation(centerX + halfWidth, centerY + halfHeight);
+        clickAreaPoints.get(3).setLocation(centerX - halfWidth, centerY + halfHeight);
+
+        updateClickAreaPolygon();
+    }
+
+    /**
      * Creates a default click area based on actual image dimensions + 10px padding
+     * Only creates if user hasn't customized the click area
      */
     public void createClickAreaFromImage() {
-        // Only create if we don't have custom points already
-        if (clickAreaPoints.size() == 4) {
-            clickAreaPoints.clear();
+        System.out.println("createClickAreaFromImage called for: " + name +
+                         ", current points: " + clickAreaPoints.size() +
+                         ", hasCustomClickArea: " + hasCustomClickArea);
 
-            // Get image dimensions
-            int imgWidth = width;
-            int imgHeight = height;
-
-            // Try to load actual image to get real dimensions
-            if (imageFilePath != null && !imageFilePath.isEmpty()) {
-                try {
-                    java.io.File imageFile = new java.io.File(imageFilePath);
-                    if (imageFile.exists()) {
-                        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(imageFile);
-                        if (img != null) {
-                            imgWidth = img.getWidth();
-                            imgHeight = img.getHeight();
-                            // Update item size to match image
-                            this.width = imgWidth;
-                            this.height = imgHeight;
-                        }
-                    }
-                } catch (Exception e) {
-                    System.err.println("Could not load image for click area: " + e.getMessage());
-                }
-            }
-
-            // Create click area with 10px padding around image
-            int centerX = position.x;
-            int centerY = position.y;
-            int halfWidth = imgWidth / 2 + 10;  // +10px padding
-            int halfHeight = imgHeight / 2 + 10; // +10px padding
-
-            clickAreaPoints.add(new Point(centerX - halfWidth, centerY - halfHeight));
-            clickAreaPoints.add(new Point(centerX + halfWidth, centerY - halfHeight));
-            clickAreaPoints.add(new Point(centerX + halfWidth, centerY + halfHeight));
-            clickAreaPoints.add(new Point(centerX - halfWidth, centerY + halfHeight));
-
-            updateClickAreaPolygon();
-            System.out.println("Created click area for " + name + " with dimensions: " +
-                             (halfWidth*2) + "x" + (halfHeight*2));
+        // Only create if user hasn't customized the click area
+        if (hasCustomClickArea) {
+            System.out.println("  Skipping - user has custom click area");
+            return;
         }
+
+        clickAreaPoints.clear();
+
+        // Get image dimensions
+        int imgWidth = width;
+        int imgHeight = height;
+
+        // Try to load actual image to get real dimensions
+        if (imageFilePath != null && !imageFilePath.isEmpty()) {
+            try {
+                java.io.File imageFile = new java.io.File(imageFilePath);
+                if (imageFile.exists()) {
+                    java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(imageFile);
+                    if (img != null) {
+                        imgWidth = img.getWidth();
+                        imgHeight = img.getHeight();
+                        // Update item size to match image
+                        this.width = imgWidth;
+                        this.height = imgHeight;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Could not load image for click area: " + e.getMessage());
+            }
+        }
+
+        // Create click area with 10px padding around image
+        int centerX = position.x;
+        int centerY = position.y;
+        int halfWidth = imgWidth / 2 + 10;  // +10px padding
+        int halfHeight = imgHeight / 2 + 10; // +10px padding
+
+        clickAreaPoints.add(new Point(centerX - halfWidth, centerY - halfHeight));
+        clickAreaPoints.add(new Point(centerX + halfWidth, centerY - halfHeight));
+        clickAreaPoints.add(new Point(centerX + halfWidth, centerY + halfHeight));
+        clickAreaPoints.add(new Point(centerX - halfWidth, centerY + halfHeight));
+
+        updateClickAreaPolygon();
+        System.out.println("Created click area for " + name + " with dimensions: " +
+                         (halfWidth*2) + "x" + (halfHeight*2));
     }
 
     // Getters and Setters
@@ -148,8 +181,7 @@ public class Item {
 
     public void setImageFilePath(String imageFilePath) {
         this.imageFilePath = imageFilePath;
-        // Auto-create click area based on image dimensions when image is set
-        createClickAreaFromImage();
+        // Don't auto-create here - let caller decide when to create click area
     }
 
     public Map<String, Boolean> getConditions() {
@@ -305,10 +337,27 @@ public class Item {
     public void addClickAreaPoint(Point p) {
         clickAreaPoints.add(p);
         updateClickAreaPolygon();
+        // Mark as custom when user adds points
+        hasCustomClickArea = true;
     }
 
     public void addClickAreaPoint(int x, int y) {
         addClickAreaPoint(new Point(x, y));
+    }
+
+    /**
+     * Add click area point from file (during loading) - doesn't mark as custom
+     */
+    public void addClickAreaPointFromFile(int x, int y) {
+        clickAreaPoints.add(new Point(x, y));
+    }
+
+    public boolean hasCustomClickArea() {
+        return hasCustomClickArea;
+    }
+
+    public void setHasCustomClickArea(boolean hasCustom) {
+        this.hasCustomClickArea = hasCustom;
     }
 
     public void updateClickAreaPolygon() {
