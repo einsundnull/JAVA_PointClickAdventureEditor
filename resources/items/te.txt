@@ -8,8 +8,8 @@
 -resources/images/items/pronound you 2.svg
 
 #Position:
--x = 516;
--y = 343;
+-x = 511;
+-y = 329;
 
 #Size:
 -width = 100;
@@ -20,3 +20,21 @@
 
 #IsInInventory:
 -false
+
+#MouseHover:
+--conditions
+---none
+----Display:
+------"te"
+
+#ImageConditions:
+--conditions:
+---none
+----Image: resources/images/items/pronound you 2.svg;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-te-anschauen

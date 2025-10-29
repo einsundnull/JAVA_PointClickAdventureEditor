@@ -1,19 +1,19 @@
 #Name:
--rr
+-zz
 
 #ImageFile:
--schreiben_3.png
+-pronound you 2.svg
 
 #ImagePath:
--resources/images/items/schreiben_3.png
+-resources/images/items/pronound you 2.svg
 
 #Position:
--x = 437;
--y = 321;
+-x = 869;
+-y = 472;
 
 #Size:
--width = 216;
--height = 247;
+-width = 146;
+-height = 122;
 
 #Conditions:
 -none
@@ -25,16 +25,16 @@
 --conditions
 ---none
 ----Display:
-------"rr"
+------"zz"
 
 #ImageConditions:
 --conditions:
 ---none
-----Image: resources/images/items/schreiben_3.png;
+----Image: resources/images/items/pronound you 2.svg;
 
 #Actions:
 -Anschauen
 --conditions
 ---none
 ----#Dialog:
-------dialog-rr-anschauen
+------dialog-zz-anschauen
