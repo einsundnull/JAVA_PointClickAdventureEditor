@@ -23,7 +23,7 @@
 
 #MouseHover:
 --conditions
----none;
+---pathToWoodIsClear = false;
 ----Display:
 ------"a white cup"
 

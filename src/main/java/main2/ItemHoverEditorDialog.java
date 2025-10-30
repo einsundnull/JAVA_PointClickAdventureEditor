@@ -177,19 +177,24 @@ public class ItemHoverEditorDialog extends JDialog {
 		// Debug: Show what was saved
 		parent.log("Hover conditions now in Item: " + item.getHoverDisplayConditions());
 
-		// Verify the Item is in the current scene
+		// CRITICAL: Update all scene items with the same name
 		Scene currentScene = parent.getGame().getCurrentScene();
 		boolean found = false;
 		for (Item sceneItem : currentScene.getItems()) {
-			if (sceneItem == item) {
-				found = true;
-				parent.log("Item found in scene (same instance)");
-				break;
-			}
 			if (sceneItem.getName().equals(item.getName())) {
-				parent.log("WARNING: Item with same name found but DIFFERENT instance!");
-				parent.log("  Scene Item instance: " + System.identityHashCode(sceneItem));
-				parent.log("  Editor Item instance: " + System.identityHashCode(item));
+				if (sceneItem == item) {
+					found = true;
+					parent.log("Item found in scene (same instance) - already updated");
+				} else {
+					// Different instance - copy hover conditions
+					parent.log("Updating scene item (different instance)...");
+					sceneItem.getHoverDisplayConditions().clear();
+					for (Map.Entry<String, String> entry : item.getHoverDisplayConditions().entrySet()) {
+						sceneItem.addHoverDisplayCondition(entry.getKey(), entry.getValue());
+					}
+					parent.log("  Copied hover conditions to scene item");
+					found = true;
+				}
 			}
 		}
 		if (!found) {

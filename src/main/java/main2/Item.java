@@ -256,14 +256,19 @@ public class Item {
     }
 
     public String getHoverDisplayText() {
+        System.out.println("DEBUG getHoverDisplayText() for item: " + name);
+        System.out.println("  hoverDisplayConditions size: " + hoverDisplayConditions.size());
         for (Map.Entry<String, String> entry : hoverDisplayConditions.entrySet()) {
             String condition = entry.getKey();
             String displayText = entry.getValue();
+            System.out.println("  Checking condition: '" + condition + "' -> '" + displayText + "'");
 
             if (condition.equals("none") || evaluateCondition(condition)) {
+                System.out.println("  -> Condition matched! Returning: " + displayText);
                 return displayText;
             }
         }
+        System.out.println("  -> No condition matched, returning name: " + name);
         return name; // Default to item name
     }
 

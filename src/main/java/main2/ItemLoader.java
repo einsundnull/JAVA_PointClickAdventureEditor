@@ -213,8 +213,15 @@ public class ItemLoader {
                 if (currentSection.equals("MOUSEHOVER") && currentSubSection.equals("DISPLAY")) {
                     // Hover text
                     String displayText = value.replace("\"", "");
+                    System.out.println("DEBUG ItemLoader: Loading hover text for item");
+                    System.out.println("  item: " + (item != null ? item.getName() : "null"));
+                    System.out.println("  pendingCondition: '" + pendingCondition + "'");
+                    System.out.println("  displayText: '" + displayText + "'");
                     if (item != null && pendingCondition != null) {
                         item.addHoverDisplayCondition(pendingCondition, displayText);
+                        System.out.println("  -> Added hover condition!");
+                    } else {
+                        System.out.println("  -> NOT added (item or condition is null)");
                     }
                     pendingCondition = null;
                 } else if (currentSection.equals("ACTIONS") && currentSubSection.equals("DIALOG")) {
@@ -252,6 +259,10 @@ public class ItemLoader {
      * Load item by name from resources/items/
      */
     public static Item loadItemByName(String itemName) throws IOException {
+        System.out.println("==========================================");
+        System.out.println("DEBUG ItemLoader.loadItemByName() CALLED!");
+        System.out.println("  itemName: " + itemName);
+        System.out.println("==========================================");
         String filename = "resources/items/" + itemName + ".txt";
         return loadItem(filename);
     }

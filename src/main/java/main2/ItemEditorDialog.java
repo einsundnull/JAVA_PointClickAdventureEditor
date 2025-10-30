@@ -78,7 +78,7 @@ public class ItemEditorDialog extends JDialog {
 		setLayout(new BorderLayout(10, 10));
 
 		// Title
-		JLabel titleLabel = new JLabel("🎒 Item Editor");
+		JLabel titleLabel = new JLabel("Item Editor");
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 		add(titleLabel, BorderLayout.NORTH);

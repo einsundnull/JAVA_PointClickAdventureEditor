@@ -6,13 +6,19 @@ import java.util.*;
 public class SceneLoader {
     
     public static Scene loadScene(String sceneName, GameProgress progress) throws IOException {
+        System.out.println("====================================================");
+        System.out.println("SCENELOADER.LOADSCENE() CALLED!");
+        System.out.println("  sceneName: " + sceneName);
+        System.out.println("====================================================");
+
         String filename = "resources/scenes/" + sceneName + ".txt";
         File file = new File(filename);
-        
+
         if (!file.exists()) {
             throw new IOException("Scene file not found: " + filename);
         }
-        
+
+        System.out.println("Scene file exists: " + filename);
         Scene scene = new Scene(sceneName);
         BufferedReader reader = new BufferedReader(new FileReader(file));
         
@@ -66,6 +72,7 @@ public class SceneLoader {
                 inMouseHover = false;
                 continue;
             } else if (trimmed.equals("#Items:")) {
+                System.out.println("=====> Found #Items: section! <=====");
                 currentMainSection = "Items";
                 inDialogs = false;
                 inLocation = false;
@@ -245,14 +252,19 @@ public class SceneLoader {
             }
             // Parse Items
             else if ("Items".equals(currentMainSection)) {
+                System.out.println("DEBUG SceneLoader: In Items section!");
                 if (trimmed.startsWith("-")) {
                     String itemName = trimmed.substring(1).trim();
+                    System.out.println("DEBUG SceneLoader: Found item line: " + itemName);
                     try {
+                        System.out.println("DEBUG SceneLoader: Calling ItemLoader.loadItemByName(" + itemName + ")");
                         Item item = ItemLoader.loadItemByName(itemName);
                         scene.addItem(item);
                         System.out.println("  Loaded item: " + itemName);
+                        System.out.println("  Item hoverDisplayConditions size: " + item.getHoverDisplayConditions().size());
                     } catch (Exception e) {
                         System.err.println("WARNING: Could not load item: " + itemName + " - " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             }

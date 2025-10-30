@@ -45,7 +45,7 @@ public class HoverEditorDialog extends JDialog {
 		setLayout(new BorderLayout(10, 10));
 
 		// Title
-		JLabel titleLabel = new JLabel("💬 Hover Text Editor: " + keyArea.getName());
+		JLabel titleLabel = new JLabel("Hover Text Editor: " + keyArea.getName());
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 		add(titleLabel, BorderLayout.NORTH);
@@ -98,7 +98,7 @@ public class HoverEditorDialog extends JDialog {
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 
 		JPanel addPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JButton addButton = new JButton("➕ Add Hover Text");
+		JButton addButton = new JButton("Add Hover Text");
 		addButton.addActionListener(e -> {
 			tableModel.addRow(new Object[] { "none", "", "Delete" });
 		});
@@ -106,11 +106,11 @@ public class HoverEditorDialog extends JDialog {
 		bottomPanel.add(addPanel, BorderLayout.WEST);
 
 		JPanel savePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton saveButton = new JButton("💾 Save");
+		JButton saveButton = new JButton("Save");
 		saveButton.addActionListener(e -> saveHoverData());
 		savePanel.add(saveButton);
 
-		JButton closeButton = new JButton("✓ Close");
+		JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(e -> dispose());
 		savePanel.add(closeButton);
 
@@ -177,23 +177,28 @@ public class HoverEditorDialog extends JDialog {
 		// Debug: Show what was saved
 		parent.log("Hover conditions now in KeyArea: " + keyArea.getHoverDisplayConditions());
 
-		// Verify the KeyArea is in the current scene
+		// CRITICAL: Update all scene KeyAreas with the same name
 		Scene currentScene = parent.getGame().getCurrentScene();
 		boolean found = false;
 		for (KeyArea area : currentScene.getKeyAreas()) {
-			if (area == keyArea) {
-				found = true;
-				parent.log("✓ KeyArea found in scene (same instance)");
-				break;
-			}
 			if (area.getName().equals(keyArea.getName())) {
-				parent.log("⚠ KeyArea with same name found but DIFFERENT instance!");
-				parent.log("  Scene KeyArea instance: " + System.identityHashCode(area));
-				parent.log("  Editor KeyArea instance: " + System.identityHashCode(keyArea));
+				if (area == keyArea) {
+					found = true;
+					parent.log("KeyArea found in scene (same instance) - already updated");
+				} else {
+					// Different instance - copy hover conditions
+					parent.log("Updating scene KeyArea (different instance)...");
+					area.getHoverDisplayConditions().clear();
+					for (Map.Entry<String, String> entry : keyArea.getHoverDisplayConditions().entrySet()) {
+						area.addHoverDisplayCondition(entry.getKey(), entry.getValue());
+					}
+					parent.log("  Copied hover conditions to scene KeyArea");
+					found = true;
+				}
 			}
 		}
 		if (!found) {
-			parent.log("❌ ERROR: KeyArea NOT found in current scene!");
+			parent.log("ERROR: KeyArea NOT found in current scene!");
 		}
 
 		// Auto-save scene
@@ -203,7 +208,7 @@ public class HoverEditorDialog extends JDialog {
 		// Repaint game panel to show changes immediately
 		parent.getGame().repaintGamePanel();
 
-		parent.log("✓ Hover text save process completed!");
+		parent.log("Hover text save process completed!");
 
 		JOptionPane.showMessageDialog(this, "Hover text saved successfully!", "Success",
 				JOptionPane.INFORMATION_MESSAGE);
@@ -218,7 +223,7 @@ public class HoverEditorDialog extends JDialog {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
-			setText("🗑️");
+			setText("Delete");
 			return this;
 		}
 	}
@@ -238,7 +243,7 @@ public class HoverEditorDialog extends JDialog {
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
 				int column) {
-			button.setText("🗑️");
+			button.setText("Delete");
 			isPushed = true;
 			return button;
 		}
