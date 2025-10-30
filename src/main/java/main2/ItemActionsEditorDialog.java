@@ -131,17 +131,10 @@ public class ItemActionsEditorDialog extends JDialog {
 		// Condition column with dropdown
 		JComboBox<String> conditionCombo = new JComboBox<>();
 		conditionCombo.addItem("none");
-		// Add all conditions from Conditions.java
-		try {
-			java.lang.reflect.Field[] fields = Conditions.class.getDeclaredFields();
-			for (java.lang.reflect.Field field : fields) {
-				if (field.getType() == boolean.class && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-					conditionCombo.addItem(field.getName() + " = true");
-					conditionCombo.addItem(field.getName() + " = false");
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		// Add all conditions from Conditions system (dynamic!)
+		for (String conditionName : Conditions.getAllConditionNames()) {
+			conditionCombo.addItem(conditionName + " = true");
+			conditionCombo.addItem(conditionName + " = false");
 		}
 		table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(conditionCombo));
 
@@ -304,6 +297,7 @@ public class ItemActionsEditorDialog extends JDialog {
 	class ButtonEditor extends DefaultCellEditor {
 		private JButton button;
 		private boolean isPushed;
+		private int currentRow;
 		private JTable table;
 		private DefaultTableModel model;
 
@@ -321,16 +315,21 @@ public class ItemActionsEditorDialog extends JDialog {
 				int column) {
 			button.setText("[X]");
 			isPushed = true;
+			currentRow = row;
 			return button;
 		}
 
 		@Override
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				int row = table.getSelectedRow();
-				if (row >= 0) {
-					model.removeRow(row);
-				}
+				// Delete the row
+				model.removeRow(currentRow);
+				parent.log("Deleted action condition from row " + currentRow);
+
+				// Autosave after deletion
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					saveAllActions();
+				});
 			}
 			isPushed = false;
 			return "[X]";

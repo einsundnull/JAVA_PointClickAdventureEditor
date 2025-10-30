@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -121,28 +122,19 @@ public class ConditionsManagerDialog extends JDialog {
 		conditions.clear();
 		tableModel.setRowCount(0);
 
-		// Load defaults from separate map
-		Map<String, Boolean> defaults = loadDefaultValues();
+		// Load all conditions from Conditions class (now dynamic!)
+		Map<String, Boolean> allConditions = Conditions.getAllConditions();
 
-		// Load from Conditions class using reflection
-		try {
-			java.lang.reflect.Field[] fields = Conditions.class.getDeclaredFields();
-			for (java.lang.reflect.Field field : fields) {
-				if (field.getType() == boolean.class && java.lang.reflect.Modifier.isStatic(field.getModifiers())
-						&& java.lang.reflect.Modifier.isPublic(field.getModifiers())) {
+		for (Map.Entry<String, Boolean> entry : allConditions.entrySet()) {
+			String name = entry.getKey();
+			boolean currentValue = entry.getValue();
+			boolean defaultValue = entry.getValue(); // Current = default from conditions.txt
 
-					String name = field.getName();
-					boolean currentValue = field.getBoolean(null);
-					boolean defaultValue = defaults.getOrDefault(name, false);
-
-					conditions.put(name, currentValue);
-					tableModel.addRow(new Object[] { name, currentValue, defaultValue });
-				}
-			}
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Error loading conditions: " + e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
+			conditions.put(name, currentValue);
+			tableModel.addRow(new Object[] { name, currentValue, defaultValue });
 		}
+
+		parent.log("Loaded " + conditions.size() + " conditions dynamically");
 	}
 
 	private void addNewCondition() {
@@ -153,23 +145,27 @@ public class ConditionsManagerDialog extends JDialog {
 			name = name.trim();
 
 			// Check if already exists
-			if (conditions.containsKey(name)) {
+			if (Conditions.conditionExists(name)) {
 				JOptionPane.showMessageDialog(this, "Condition '" + name + "' already exists!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
+			// Add to Conditions system (automatically saves to conditions.txt!)
+			Conditions.addCondition(name, false);
+
 			// Add to table
 			conditions.put(name, false);
-			tableModel.addRow(new Object[] { name, false });
+			tableModel.addRow(new Object[] { name, false, false });
 
-			parent.log("Added new condition: " + name);
+			parent.log("✓ Added new condition: " + name);
 
 			JOptionPane.showMessageDialog(this,
-					"Condition added!\n\n" + "⚠️ IMPORTANT: You must manually add this to Conditions.java:\n\n"
-							+ "public static boolean " + name + " = false;\n\n"
-							+ "And update the switch statements in:\n" + "- setCondition()\n" + "- getCondition()",
-					"Manual Step Required", JOptionPane.INFORMATION_MESSAGE);
+					"✓ Condition added successfully!\n\n" +
+					"The condition has been saved to:\n" +
+					"resources/conditions/conditions.txt\n\n" +
+					"No source code changes needed!",
+					"Success", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -183,15 +179,135 @@ public class ConditionsManagerDialog extends JDialog {
 
 		String name = (String) tableModel.getValueAt(row, 0);
 
-		int confirm = JOptionPane.showConfirmDialog(this,
-				"Delete condition '" + name + "'?\n\n" + "⚠️ This only removes it from the table.\n"
-						+ "You must manually remove it from Conditions.java!",
-				"Confirm Delete", JOptionPane.YES_NO_OPTION);
+		// Find all references first
+		try {
+			parent.log("Searching for references to condition: " + name);
+			Map<String, List<Integer>> references = ConditionReferenceManager.findConditionReferences(name);
 
-		if (confirm == JOptionPane.YES_OPTION) {
+			// Build confirmation message
+			StringBuilder message = new StringBuilder();
+			message.append("Delete condition '").append(name).append("'?\n\n");
+
+			if (references.isEmpty()) {
+				message.append("✓ No references found in .txt files.\n\n");
+			} else {
+				message.append("⚠️ Found references in ").append(references.size()).append(" file(s):\n\n");
+				int count = 0;
+				for (Map.Entry<String, List<Integer>> entry : references.entrySet()) {
+					String file = entry.getKey().replace("resources\\", "").replace("resources/", "");
+					message.append("  • ").append(file).append(" (").append(entry.getValue().size())
+							.append(" refs)\n");
+					count++;
+					if (count >= 5 && references.size() > 5) {
+						message.append("  • ... and ").append(references.size() - 5).append(" more\n");
+						break;
+					}
+				}
+				message.append("\nAll references will be removed!\n\n");
+			}
+
+			message.append("This will:\n");
+			message.append("✓ Remove from conditions-defaults.txt\n");
+			message.append("✓ Remove from progress files\n");
+			message.append("✓ Remove from all scene/item .txt files\n");
+			message.append("✓ Reload all scenes and items (live update)\n");
+			message.append("⚠️ Manual: Remove from Conditions.java\n");
+
+			int confirm = JOptionPane.showConfirmDialog(this, message.toString(), "Confirm Cascade Delete",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+			if (confirm != JOptionPane.YES_OPTION) {
+				return;
+			}
+
+			// Perform cascade deletion
+			parent.log("Starting cascade deletion for: " + name);
+
+			// 1. Remove from .txt files
+			List<String> modifiedFiles = ConditionReferenceManager.removeConditionReferences(name);
+			parent.log("Modified " + modifiedFiles.size() + " file(s):");
+			for (String file : modifiedFiles) {
+				parent.log("  - " + file);
+			}
+
+			// 2. Remove from defaults
+			if (ConditionReferenceManager.removeFromDefaults(name)) {
+				parent.log("Removed from conditions-defaults.txt");
+			}
+
+			// 3. Remove from progress files
+			ConditionReferenceManager.removeFromProgressFiles(name);
+			parent.log("Removed from progress files");
+
+			// 4. Remove from Conditions system (automatically updates conditions.txt!)
+			Conditions.removeCondition(name);
+			parent.log("✓ Removed from conditions.txt");
+
+			// 5. Remove from table
 			conditions.remove(name);
 			tableModel.removeRow(row);
-			parent.log("Deleted condition: " + name);
+
+			// 6. Trigger live update of scenes and items
+			triggerLiveUpdate();
+
+			parent.log("✓ Cascade deletion complete for: " + name);
+
+			JOptionPane.showMessageDialog(this,
+					"✓ Condition deleted successfully!\n\n" +
+					"Removed from:\n" +
+					"• conditions.txt\n" +
+					"• All .txt resource files\n" +
+					"• Progress files\n\n" +
+					"No source code changes needed!",
+					"Success", JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error during deletion: " + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			parent.log("Error: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Triggers live update of all loaded scenes and items
+	 */
+	private void triggerLiveUpdate() {
+		try {
+			parent.log("Triggering live update of scenes and items...");
+
+			// Get the current game instance
+			AdventureGame game = parent.getGame();
+			if (game == null) {
+				parent.log("Warning: No game instance found, skipping live update");
+				return;
+			}
+
+			// Store current scene name
+			Scene currentScene = game.getCurrentScene();
+			String currentSceneName = currentScene != null ? currentScene.getName() : null;
+
+			// Reload all scenes
+			parent.log("Reloading scenes...");
+			game.reloadAllScenes();
+
+			// Reload inventory items
+			parent.log("Reloading inventory...");
+			game.reloadInventory();
+
+			// Restore current scene
+			if (currentSceneName != null) {
+				game.loadScene(currentSceneName);
+				parent.log("Restored scene: " + currentSceneName);
+			}
+
+			// Force repaint
+			game.repaint();
+
+			parent.log("✓ Live update complete");
+
+		} catch (Exception e) {
+			parent.log("Warning during live update: " + e.getMessage());
 		}
 	}
 
@@ -228,32 +344,52 @@ public class ConditionsManagerDialog extends JDialog {
 
 	private void saveConditions() {
 		try {
+			// Update Conditions from table
+			for (int row = 0; row < tableModel.getRowCount(); row++) {
+				String name = (String) tableModel.getValueAt(row, 0);
+				Boolean currentValue = (Boolean) tableModel.getValueAt(row, 1);
+				Boolean defaultValue = (Boolean) tableModel.getValueAt(row, 2);
+
+				// Set current value
+				Conditions.setCondition(name, currentValue);
+			}
+
 			// Save current values to progress.txt
 			String filename = "resources/progress.txt";
-			parent.log("Saving conditions to: " + filename);
+			parent.log("Saving current conditions to: " + filename);
 
 			Scene currentScene = parent.getGame().getCurrentScene();
 			String sceneName = currentScene != null ? currentScene.getName() : "sceneBeach";
 
 			Conditions.saveToProgress(filename, sceneName);
 
-			// Save default values to conditions-defaults.txt
-			String defaultsFile = "resources/conditions-defaults.txt";
-			FileWriter writer = new FileWriter(defaultsFile);
-			writer.write("# Default Condition Values\n");
-			writer.write("# These are the starting values when game resets\n\n");
-
+			// Save default values to conditions.txt
+			parent.log("Saving default values to conditions.txt");
 			for (int row = 0; row < tableModel.getRowCount(); row++) {
 				String name = (String) tableModel.getValueAt(row, 0);
 				Boolean defaultValue = (Boolean) tableModel.getValueAt(row, 2);
-				writer.write(name + " = " + defaultValue + "\n");
+
+				// Update the condition with default value temporarily
+				Conditions.setCondition(name, defaultValue);
 			}
-			writer.close();
+			Conditions.saveConditionsToFile();
 
-			parent.log("✓ Conditions and defaults saved!");
+			// Restore current values
+			for (int row = 0; row < tableModel.getRowCount(); row++) {
+				String name = (String) tableModel.getValueAt(row, 0);
+				Boolean currentValue = (Boolean) tableModel.getValueAt(row, 1);
+				Conditions.setCondition(name, currentValue);
+			}
 
-			JOptionPane.showMessageDialog(this, "Conditions saved to:\n" + "- progress.txt (current values)\n"
-					+ "- conditions-defaults.txt (default values)", "Success", JOptionPane.INFORMATION_MESSAGE);
+			parent.log("✓ Conditions saved!");
+
+			JOptionPane.showMessageDialog(this,
+					"✓ Conditions saved successfully!\n\n" +
+					"Saved to:\n" +
+					"• conditions.txt (default values)\n" +
+					"• progress.txt (current values)\n\n" +
+					"No source code changes needed!",
+					"Success", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Error saving: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

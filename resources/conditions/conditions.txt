@@ -1,0 +1,5 @@
+# Conditions Definition File
+# Format: conditionName = defaultValue
+# Add, modify, or remove conditions here - no source code changes needed!
+
+pathToWoodIsClear = false

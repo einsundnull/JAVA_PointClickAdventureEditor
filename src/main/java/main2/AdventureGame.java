@@ -1342,6 +1342,25 @@ public class AdventureGame extends JFrame {
 		}
 	}
 
+	/**
+	 * Reloads all scenes (actually just reloads the current scene since scenes are loaded on-demand)
+	 */
+	public void reloadAllScenes() {
+		if (currentScene != null) {
+			String sceneName = currentScene.getName();
+			loadScene(sceneName);
+			System.out.println("Reloaded scene: " + sceneName);
+		}
+	}
+
+	/**
+	 * Reloads the inventory
+	 */
+	public void reloadInventory() {
+		updateInventory();
+		System.out.println("Inventory reloaded");
+	}
+
 	private void showDialog(String dialogName) {
 		if (currentScene == null) {
 			return;
@@ -1384,11 +1403,11 @@ public class AdventureGame extends JFrame {
 	private void updateInventory() {
 		inventoryPanel.removeAll();
 
-		// Check for items based on Conditions
-		if (Conditions.hasLighter) {
+		// Check for items based on Conditions (now dynamic!)
+		if (Conditions.getCondition("hasLighter")) {
 			addItemToInventory("Feuerzeug");
 		}
-		if (Conditions.hasKey) {
+		if (Conditions.getCondition("hasKey")) {
 			addItemToInventory("Schlüssel");
 		}
 

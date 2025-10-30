@@ -60,7 +60,7 @@ public class HoverEditorDialog extends JDialog {
 		tableModel = new DefaultTableModel(columns, 0) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return column != 2; // Button column not editable
+				return true; // All columns editable (including delete button)
 			}
 		};
 
@@ -73,16 +73,10 @@ public class HoverEditorDialog extends JDialog {
 		// Condition dropdown
 		JComboBox<String> conditionCombo = new JComboBox<>();
 		conditionCombo.addItem("none");
-		try {
-			java.lang.reflect.Field[] fields = Conditions.class.getDeclaredFields();
-			for (java.lang.reflect.Field field : fields) {
-				if (field.getType() == boolean.class && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-					conditionCombo.addItem(field.getName() + " = true");
-					conditionCombo.addItem(field.getName() + " = false");
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		// Add all conditions from Conditions system (dynamic!)
+		for (String conditionName : Conditions.getAllConditionNames()) {
+			conditionCombo.addItem(conditionName + " = true");
+			conditionCombo.addItem(conditionName + " = false");
 		}
 		hoverTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(conditionCombo));
 
@@ -232,6 +226,7 @@ public class HoverEditorDialog extends JDialog {
 	class ButtonEditor extends DefaultCellEditor {
 		private JButton button;
 		private boolean isPushed;
+		private int currentRow;
 
 		public ButtonEditor(JCheckBox checkBox) {
 			super(checkBox);
@@ -245,19 +240,30 @@ public class HoverEditorDialog extends JDialog {
 				int column) {
 			button.setText("Delete");
 			isPushed = true;
+			currentRow = row;
 			return button;
 		}
 
 		@Override
 		public Object getCellEditorValue() {
 			if (isPushed) {
-				int row = hoverTable.getSelectedRow();
-				if (row >= 0) {
-					tableModel.removeRow(row);
-				}
+				// Delete the row
+				tableModel.removeRow(currentRow);
+				parent.log("Deleted hover condition from row " + currentRow);
+
+				// Autosave after deletion
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					saveHoverData();
+				});
 			}
 			isPushed = false;
 			return "Delete";
+		}
+
+		@Override
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
 		}
 	}
 }

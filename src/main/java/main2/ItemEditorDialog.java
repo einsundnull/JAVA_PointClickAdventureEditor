@@ -15,12 +15,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -313,17 +314,26 @@ public class ItemEditorDialog extends JDialog {
 			public Class<?> getColumnClass(int column) {
 				if (column == 1)
 					return Boolean.class;
+				if (column == 2)
+					return JButton.class;
 				return String.class;
 			}
 
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return column != 0 || true; // All editable
+				// Column 0 (Condition): editable
+				// Column 1 (Value): editable
+				// Column 2 (Delete): editable (button)
+				return true;
 			}
 		};
 
 		conditionsTable = new JTable(conditionsTableModel);
 		conditionsTable.setRowHeight(25);
+
+		// Setup delete button column
+		conditionsTable.getColumn("Delete").setCellRenderer(new ButtonRenderer());
+		conditionsTable.getColumn("Delete").setCellEditor(new ButtonEditor(new JCheckBox()));
 
 		JScrollPane conditionsScroll = new JScrollPane(conditionsTable);
 		conditionsPanel.add(conditionsScroll, BorderLayout.CENTER);
@@ -467,7 +477,7 @@ public class ItemEditorDialog extends JDialog {
 		// Load conditions
 		conditionsTableModel.setRowCount(0);
 		for (java.util.Map.Entry<String, Boolean> entry : selectedItem.getConditions().entrySet()) {
-			conditionsTableModel.addRow(new Object[] { entry.getKey(), entry.getValue(), "[X]" });
+			conditionsTableModel.addRow(new Object[] { entry.getKey(), entry.getValue(), "🗑️" });
 		}
 	}
 
@@ -617,29 +627,21 @@ public class ItemEditorDialog extends JDialog {
 	}
 
 	private void addCondition() {
-		// Get all available conditions
-		try {
-			java.lang.reflect.Field[] fields = Conditions.class.getDeclaredFields();
-			String[] conditionNames = new String[fields.length];
-			int count = 0;
+		// Get all available conditions from Conditions system (dynamic!)
+		Set<String> conditionNames = Conditions.getAllConditionNames();
+		String[] validConditions = conditionNames.toArray(new String[0]);
 
-			for (java.lang.reflect.Field field : fields) {
-				if (field.getType() == boolean.class && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-					conditionNames[count++] = field.getName();
-				}
-			}
+		if (validConditions.length == 0) {
+			JOptionPane.showMessageDialog(this, "No conditions available! Create conditions first in the Conditions Manager.",
+					"No Conditions", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-			String[] validConditions = new String[count];
-			System.arraycopy(conditionNames, 0, validConditions, 0, count);
+		String selected = (String) JOptionPane.showInputDialog(this, "Select condition:", "Add Condition",
+				JOptionPane.PLAIN_MESSAGE, null, validConditions, validConditions[0]);
 
-			String selected = (String) JOptionPane.showInputDialog(this, "Select condition:", "Add Condition",
-					JOptionPane.PLAIN_MESSAGE, null, validConditions, validConditions.length > 0 ? validConditions[0] : null);
-
-			if (selected != null) {
-				conditionsTableModel.addRow(new Object[] { selected, false, "[X]" });
-			}
-		} catch (Exception e) {
-			parent.log("ERROR: " + e.getMessage());
+		if (selected != null) {
+			conditionsTableModel.addRow(new Object[] { selected, false, "🗑️" });
 		}
 	}
 
@@ -1057,6 +1059,68 @@ public class ItemEditorDialog extends JDialog {
 			}
 
 			return null;
+		}
+	}
+
+	/**
+	 * Button renderer for Delete column
+	 */
+	private class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
+		public ButtonRenderer() {
+			setOpaque(true);
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			setText("🗑️");
+			setToolTipText("Delete this condition");
+			return this;
+		}
+	}
+
+	/**
+	 * Button editor for Delete column
+	 */
+	private class ButtonEditor extends javax.swing.DefaultCellEditor {
+		private JButton button;
+		private String label;
+		private boolean isPushed;
+		private int currentRow;
+
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(e -> fireEditingStopped());
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
+			label = "🗑️";
+			button.setText(label);
+			button.setToolTipText("Delete this condition");
+			isPushed = true;
+			currentRow = row;
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			if (isPushed) {
+				// Delete the row
+				conditionsTableModel.removeRow(currentRow);
+				parent.log("Deleted condition from row " + currentRow);
+			}
+			isPushed = false;
+			return label;
+		}
+
+		@Override
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
 		}
 	}
 }

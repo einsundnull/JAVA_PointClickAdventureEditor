@@ -5,23 +5,202 @@ import java.util.*;
 
 /**
  * Zentrale Klasse für alle Spielbedingungen.
- * Alle Booleans werden hier als static Variablen gespeichert.
+ * Conditions werden dynamisch aus conditions.txt geladen und verwaltet.
+ * KEINE Quellcode-Änderungen mehr notwendig!
  */
 public class Conditions {
-    // Pfad-Bedingungen
-    public static boolean pathToWoodIsClear = false;
-    
-    // Item-Bedingungen
-    public static boolean hasLighter = false;
-    public static boolean hasKey = false;
-    
-    // Zustandsbedingungen
-    public static boolean shelfIsBurned = false;
-    public static boolean doorIsLocked = true;
-    public static boolean doorIsOpen = false;
-    
+    private static final String CONDITIONS_FILE = "resources/conditions/conditions.txt";
+    private static final String CONDITIONS_DEFAULTS_FILE = "resources/conditions-defaults.txt";
+
+    // Dynamische Map für alle Conditions
+    private static Map<String, Boolean> conditions = new LinkedHashMap<>();
+
+    // Static initializer - lädt Conditions beim ersten Zugriff
+    static {
+        loadConditionsFromFile();
+    }
+
     /**
-     * Lädt alle Conditions aus progress.txt
+     * Lädt alle verfügbaren Conditions aus conditions.txt
+     */
+    private static void loadConditionsFromFile() {
+        File file = new File(CONDITIONS_FILE);
+
+        // Falls Datei nicht existiert, erstelle sie mit Defaults
+        if (!file.exists()) {
+            System.out.println("Conditions-Datei nicht gefunden, erstelle neue: " + CONDITIONS_FILE);
+            file.getParentFile().mkdirs();
+            createDefaultConditionsFile();
+        }
+
+        conditions.clear();
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+
+                // Überspringe Kommentare und leere Zeilen
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+
+                // Format: conditionName = defaultValue
+                if (line.contains("=")) {
+                    String[] parts = line.split("=", 2);
+                    String name = parts[0].trim();
+                    boolean defaultValue = Boolean.parseBoolean(parts[1].trim());
+
+                    conditions.put(name, defaultValue);
+                    System.out.println("Loaded condition: " + name + " = " + defaultValue);
+                }
+            }
+
+            reader.close();
+            System.out.println("✓ Loaded " + conditions.size() + " conditions from: " + CONDITIONS_FILE);
+        } catch (Exception e) {
+            System.err.println("ERROR loading conditions: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Erstellt Standard-Conditions-Datei
+     */
+    private static void createDefaultConditionsFile() {
+        try {
+            File file = new File(CONDITIONS_FILE);
+            file.getParentFile().mkdirs();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write("# Conditions Definition File\n");
+            writer.write("# Format: conditionName = defaultValue\n");
+            writer.write("# Add, modify, or remove conditions here - no source code changes needed!\n\n");
+
+            // Migration: Übernehme vorhandene Conditions aus conditions-defaults.txt falls vorhanden
+            File defaultsFile = new File(CONDITIONS_DEFAULTS_FILE);
+            if (defaultsFile.exists()) {
+                writer.write("# Migrated from conditions-defaults.txt:\n");
+                BufferedReader reader = new BufferedReader(new FileReader(defaultsFile));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty() && !line.trim().startsWith("#")) {
+                        writer.write(line + "\n");
+                    }
+                }
+                reader.close();
+            } else {
+                // Default conditions
+                writer.write("pathToWoodIsClear = false\n");
+                writer.write("hasLighter = false\n");
+                writer.write("hasKey = false\n");
+                writer.write("shelfIsBurned = false\n");
+                writer.write("doorIsLocked = true\n");
+                writer.write("doorIsOpen = false\n");
+            }
+
+            writer.close();
+            System.out.println("Created default conditions file: " + CONDITIONS_FILE);
+        } catch (Exception e) {
+            System.err.println("ERROR creating default conditions file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Setzt eine Condition per Namen
+     */
+    public static void setCondition(String name, boolean value) {
+        if (conditions.containsKey(name)) {
+            conditions.put(name, value);
+            System.out.println("Condition gesetzt: " + name + " = " + value);
+        } else {
+            System.err.println("⚠️ Unbekannte Condition (wird trotzdem gesetzt): " + name);
+            conditions.put(name, value);
+        }
+    }
+
+    /**
+     * Gibt eine Condition per Namen zurück
+     */
+    public static boolean getCondition(String name) {
+        Boolean value = conditions.get(name);
+        if (value == null) {
+            System.err.println("⚠️ Unbekannte Condition: " + name + " (returning false)");
+            return false;
+        }
+        return value;
+    }
+
+    /**
+     * Fügt eine neue Condition hinzu
+     */
+    public static void addCondition(String name, boolean defaultValue) {
+        conditions.put(name, defaultValue);
+        saveConditionsToFile();
+        System.out.println("✓ Neue Condition hinzugefügt: " + name + " = " + defaultValue);
+    }
+
+    /**
+     * Löscht eine Condition
+     */
+    public static void removeCondition(String name) {
+        if (conditions.remove(name) != null) {
+            saveConditionsToFile();
+            System.out.println("✓ Condition gelöscht: " + name);
+        } else {
+            System.err.println("⚠️ Condition nicht gefunden: " + name);
+        }
+    }
+
+    /**
+     * Gibt alle Condition-Namen zurück
+     */
+    public static Set<String> getAllConditionNames() {
+        return new LinkedHashSet<>(conditions.keySet());
+    }
+
+    /**
+     * Gibt alle Conditions als Map zurück
+     */
+    public static Map<String, Boolean> getAllConditions() {
+        return new LinkedHashMap<>(conditions);
+    }
+
+    /**
+     * Prüft ob eine Condition existiert
+     */
+    public static boolean conditionExists(String name) {
+        return conditions.containsKey(name);
+    }
+
+    /**
+     * Speichert alle Conditions in conditions.txt
+     */
+    public static void saveConditionsToFile() {
+        try {
+            File file = new File(CONDITIONS_FILE);
+            file.getParentFile().mkdirs();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write("# Conditions Definition File\n");
+            writer.write("# Format: conditionName = defaultValue\n");
+            writer.write("# Add, modify, or remove conditions here - no source code changes needed!\n\n");
+
+            for (Map.Entry<String, Boolean> entry : conditions.entrySet()) {
+                writer.write(entry.getKey() + " = " + entry.getValue() + "\n");
+            }
+
+            writer.close();
+            System.out.println("✓ Conditions saved to: " + CONDITIONS_FILE);
+        } catch (Exception e) {
+            System.err.println("ERROR saving conditions: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lädt Conditions aus progress.txt (aktuelle Spielstände)
      */
     public static void loadFromProgress(String filename) {
         try {
@@ -30,33 +209,33 @@ public class Conditions {
                 System.out.println("Progress-Datei nicht gefunden: " + filename);
                 return;
             }
-            
+
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
-            
+
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                
+
                 if (line.isEmpty() || line.startsWith("#") || line.startsWith("currentScene=")) {
                     continue;
                 }
-                
+
                 if (line.contains("=")) {
                     String[] parts = line.split("=", 2);
                     String key = parts[0].trim();
                     boolean value = Boolean.parseBoolean(parts[1].trim());
-                    
+
                     setCondition(key, value);
                 }
             }
-            
+
             reader.close();
             System.out.println("Conditions geladen aus: " + filename);
         } catch (Exception e) {
             System.err.println("Fehler beim Laden der Conditions: " + e.getMessage());
         }
     }
-    
+
     /**
      * Speichert alle Conditions in progress.txt
      */
@@ -64,97 +243,38 @@ public class Conditions {
         try {
             File file = new File(filename);
             file.getParentFile().mkdirs();
-            
+
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            
+
             writer.write("# Game Progress\n");
             writer.write("currentScene=" + currentScene + "\n");
             writer.write("\n# Boolean Variables\n");
-            
-            writer.write("pathToWoodIsClear=" + pathToWoodIsClear + "\n");
-            writer.write("hasLighter=" + hasLighter + "\n");
-            writer.write("hasKey=" + hasKey + "\n");
-            writer.write("shelfIsBurned=" + shelfIsBurned + "\n");
-            writer.write("doorIsLocked=" + doorIsLocked + "\n");
-            writer.write("doorIsOpen=" + doorIsOpen + "\n");
-            
+
+            // Dynamisch alle Conditions speichern
+            for (Map.Entry<String, Boolean> entry : conditions.entrySet()) {
+                writer.write(entry.getKey() + "=" + entry.getValue() + "\n");
+            }
+
             writer.close();
             System.out.println("Conditions gespeichert");
         } catch (Exception e) {
             System.err.println("Fehler beim Speichern der Conditions: " + e.getMessage());
         }
     }
-    
-    /**
-     * Setzt eine Condition per Namen
-     */
-    public static void setCondition(String name, boolean value) {
-        switch (name) {
-            case "pathToWoodIsClear":
-                pathToWoodIsClear = value;
-                break;
-            case "hasLighter":
-                hasLighter = value;
-                break;
-            case "hasKey":
-                hasKey = value;
-                break;
-            case "shelfIsBurned":
-                shelfIsBurned = value;
-                break;
-            case "doorIsLocked":
-                doorIsLocked = value;
-                break;
-            case "doorIsOpen":
-                doorIsOpen = value;
-                break;
-            default:
-                System.err.println("Unbekannte Condition: " + name);
-        }
-        System.out.println("Condition gesetzt: " + name + " = " + value);
-    }
-    
-    /**
-     * Gibt eine Condition per Namen zurück
-     */
-    public static boolean getCondition(String name) {
-        switch (name) {
-            case "pathToWoodIsClear":
-                return pathToWoodIsClear;
-            case "hasLighter":
-                return hasLighter;
-            case "hasKey":
-                return hasKey;
-            case "shelfIsBurned":
-                return shelfIsBurned;
-            case "doorIsLocked":
-                return doorIsLocked;
-            case "doorIsOpen":
-                return doorIsOpen;
-            default:
-                System.err.println("Unbekannte Condition: " + name);
-                return false;
-        }
-    }
-    
+
     /**
      * Setzt alle Conditions auf Default-Werte zurück
      */
     public static void resetToDefault() {
-        // Try to load from defaults file first
-        File defaultsFile = new File("resources/conditions-defaults.txt");
-        if (defaultsFile.exists()) {
-            System.out.println("Loading defaults from: " + defaultsFile.getAbsolutePath());
-            loadFromProgress("resources/conditions-defaults.txt");
-        } else {
-            // Fallback to hardcoded defaults
-            pathToWoodIsClear = false;
-            hasLighter = false;
-            hasKey = false;
-            shelfIsBurned = false;
-            doorIsLocked = true;
-            doorIsOpen = false;
-        }
+        System.out.println("Resetting conditions to defaults...");
+        loadConditionsFromFile();
         System.out.println("Conditions zurückgesetzt");
+    }
+
+    /**
+     * Lädt Conditions neu aus der Datei
+     */
+    public static void reloadConditions() {
+        loadConditionsFromFile();
     }
 }

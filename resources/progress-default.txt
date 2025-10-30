@@ -3,7 +3,3 @@ currentScene=sceneBeach
 
 # Boolean Variables
 pathToWoodIsClear=false
-hasLighter=false
-shelfIsBurned=false
-doorIsLocked=true
-hasKey=false

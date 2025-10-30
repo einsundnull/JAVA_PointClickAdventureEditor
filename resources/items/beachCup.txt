@@ -8,8 +8,8 @@
 -resources/images/items/Copilot_20251016_094841_enhanced_floodfill_001.png
 
 #Position:
--x = 547;
--y = 336;
+-x = 544;
+-y = 334;
 
 #Size:
 -width = 213;
@@ -23,12 +23,12 @@
 
 #MouseHover:
 --conditions
----pathToWoodIsClear = true;
+---testDelete = true;
 ----Display:
-------"a white cup"
+------"white cup true"
 ---pathToWoodIsClear = false;
 ----Display:
-------"another white cup"
+------"white cup false"
 
 #ImageConditions:
 --conditions:
