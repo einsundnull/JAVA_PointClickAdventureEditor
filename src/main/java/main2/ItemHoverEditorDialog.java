@@ -70,15 +70,8 @@ public class ItemHoverEditorDialog extends JDialog {
 		hoverTable.getColumnModel().getColumn(1).setPreferredWidth(400);
 		hoverTable.getColumnModel().getColumn(2).setPreferredWidth(80);
 
-		// Condition dropdown
-		JComboBox<String> conditionCombo = new JComboBox<>();
-		conditionCombo.addItem("none");
-		// Add all conditions from Conditions system (dynamic!)
-		for (String conditionName : Conditions.getAllConditionNames()) {
-			conditionCombo.addItem(conditionName + " = true");
-			conditionCombo.addItem(conditionName + " = false");
-		}
-		hoverTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(conditionCombo));
+		// Condition dropdown - using custom editor that loads conditions dynamically
+		hoverTable.getColumnModel().getColumn(0).setCellEditor(new DynamicConditionComboBoxEditor());
 
 		// Delete button column
 		hoverTable.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
@@ -284,6 +277,38 @@ public class ItemHoverEditorDialog extends JDialog {
 		public boolean stopCellEditing() {
 			isPushed = false;
 			return super.stopCellEditing();
+		}
+	}
+
+	/**
+	 * Dynamic ComboBox editor that reloads conditions every time a cell is edited
+	 */
+	class DynamicConditionComboBoxEditor extends DefaultCellEditor {
+		private JComboBox<String> comboBox;
+
+		public DynamicConditionComboBoxEditor() {
+			super(new JComboBox<>());
+			comboBox = (JComboBox<String>) getComponent();
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			// Reload conditions every time the editor is opened
+			comboBox.removeAllItems();
+			comboBox.addItem("none");
+
+			// Add all current conditions from Conditions system (dynamically loaded!)
+			for (String conditionName : Conditions.getAllConditionNames()) {
+				comboBox.addItem(conditionName + " = true");
+				comboBox.addItem(conditionName + " = false");
+			}
+
+			// Set current value if exists
+			if (value != null) {
+				comboBox.setSelectedItem(value);
+			}
+
+			return comboBox;
 		}
 	}
 }

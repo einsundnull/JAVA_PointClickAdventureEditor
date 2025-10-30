@@ -6,11 +6,12 @@ import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -161,10 +162,8 @@ public class ConditionsManagerDialog extends JDialog {
 			parent.log("✓ Added new condition: " + name);
 
 			JOptionPane.showMessageDialog(this,
-					"✓ Condition added successfully!\n\n" +
-					"The condition has been saved to:\n" +
-					"resources/conditions/conditions.txt\n\n" +
-					"No source code changes needed!",
+					"✓ Condition added successfully!\n\n" + "The condition has been saved to:\n"
+							+ "resources/conditions/conditions.txt\n\n" + "No source code changes needed!",
 					"Success", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -195,8 +194,7 @@ public class ConditionsManagerDialog extends JDialog {
 				int count = 0;
 				for (Map.Entry<String, List<Integer>> entry : references.entrySet()) {
 					String file = entry.getKey().replace("resources\\", "").replace("resources/", "");
-					message.append("  • ").append(file).append(" (").append(entry.getValue().size())
-							.append(" refs)\n");
+					message.append("  • ").append(file).append(" (").append(entry.getValue().size()).append(" refs)\n");
 					count++;
 					if (count >= 5 && references.size() > 5) {
 						message.append("  • ... and ").append(references.size() - 5).append(" more\n");
@@ -253,12 +251,8 @@ public class ConditionsManagerDialog extends JDialog {
 			parent.log("✓ Cascade deletion complete for: " + name);
 
 			JOptionPane.showMessageDialog(this,
-					"✓ Condition deleted successfully!\n\n" +
-					"Removed from:\n" +
-					"• conditions.txt\n" +
-					"• All .txt resource files\n" +
-					"• Progress files\n\n" +
-					"No source code changes needed!",
+					"✓ Condition deleted successfully!\n\n" + "Removed from:\n" + "• conditions.txt\n"
+							+ "• All .txt resource files\n" + "• Progress files\n\n" + "No source code changes needed!",
 					"Success", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (Exception e) {
@@ -276,6 +270,10 @@ public class ConditionsManagerDialog extends JDialog {
 		try {
 			parent.log("Triggering live update of scenes and items...");
 
+			// 1. Reload Conditions from file (in case they were deleted)
+			parent.log("Reloading conditions from file...");
+			Conditions.reloadConditions();
+
 			// Get the current game instance
 			AdventureGame game = parent.getGame();
 			if (game == null) {
@@ -287,21 +285,25 @@ public class ConditionsManagerDialog extends JDialog {
 			Scene currentScene = game.getCurrentScene();
 			String currentSceneName = currentScene != null ? currentScene.getName() : null;
 
-			// Reload all scenes
+			// 2. Reload all scenes
 			parent.log("Reloading scenes...");
 			game.reloadAllScenes();
 
-			// Reload inventory items
+			// 3. Reload inventory items
 			parent.log("Reloading inventory...");
 			game.reloadInventory();
 
-			// Restore current scene
+			// 4. Restore current scene
 			if (currentSceneName != null) {
 				game.loadScene(currentSceneName);
 				parent.log("Restored scene: " + currentSceneName);
 			}
 
-			// Force repaint
+			// 5. Clean up invalid condition references in loaded items
+			parent.log("Cleaning up invalid condition references...");
+			cleanupInvalidConditionReferences();
+
+			// 6. Force repaint
 			game.repaint();
 
 			parent.log("✓ Live update complete");
@@ -309,6 +311,94 @@ public class ConditionsManagerDialog extends JDialog {
 		} catch (Exception e) {
 			parent.log("Warning during live update: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Removes references to non-existent conditions from all loaded items and
+	 * keyareas
+	 */
+	private void cleanupInvalidConditionReferences() {
+		Scene currentScene = parent.getGame().getCurrentScene();
+		if (currentScene == null) {
+			return;
+		}
+
+		Set<String> validConditions = Conditions.getAllConditionNames();
+		int removedCount = 0;
+
+		// Clean up Items
+		for (Item item : currentScene.getItems()) {
+			// Clean conditions map
+			Map<String, Boolean> itemConditions = item.getConditions();
+			List<String> toRemove = new ArrayList<>();
+			for (String condName : itemConditions.keySet()) {
+				if (!validConditions.contains(condName)) {
+					toRemove.add(condName);
+				}
+			}
+			for (String condName : toRemove) {
+				itemConditions.remove(condName);
+				removedCount++;
+				parent.log("  Removed invalid condition '" + condName + "' from item: " + item.getName());
+			}
+
+			// Clean hover display conditions
+			Map<String, String> hoverConditions = item.getHoverDisplayConditions();
+			toRemove.clear();
+			for (String condName : hoverConditions.keySet()) {
+				// Extract actual condition name (format: "condName = true")
+				String actualName = condName.split("=")[0].trim();
+				if (!actualName.equals("none") && !validConditions.contains(actualName)) {
+					toRemove.add(condName);
+				}
+			}
+			for (String condName : toRemove) {
+				hoverConditions.remove(condName);
+				removedCount++;
+				parent.log("  Removed invalid hover condition '" + condName + "' from item: " + item.getName());
+			}
+		}
+
+		// Clean up KeyAreas
+		for (KeyArea keyArea : currentScene.getKeyAreas()) {
+			// Clean hover display conditions
+			Map<String, String> hoverConditions = keyArea.getHoverDisplayConditions();
+			List<String> toRemove = new ArrayList<>();
+			for (String condName : hoverConditions.keySet()) {
+				// Extract actual condition name (format: "condName = true")
+				String actualName = condName.split("=")[0].trim();
+				if (!actualName.equals("none") && !validConditions.contains(actualName)) {
+					toRemove.add(condName);
+				}
+			}
+			for (String condName : toRemove) {
+				hoverConditions.remove(condName);
+				removedCount++;
+				parent.log("  Removed invalid hover condition '" + condName + "' from keyArea: " + keyArea.getName());
+			}
+
+			// Clean action conditions
+			Map<String, KeyArea.ActionHandler> actions = keyArea.getActions();
+			for (Map.Entry<String, KeyArea.ActionHandler> entry : actions.entrySet()) {
+				KeyArea.ActionHandler handler = entry.getValue();
+				Map<String, String> conditionalResults = handler.getConditionalResults();
+				toRemove.clear();
+				for (String condName : conditionalResults.keySet()) {
+					String actualName = condName.split("=")[0].trim();
+					if (!actualName.equals("none") && !validConditions.contains(actualName)) {
+						toRemove.add(condName);
+					}
+				}
+				for (String condName : toRemove) {
+					conditionalResults.remove(condName);
+					removedCount++;
+					parent.log(
+							"  Removed invalid action condition '" + condName + "' from keyArea: " + keyArea.getName());
+				}
+			}
+		}
+
+		parent.log("✓ Cleaned up " + removedCount + " invalid condition references");
 	}
 
 	private Map<String, Boolean> loadDefaultValues() {
@@ -384,11 +474,8 @@ public class ConditionsManagerDialog extends JDialog {
 			parent.log("✓ Conditions saved!");
 
 			JOptionPane.showMessageDialog(this,
-					"✓ Conditions saved successfully!\n\n" +
-					"Saved to:\n" +
-					"• conditions.txt (default values)\n" +
-					"• progress.txt (current values)\n\n" +
-					"No source code changes needed!",
+					"✓ Conditions saved successfully!\n\n" + "Saved to:\n" + "• conditions.txt (default values)\n"
+							+ "• progress.txt (current values)\n\n" + "No source code changes needed!",
 					"Success", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (Exception e) {

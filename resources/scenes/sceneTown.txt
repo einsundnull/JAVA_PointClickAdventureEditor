@@ -1,3 +1,4 @@
+backgroundImage=ChatGPT Image 28. Okt. 2025, 10_47_01.png
 #Backgroundimage:
 -sceneTown.png
 

@@ -162,6 +162,14 @@ public class EditorWindow extends JFrame {
 		createSceneBtn.addActionListener(e -> createNewScene());
 		sceneButtonPanel.add(createSceneBtn);
 
+		JButton editSceneBtn = new JButton("✏️ Edit");
+		editSceneBtn.addActionListener(e -> editSelectedScene());
+		sceneButtonPanel.add(editSceneBtn);
+
+		JButton deleteSceneBtn = new JButton("🗑️ Delete");
+		deleteSceneBtn.addActionListener(e -> deleteSelectedScene());
+		sceneButtonPanel.add(deleteSceneBtn);
+
 		sceneListContentPanel.add(sceneButtonPanel, BorderLayout.SOUTH);
 
 		sceneListPanel.add(sceneHeaderPanel, BorderLayout.NORTH);
@@ -1238,6 +1246,117 @@ public class EditorWindow extends JFrame {
 				JOptionPane.showMessageDialog(this, "Error creating scene: " + e.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
+		}
+	}
+
+	private void editSelectedScene() {
+		int selectedIndex = sceneList.getSelectedIndex();
+		if (selectedIndex < 0) {
+			JOptionPane.showMessageDialog(this, "Please select a scene first!", "No Selection",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String selectedScene = sceneListModel.getElementAt(selectedIndex);
+		log("Opening Scene Editor for: " + selectedScene);
+
+		SceneEditorDialog dialog = new SceneEditorDialog(this, selectedScene);
+		dialog.setVisible(true);
+
+		// Refresh scene list after editing (in case it was renamed)
+		loadAllScenes();
+	}
+
+	private void deleteSelectedScene() {
+		int selectedIndex = sceneList.getSelectedIndex();
+		if (selectedIndex < 0) {
+			JOptionPane.showMessageDialog(this, "Please select a scene first!", "No Selection",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String selectedScene = sceneListModel.getElementAt(selectedIndex);
+
+		try {
+			// Find all references first
+			log("Searching for references to scene: " + selectedScene);
+			java.util.Map<String, java.util.List<Integer>> references = SceneReferenceManager.findSceneReferences(selectedScene);
+
+			// Build confirmation message
+			StringBuilder message = new StringBuilder();
+			message.append("Delete scene '").append(selectedScene).append("'?\n\n");
+
+			if (references.isEmpty()) {
+				message.append("✓ No references found in .txt files.\n\n");
+			} else {
+				message.append("⚠️ Found references in ").append(references.size()).append(" file(s):\n\n");
+				int count = 0;
+				for (java.util.Map.Entry<String, java.util.List<Integer>> entry : references.entrySet()) {
+					String file = entry.getKey().replace("resources\\", "").replace("resources/", "");
+					message.append("  • ").append(file).append(" (").append(entry.getValue().size()).append(" refs)\n");
+					count++;
+					if (count >= 5 && references.size() > 5) {
+						message.append("  • ... and ").append(references.size() - 5).append(" more\n");
+						break;
+					}
+				}
+				message.append("\nAll references will be removed!\n\n");
+			}
+
+			message.append("This will:\n");
+			message.append("✓ Delete the scene file\n");
+			message.append("✓ Remove all references from .txt files\n");
+			message.append("\n⚠️ This action cannot be undone!");
+
+			int confirm = JOptionPane.showConfirmDialog(this, message.toString(), "Confirm Scene Deletion",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+			if (confirm != JOptionPane.YES_OPTION) {
+				return;
+			}
+
+			// Perform deletion
+			log("Starting scene deletion for: " + selectedScene);
+
+			// 1. Remove references from .txt files
+			java.util.List<String> modifiedFiles = SceneReferenceManager.removeSceneReferences(selectedScene);
+			log("Removed references from " + modifiedFiles.size() + " file(s)");
+
+			// 2. Delete the scene file
+			if (SceneReferenceManager.deleteSceneFile(selectedScene)) {
+				log("Scene file deleted successfully");
+			} else {
+				log("⚠️ Could not delete scene file");
+			}
+
+			// 3. Refresh scene list
+			loadAllScenes();
+
+			// 4. Load a different scene if this was the current scene
+			Scene currentScene = game.getCurrentScene();
+			if (currentScene != null && currentScene.getName().equals(selectedScene)) {
+				// Load the first available scene or create a blank one
+				if (sceneListModel.size() > 0) {
+					String firstScene = sceneListModel.getElementAt(0);
+					game.loadScene(firstScene);
+					log("Loaded scene: " + firstScene);
+				}
+			}
+
+			log("✓ Scene deletion complete");
+
+			JOptionPane.showMessageDialog(this,
+					"✓ Scene deleted successfully!\n\n" +
+					"Deleted:\n" +
+					"• Scene file: " + selectedScene + ".txt\n" +
+					"• All references in .txt files",
+					"Success", JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (Exception e) {
+			log("ERROR during scene deletion: " + e.getMessage());
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error deleting scene: " + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

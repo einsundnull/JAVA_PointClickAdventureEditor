@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -128,19 +129,15 @@ public class ActionsEditorDialog extends JDialog {
 		table.getColumnModel().getColumn(3).setPreferredWidth(80);  // Delete
 		table.getColumnModel().getColumn(3).setMaxWidth(80);
 
-		// Condition column with dropdown
-		JComboBox<String> conditionCombo = new JComboBox<>();
-		conditionCombo.addItem("none");
-		// Add all conditions from Conditions system (dynamic!)
-		for (String conditionName : Conditions.getAllConditionNames()) {
-			conditionCombo.addItem(conditionName + " = true");
-			conditionCombo.addItem(conditionName + " = false");
-		}
-		table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(conditionCombo));
+		// Condition column with dropdown - using custom editor that loads conditions dynamically
+		table.getColumnModel().getColumn(0).setCellEditor(new DynamicConditionComboBoxEditor());
 
 		// Result Type column
 		JComboBox<String> resultTypeCombo = new JComboBox<>(new String[] { "Dialog", "LoadScene", "SetBoolean" });
 		table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(resultTypeCombo));
+
+		// Result Value column - intelligent editor that adapts to Result Type
+		table.getColumnModel().getColumn(2).setCellEditor(new SmartResultValueEditor(table));
 
 		// Delete button column
 		table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
@@ -353,5 +350,102 @@ public class ActionsEditorDialog extends JDialog {
 		DialogManagerDialog dialog = new DialogManagerDialog(parent);
 		dialog.setVisible(true);
 		parent.log("Dialog Manager opened");
+	}
+
+	/**
+	 * Dynamic ComboBox editor that reloads conditions every time a cell is edited
+	 */
+	class DynamicConditionComboBoxEditor extends DefaultCellEditor {
+		private JComboBox<String> comboBox;
+
+		public DynamicConditionComboBoxEditor() {
+			super(new JComboBox<>());
+			comboBox = (JComboBox<String>) getComponent();
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			// Reload conditions every time the editor is opened
+			comboBox.removeAllItems();
+			comboBox.addItem("none");
+
+			// Add all current conditions from Conditions system (dynamically loaded!)
+			for (String conditionName : Conditions.getAllConditionNames()) {
+				comboBox.addItem(conditionName + " = true");
+				comboBox.addItem(conditionName + " = false");
+			}
+
+			// Set current value if exists
+			if (value != null) {
+				comboBox.setSelectedItem(value);
+			}
+
+			return comboBox;
+		}
+	}
+
+	/**
+	 * Smart Result Value editor that adapts based on Result Type
+	 */
+	class SmartResultValueEditor extends DefaultCellEditor {
+		private JComboBox<String> sceneCombo;
+		private JTextField textField;
+		private JTable table;
+		private Component currentEditor;
+
+		public SmartResultValueEditor(JTable table) {
+			super(new JTextField());
+			this.table = table;
+			this.textField = (JTextField) getComponent();
+			this.sceneCombo = new JComboBox<>();
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			// Get the Result Type from column 1
+			String resultType = (String) table.getValueAt(row, 1);
+
+			if ("LoadScene".equals(resultType)) {
+				// Show scene dropdown
+				sceneCombo.removeAllItems();
+
+				// Add all available scenes
+				java.util.List<String> scenes = SceneReferenceManager.getAllSceneNames();
+				for (String sceneName : scenes) {
+					sceneCombo.addItem(sceneName);
+				}
+
+				// Set current value if exists
+				if (value != null && !value.toString().isEmpty()) {
+					sceneCombo.setSelectedItem(value);
+				}
+
+				currentEditor = sceneCombo;
+				return sceneCombo;
+
+			} else if ("SetBoolean".equals(resultType)) {
+				// Show text field with hint
+				textField.setText(value != null ? value.toString() : "");
+				textField.setToolTipText("Format: conditionName=true or conditionName=false");
+				currentEditor = textField;
+				return textField;
+
+			} else {
+				// Default: text field for Dialog names
+				textField.setText(value != null ? value.toString() : "");
+				textField.setToolTipText("Enter dialog name");
+				currentEditor = textField;
+				return textField;
+			}
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			if (currentEditor == sceneCombo) {
+				return sceneCombo.getSelectedItem();
+			} else {
+				return textField.getText();
+			}
+		}
 	}
 }
