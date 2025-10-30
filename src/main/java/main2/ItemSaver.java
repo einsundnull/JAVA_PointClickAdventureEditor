@@ -91,23 +91,70 @@ public class ItemSaver {
         }
         writer.write("\n");
 
+        // Click Area - only save if custom AND has points
+        if (item.hasCustomClickArea() && item.getClickAreaPoints() != null && !item.getClickAreaPoints().isEmpty()) {
+            writer.write("#ClickArea:\n");
+            java.util.List<java.awt.Point> clickPoints = item.getClickAreaPoints();
+            for (java.awt.Point p : clickPoints) {
+                writer.write("###\n");
+                writer.write("--x = " + p.x + ";\n");
+                writer.write("--y = " + p.y + ";\n");
+            }
+            writer.write("\n");
+        }
+
         // Actions
         writer.write("#Actions:\n");
         Map<String, KeyArea.ActionHandler> actions = item.getActions();
+
+        // Filter out corrupted actions (actions with empty or invalid names)
+        boolean hasValidActions = false;
         if (actions != null && !actions.isEmpty()) {
             for (Map.Entry<String, KeyArea.ActionHandler> actionEntry : actions.entrySet()) {
                 String actionName = actionEntry.getKey();
+                // Skip corrupted action names (containing dialog text, conditions, etc.)
+                if (actionName != null && !actionName.trim().isEmpty() &&
+                    !actionName.contains("dialog-") &&
+                    !actionName.contains("conditions") &&
+                    !actionName.contains("#Dialog") &&
+                    !actionName.startsWith("-")) {
+                    hasValidActions = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasValidActions) {
+            for (Map.Entry<String, KeyArea.ActionHandler> actionEntry : actions.entrySet()) {
+                String actionName = actionEntry.getKey();
                 KeyArea.ActionHandler handler = actionEntry.getValue();
+
+                // Skip corrupted action names
+                if (actionName == null || actionName.trim().isEmpty() ||
+                    actionName.contains("dialog-") ||
+                    actionName.contains("conditions") ||
+                    actionName.contains("#Dialog") ||
+                    actionName.startsWith("-")) {
+                    continue;
+                }
 
                 writer.write("-" + actionName + "\n");
                 writer.write("--conditions\n");
 
                 Map<String, String> actionConditions = handler.getConditionalResults();
                 if (actionConditions != null && !actionConditions.isEmpty()) {
+                    boolean hasValidConditions = false;
                     for (Map.Entry<String, String> condEntry : actionConditions.entrySet()) {
                         String condition = condEntry.getKey();
                         String result = condEntry.getValue();
 
+                        // Skip corrupted conditions
+                        if (condition == null || result == null ||
+                            condition.contains("#Dialog") || condition.contains("dialog-")) {
+                            continue;
+                        }
+
+                        hasValidConditions = true;
                         writer.write("---" + condition + ";\n");
 
                         if (result.startsWith("#Dialog:")) {
@@ -121,6 +168,13 @@ public class ItemSaver {
                             writer.write("----" + result + "\n");
                         }
                     }
+
+                    if (!hasValidConditions) {
+                        // No valid conditions, write default
+                        writer.write("---none\n");
+                        writer.write("----#Dialog:\n");
+                        writer.write("------dialog-" + item.getName().toLowerCase() + "-" + actionName.toLowerCase() + "\n");
+                    }
                 } else {
                     writer.write("---none\n");
                     writer.write("----#Dialog:\n");
@@ -128,7 +182,7 @@ public class ItemSaver {
                 }
             }
         } else {
-            // Default action
+            // Default action - no valid actions found
             writer.write("-Anschauen\n");
             writer.write("--conditions\n");
             writer.write("---none\n");

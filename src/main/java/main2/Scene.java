@@ -13,6 +13,7 @@ public class Scene {
     private List<Path> paths;
     private Map<String, String> dialogs; // dialogName -> dialogText
     private List<Item> items; // Items placed in this scene
+    private Item selectedItem; // Item currently selected in editor (has mouse priority)
 
     public Scene(String name) {
         this.name = name;
@@ -76,14 +77,36 @@ public class Scene {
 
     /**
      * Get item at specific point using polygon-based click detection
+     * Selected item has priority and is checked first
      */
     public Item getItemAt(Point point) {
-        for (Item item : items) {
-            if (item.isVisible() && item.containsPoint(point)) {
+        // Check selected item first (if it exists and is visible)
+        if (selectedItem != null && selectedItem.isVisible() && selectedItem.containsPoint(point)) {
+            return selectedItem;
+        }
+
+        // Then check other items in reverse order (last added = top layer)
+        for (int i = items.size() - 1; i >= 0; i--) {
+            Item item = items.get(i);
+            if (item != selectedItem && item.isVisible() && item.containsPoint(point)) {
                 return item;
             }
         }
         return null;
+    }
+
+    /**
+     * Set the selected item (for editor - gives mouse priority)
+     */
+    public void setSelectedItem(Item item) {
+        this.selectedItem = item;
+    }
+
+    /**
+     * Get the currently selected item
+     */
+    public Item getSelectedItem() {
+        return selectedItem;
     }
     
     /**

@@ -23,7 +23,7 @@ public class Item {
     // Click detection (similar to KeyArea)
     private List<Point> clickAreaPoints; // Polygon points for click detection
     private Polygon clickAreaPolygon;
-    private boolean hasCustomClickArea = false; // True if user has customized the click area
+    private boolean hasCustomClickArea = false; // True if points were manually edited or loaded from file
 
     // KeyArea-like properties
     private Map<String, String> imageConditions; // condition -> image path
@@ -157,10 +157,7 @@ public class Item {
 
     public void setPosition(Point position) {
         this.position = position;
-        if (clickAreaPoints.isEmpty() || clickAreaPoints.size() == 4) {
-            // Update default rectangular click area
-            createDefaultClickArea();
-        }
+        // Don't auto-update click area - polygons should not change when moving items
     }
 
     public void setPosition(int x, int y) {
@@ -223,10 +220,7 @@ public class Item {
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
-        if (clickAreaPoints.isEmpty() || clickAreaPoints.size() == 4) {
-            // Update default rectangular click area
-            createDefaultClickArea();
-        }
+        // Don't auto-update click area - polygons should not change when resizing items
     }
 
     // ImageConditions methods
@@ -343,13 +337,6 @@ public class Item {
 
     public void addClickAreaPoint(int x, int y) {
         addClickAreaPoint(new Point(x, y));
-    }
-
-    /**
-     * Add click area point from file (during loading) - doesn't mark as custom
-     */
-    public void addClickAreaPointFromFile(int x, int y) {
-        clickAreaPoints.add(new Point(x, y));
     }
 
     public boolean hasCustomClickArea() {

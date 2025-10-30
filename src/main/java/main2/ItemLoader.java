@@ -25,6 +25,8 @@ public class ItemLoader {
         String pendingCondition = null;
         String currentAction = null;
         KeyArea.ActionHandler currentActionHandler = null;
+        int clickAreaX = 0;
+        int clickAreaY = 0;
 
         while ((line = reader.readLine()) != null) {
             line = line.trim();
@@ -52,8 +54,38 @@ public class ItemLoader {
                 currentSection = "MOUSEHOVER";
             } else if (line.startsWith("#ImageConditions:")) {
                 currentSection = "IMAGECONDITIONS";
+            } else if (line.startsWith("#ClickArea:")) {
+                currentSection = "CLICKAREA";
+                System.out.println("ItemLoader: Found #ClickArea: section");
+                // Clear default points and mark as custom
+                if (item != null) {
+                    item.getClickAreaPoints().clear();
+                    item.setHasCustomClickArea(true);
+                    System.out.println("ItemLoader: Set hasCustomClickArea=true, cleared points");
+                }
             } else if (line.startsWith("#Actions:")) {
                 currentSection = "ACTIONS";
+            }
+            // ClickArea coordinates - MUST come BEFORE single-dash check!
+            else if (currentSection.equals("CLICKAREA") && line.startsWith("--x")) {
+                // Parse coordinate like SceneLoader does
+                String[] parts = line.split("=");
+                if (parts.length == 2) {
+                    clickAreaX = Integer.parseInt(parts[1].trim().replace(";", ""));
+                    System.out.println("ItemLoader: Read clickAreaX = " + clickAreaX);
+                }
+            }
+            else if (currentSection.equals("CLICKAREA") && line.startsWith("--y")) {
+                // Parse coordinate like SceneLoader does
+                String[] parts = line.split("=");
+                if (parts.length == 2) {
+                    clickAreaY = Integer.parseInt(parts[1].trim().replace(";", ""));
+                    // Add point after reading both x and y - exactly like KeyArea
+                    if (item != null) {
+                        item.getClickAreaPoints().add(new Point(clickAreaX, clickAreaY));
+                        System.out.println("ItemLoader: Added point (" + clickAreaX + ", " + clickAreaY + ") to item");
+                    }
+                }
             }
             // Data lines
             else if (line.startsWith("-")) {
@@ -138,7 +170,16 @@ public class ItemLoader {
                         break;
                 }
             }
+            // ClickArea marker ### - reset coordinates
+            else if (currentSection.equals("CLICKAREA") && line.startsWith("###")) {
+                // Marker for new click area point - reset coordinates
+                clickAreaX = 0;
+                clickAreaY = 0;
+                System.out.println("ItemLoader: Found ### marker, reset coordinates");
+                continue;
+            }
             // Sub-sections for MouseHover, ImageConditions, Actions
+            // NOTE: This must come AFTER --x and --y checks!
             else if (line.startsWith("--conditions") || line.startsWith("--conditions:")) {
                 currentSubSection = "CONDITIONS";
             }
@@ -192,7 +233,18 @@ public class ItemLoader {
             throw new IOException("Invalid item file format - no name found");
         }
 
-        System.out.println("Loaded item: " + item.getName());
+        // Update polygon if custom points were loaded
+        if (item.hasCustomClickArea()) {
+            item.updateClickAreaPolygon();
+            System.out.println("Loaded Custom Click Area for Item: " + item.getName());
+            for (int i = 0; i < item.getClickAreaPoints().size(); i++) {
+                Point p = item.getClickAreaPoints().get(i);
+                System.out.println("  Added point: (" + p.x + ", " + p.y + ")");
+            }
+        } else {
+            System.out.println("Loaded item: " + item.getName());
+        }
+
         return item;
     }
 

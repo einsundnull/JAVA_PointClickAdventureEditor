@@ -55,6 +55,10 @@ public class ItemEditorDialog extends JDialog {
 	private DefaultTableModel conditionsTableModel;
 
 	public ItemEditorDialog(EditorWindow parent) {
+		this(parent, null);
+	}
+
+	public ItemEditorDialog(EditorWindow parent, Item preSelectedItem) {
 		super(parent, "Item Editor", false); // Non-modal
 		this.parent = parent;
 
@@ -63,6 +67,11 @@ public class ItemEditorDialog extends JDialog {
 
 		initUI();
 		loadAllItems();
+
+		// Pre-select item if provided
+		if (preSelectedItem != null) {
+			selectItemInList(preSelectedItem);
+		}
 	}
 
 	private void initUI() {
@@ -273,6 +282,16 @@ public class ItemEditorDialog extends JDialog {
 		editPointsBtn.addActionListener(e -> openPointEditor());
 		posPanel.add(editPointsBtn);
 
+		JButton actionsBtn = new JButton("⚡ Actions");
+		actionsBtn.setToolTipText("Edit item actions (like KeyArea actions)");
+		actionsBtn.addActionListener(e -> openActionsDialog());
+		posPanel.add(actionsBtn);
+
+		JButton mouseHoverBtn = new JButton("🖱️ Mouse Hover");
+		mouseHoverBtn.setToolTipText("Edit mouse hover text");
+		mouseHoverBtn.addActionListener(e -> openMouseHoverDialog());
+		posPanel.add(mouseHoverBtn);
+
 		rightPanel.add(posPanel);
 
 		// In Inventory
@@ -334,6 +353,16 @@ public class ItemEditorDialog extends JDialog {
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
+		JButton renameBtn = new JButton("✏️ Rename Item");
+		renameBtn.setToolTipText("Rename the selected item");
+		renameBtn.addActionListener(e -> renameItem());
+		bottomPanel.add(renameBtn);
+
+		JButton deleteBtn = new JButton("🗑️ Delete Item");
+		deleteBtn.setToolTipText("Delete the selected item");
+		deleteBtn.addActionListener(e -> deleteItem());
+		bottomPanel.add(deleteBtn);
+
 		JButton openFolderBtn = new JButton("📁 Open Items Folder");
 		openFolderBtn.addActionListener(e -> openItemsFolder());
 		bottomPanel.add(openFolderBtn);
@@ -366,11 +395,30 @@ public class ItemEditorDialog extends JDialog {
 		parent.log("Loaded " + itemListModel.size() + " items");
 	}
 
+	private void selectItemInList(Item item) {
+		if (item == null) return;
+
+		String itemName = item.getName();
+		for (int i = 0; i < itemListModel.size(); i++) {
+			if (itemListModel.getElementAt(i).equals(itemName)) {
+				itemList.setSelectedIndex(i);
+				itemList.ensureIndexIsVisible(i);
+				parent.log("Pre-selected item: " + itemName);
+				return;
+			}
+		}
+	}
+
 	private void onItemSelected() {
 		int selectedIndex = itemList.getSelectedIndex();
 		if (selectedIndex < 0) {
 			selectedItem = null;
 			clearFields();
+			// Clear selected item in scene
+			Scene currentScene = parent.getGame().getCurrentScene();
+			if (currentScene != null) {
+				currentScene.setSelectedItem(null);
+			}
 			return;
 		}
 
@@ -380,6 +428,22 @@ public class ItemEditorDialog extends JDialog {
 			selectedItem = ItemLoader.loadItemByName(itemName);
 			loadItemToFields();
 			parent.log("Selected item: " + itemName);
+
+			// Set as selected item in scene for mouse priority
+			Scene currentScene = parent.getGame().getCurrentScene();
+			if (currentScene != null) {
+				// Find the actual item instance in the scene
+				for (Item sceneItem : currentScene.getItems()) {
+					if (sceneItem.getName().equals(itemName)) {
+						currentScene.setSelectedItem(sceneItem);
+						parent.log("Set " + itemName + " as selected item in scene (mouse priority)");
+						break;
+					}
+				}
+			}
+
+			// Repaint to highlight selected item
+			parent.getGame().repaintGamePanel();
 		} catch (Exception e) {
 			parent.log("ERROR loading item: " + e.getMessage());
 			JOptionPane.showMessageDialog(this, "Error loading item: " + e.getMessage(), "Error",
@@ -452,39 +516,29 @@ public class ItemEditorDialog extends JDialog {
 
 	private void deleteItem() {
 		if (selectedItem == null) {
-			JOptionPane.showMessageDialog(this, "Please select an item first!", "No Selection",
-					JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 
 		String itemName = selectedItem.getName();
-		int confirm = JOptionPane.showConfirmDialog(this,
-				"Delete item '" + itemName + "'?\n\nThis will delete the .txt file!", "Confirm Delete",
-				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		File itemFile = new File("resources/items/" + itemName + ".txt");
+		if (itemFile.delete()) {
+			itemListModel.removeElement(itemName);
+			selectedItem = null;
+			clearFields();
+			parent.log("Deleted item: " + itemName);
 
-		if (confirm == JOptionPane.YES_OPTION) {
-			File itemFile = new File("resources/items/" + itemName + ".txt");
-			if (itemFile.delete()) {
-				itemListModel.removeElement(itemName);
-				selectedItem = null;
-				clearFields();
-				parent.log("Deleted item: " + itemName);
-
-				// Remove from current scene and update all UIs
-				Scene currentScene = parent.getGame().getCurrentScene();
-				if (currentScene != null) {
-					currentScene.getItems().removeIf(item -> item.getName().equals(itemName));
-					parent.autoSaveCurrentScene();
-					parent.getGame().repaintGamePanel();
-					parent.refreshItemList();
-				}
-
-				// Refresh this dialog's list
-				itemList.repaint();
-			} else {
-				JOptionPane.showMessageDialog(this, "Could not delete item file!", "Error",
-						JOptionPane.ERROR_MESSAGE);
+			// Remove from current scene and update all UIs
+			Scene currentScene = parent.getGame().getCurrentScene();
+			if (currentScene != null) {
+				currentScene.getItems().removeIf(item -> item.getName().equals(itemName));
+				currentScene.setSelectedItem(null); // Clear selected item
+				parent.autoSaveCurrentScene();
+				parent.getGame().repaintGamePanel();
+				parent.refreshItemList();
 			}
+
+			// Refresh this dialog's list
+			itemList.repaint();
 		}
 	}
 
@@ -843,6 +897,82 @@ public class ItemEditorDialog extends JDialog {
 
 		g2d.dispose();
 		return flipped;
+	}
+
+	private void renameItem() {
+		if (selectedItem == null) {
+			return;
+		}
+
+		String oldName = selectedItem.getName();
+		String newName = JOptionPane.showInputDialog(this, "Enter new name for item:", oldName);
+
+		if (newName != null && !newName.trim().isEmpty() && !newName.equals(oldName)) {
+			newName = newName.trim();
+
+			// Check if new name already exists
+			File newFile = new File("resources/items/" + newName + ".txt");
+			if (newFile.exists()) {
+				parent.log("ERROR: Item '" + newName + "' already exists!");
+				return;
+			}
+
+			// Rename the file
+			File oldFile = new File("resources/items/" + oldName + ".txt");
+			if (oldFile.exists()) {
+				if (oldFile.renameTo(newFile)) {
+					// Update the item object
+					selectedItem.setName(newName);
+
+					// Save the item with new name
+					try {
+						ItemSaver.saveItemByName(selectedItem);
+					} catch (Exception e) {
+						parent.log("ERROR renaming item: " + e.getMessage());
+					}
+
+					// Update the list
+					loadAllItems();
+					selectItemInList(selectedItem);
+
+					// Update item in scene if it exists
+					Scene currentScene = parent.getGame().getCurrentScene();
+					if (currentScene != null) {
+						for (Item sceneItem : currentScene.getItems()) {
+							if (sceneItem.getName().equals(oldName)) {
+								sceneItem.setName(newName);
+								parent.autoSaveCurrentScene();
+								break;
+							}
+						}
+					}
+
+					parent.log("Renamed item from '" + oldName + "' to '" + newName + "'");
+				} else {
+					parent.log("ERROR: Failed to rename file!");
+				}
+			}
+		}
+	}
+
+	private void openActionsDialog() {
+		if (selectedItem == null) {
+			return;
+		}
+
+		parent.log("Opening Actions Dialog for item: " + selectedItem.getName());
+		ItemActionsEditorDialog dialog = new ItemActionsEditorDialog(parent, selectedItem);
+		dialog.setVisible(true);
+	}
+
+	private void openMouseHoverDialog() {
+		if (selectedItem == null) {
+			return;
+		}
+
+		parent.log("Opening Mouse Hover Dialog for item: " + selectedItem.getName());
+		ItemHoverEditorDialog dialog = new ItemHoverEditorDialog(parent, selectedItem);
+		dialog.setVisible(true);
 	}
 
 	/**

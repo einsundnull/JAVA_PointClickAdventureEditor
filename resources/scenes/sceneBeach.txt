@@ -206,6 +206,5 @@
 --Einige Bretter sind locker.
 
 #Items:
--beach_clock
--BeachBarBook
+-beachCup
 

@@ -963,7 +963,7 @@ public class EditorWindow extends JFrame {
 
 	private void openItemEditor() {
 		log("Opening Item Editor...");
-		ItemEditorDialog dialog = new ItemEditorDialog(this);
+		ItemEditorDialog dialog = new ItemEditorDialog(this, selectedItem);
 		dialog.setVisible(true);
 		log("Item Editor opened");
 	}

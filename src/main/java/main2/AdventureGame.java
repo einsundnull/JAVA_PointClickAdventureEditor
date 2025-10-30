@@ -277,9 +277,13 @@ public class AdventureGame extends JFrame {
 				}
 
 				// Draw items (after background, before player)
+				// Draw non-selected items first, then selected item on top
 				if (currentScene != null) {
+					Item selectedSceneItem = currentScene.getSelectedItem();
+
+					// Draw all non-selected items first
 					for (Item item : currentScene.getItems()) {
-						if (item.isVisible()) {
+						if (item != selectedSceneItem && item.isVisible()) {
 							// Load item image (with condition-based path)
 							String imagePath = item.getCurrentImagePath();
 							File imageFile = new File(imagePath);
@@ -344,8 +348,8 @@ public class AdventureGame extends JFrame {
 									g2d.drawString("Path: " + imagePath, x, y + imgHeight + 15);
 								}
 							}
-						} else if (showPaths) {
-							// Show invisible items in editor mode
+						} else if (item != selectedSceneItem && showPaths && !item.isVisible()) {
+							// Show invisible non-selected items in editor mode
 							Point pos = item.getPosition();
 							int imgWidth = item.getWidth();
 							int imgHeight = item.getHeight();
@@ -358,6 +362,75 @@ public class AdventureGame extends JFrame {
 							g2d.drawString(item.getName() + " (INVISIBLE)", x, y - 5);
 						}
 					}
+
+					// Draw selected item last (on top of other items)
+					if (selectedSceneItem != null && selectedSceneItem.isVisible()) {
+						String imagePath = selectedSceneItem.getCurrentImagePath();
+						File imageFile = new File(imagePath);
+
+						if (imageFile.exists()) {
+							try {
+								// Use ImageIO.read to avoid caching issues
+								java.awt.image.BufferedImage buffered = javax.imageio.ImageIO.read(imageFile);
+								Image img = buffered;
+								Point pos = selectedSceneItem.getPosition();
+
+								// Use stored width/height from item
+								int imgWidth = selectedSceneItem.getWidth();
+								int imgHeight = selectedSceneItem.getHeight();
+
+								// Calculate top-left corner
+								int x = pos.x - imgWidth / 2;
+								int y = pos.y - imgHeight / 2;
+
+								// Draw image scaled to item size
+								g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+
+								// Draw item boundary and drag points in editor mode with ORANGE color for selected
+								if (showPaths) {
+									g2d.setColor(new Color(255, 165, 0)); // Orange for selected
+									g2d.setStroke(new BasicStroke(3)); // Thicker border
+									g2d.drawRect(x, y, imgWidth, imgHeight);
+									g2d.setFont(new Font("Arial", Font.BOLD, 12));
+									g2d.drawString(selectedSceneItem.getName() + " [SELECTED]", x, y - 5);
+
+									// Draw 4 corner drag points in ORANGE
+									int handleSize = 10; // Bigger for selected
+									g2d.setColor(new Color(255, 140, 0)); // Dark orange
+									// Top-left
+									g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+									// Top-right
+									g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+									// Bottom-left
+									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+									// Bottom-right
+									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+								}
+							} catch (Exception e) {
+								// Failed to load image
+								System.err.println("Failed to load selected item image: " + imagePath + " - " + e.getMessage());
+							}
+						} else {
+							// Draw placeholder if image not found
+							if (showPaths) {
+								Point pos = selectedSceneItem.getPosition();
+								int imgWidth = selectedSceneItem.getWidth();
+								int imgHeight = selectedSceneItem.getHeight();
+								int x = pos.x - imgWidth / 2;
+								int y = pos.y - imgHeight / 2;
+
+								g2d.setColor(new Color(255, 100, 0)); // Orange-red for selected missing image
+								g2d.setStroke(new BasicStroke(3));
+								g2d.drawRect(x, y, imgWidth, imgHeight);
+								g2d.drawLine(x, y, x + imgWidth, y + imgHeight);
+								g2d.drawLine(x + imgWidth, y, x, y + imgHeight);
+								g2d.setColor(Color.WHITE);
+								g2d.setFont(new Font("Arial", Font.BOLD, 12));
+								g2d.drawString(selectedSceneItem.getName() + " [SELECTED] (IMAGE NOT FOUND)", x, y - 5);
+								g2d.drawString("Path: " + imagePath, x, y + imgHeight + 15);
+							}
+						}
+					}
 				}
 
 				// Draw player character (on top of items)
@@ -366,6 +439,72 @@ public class AdventureGame extends JFrame {
 
 				// Draw editor visualizations ON TOP
 				if (showPaths && currentScene != null) {
+					// Draw Item click area polygons OVER images
+					// This allows dragging polygon points without moving the item
+					g2d.setColor(new Color(0, 255, 255, 100)); // Cyan for items
+					g2d.setStroke(new BasicStroke(2));
+					Item selectedSceneItem = currentScene.getSelectedItem();
+					for (Item item : currentScene.getItems()) {
+						if (item.isVisible()) {
+							Polygon poly = item.getClickAreaPolygon();
+							if (poly != null && poly.npoints > 0) {
+								// Highlight selected item with thicker orange border
+								boolean isSelected = (item == selectedSceneItem);
+								if (isSelected) {
+									g2d.setColor(new Color(255, 165, 0)); // Orange for selected
+									g2d.setStroke(new BasicStroke(4)); // Thicker stroke
+								} else {
+									g2d.setColor(new Color(0, 255, 255, 100)); // Cyan for normal
+									g2d.setStroke(new BasicStroke(2));
+								}
+								g2d.drawPolygon(poly);
+
+								// Fill semi-transparent
+								if (isSelected) {
+									g2d.setColor(new Color(255, 165, 0, 50)); // Orange fill for selected
+								} else {
+									g2d.setColor(new Color(0, 255, 255, 30));
+								}
+								g2d.fillPolygon(poly);
+
+								// Draw name at centroid
+								Rectangle bounds = poly.getBounds();
+								if (isSelected) {
+									g2d.setColor(new Color(255, 140, 0)); // Dark orange for selected
+									g2d.setFont(new Font("Arial", Font.BOLD, 12));
+								} else {
+									g2d.setColor(Color.CYAN);
+									g2d.setFont(new Font("Arial", Font.PLAIN, 11));
+								}
+								g2d.drawString("ITEM: " + item.getName(), bounds.x + 5, bounds.y + 15);
+
+								// Draw points OVER everything
+								if (isSelected) {
+									g2d.setColor(new Color(255, 140, 0)); // Orange points for selected
+								} else {
+									g2d.setColor(new Color(255, 255, 0)); // Yellow points
+								}
+								int handleSize = isSelected ? 8 : 6; // Bigger points for selected
+								List<Point> points = item.getClickAreaPoints();
+								for (int i = 0; i < points.size(); i++) {
+									Point p = points.get(i);
+									g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+									// Draw point index
+									g2d.setColor(Color.WHITE);
+									g2d.drawString(String.valueOf(i), p.x + 5, p.y - 5);
+									if (isSelected) {
+										g2d.setColor(new Color(255, 140, 0));
+									} else {
+										g2d.setColor(new Color(255, 255, 0));
+									}
+								}
+
+								g2d.setColor(new Color(0, 255, 255, 100));
+								g2d.setStroke(new BasicStroke(2));
+							}
+						}
+					}
+
 					// Draw KeyArea polygons
 					g2d.setColor(new Color(0, 255, 0, 100));
 					g2d.setStroke(new BasicStroke(2));
@@ -398,41 +537,6 @@ public class AdventureGame extends JFrame {
 						}
 					}
 
-					// Draw Item click area polygons
-					g2d.setColor(new Color(0, 255, 255, 100)); // Cyan for items
-					g2d.setStroke(new BasicStroke(2));
-					for (Item item : currentScene.getItems()) {
-						if (item.isVisible()) {
-							Polygon poly = item.getClickAreaPolygon();
-							if (poly != null && poly.npoints > 0) {
-								g2d.drawPolygon(poly);
-
-								// Fill semi-transparent
-								g2d.setColor(new Color(0, 255, 255, 30));
-								g2d.fillPolygon(poly);
-
-								// Draw name at centroid
-								Rectangle bounds = poly.getBounds();
-								g2d.setColor(Color.CYAN);
-								g2d.drawString("ITEM: " + item.getName(), bounds.x + 5, bounds.y + 15);
-
-								// Draw points
-								g2d.setColor(new Color(255, 255, 0)); // Yellow points
-								int handleSize = 6;
-								List<Point> points = item.getClickAreaPoints();
-								for (int i = 0; i < points.size(); i++) {
-									Point p = points.get(i);
-									g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
-									// Draw point index
-									g2d.setColor(Color.WHITE);
-									g2d.drawString(String.valueOf(i), p.x + 5, p.y - 5);
-									g2d.setColor(new Color(255, 255, 0));
-								}
-
-								g2d.setColor(new Color(0, 255, 255, 100));
-							}
-						}
-					}
 
 					// Draw paths
 					g2d.setColor(new Color(255, 0, 255, 150));

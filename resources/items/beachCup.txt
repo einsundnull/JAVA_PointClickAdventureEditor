@@ -1,0 +1,57 @@
+#Name:
+-beachCup
+
+#ImageFile:
+-Copilot_20251016_094841_enhanced_floodfill_001.png
+
+#ImagePath:
+-resources/images/items/Copilot_20251016_094841_enhanced_floodfill_001.png
+
+#Position:
+-x = 546;
+-y = 341;
+
+#Size:
+-width = 213;
+-height = 221;
+
+#Conditions:
+-none
+
+#IsInInventory:
+-false
+
+#MouseHover:
+--conditions
+---none
+----Display:
+------"beachCup"
+
+#ImageConditions:
+--conditions:
+---none
+----Image: resources/images/items/Copilot_20251016_094841_enhanced_floodfill_001.png;
+
+#ClickArea:
+###
+--x = 476;
+--y = 266;
+###
+--x = 584;
+--y = 264;
+###
+--x = 598;
+--y = 374;
+###
+--x = 588;
+--y = 407;
+###
+--x = 468;
+--y = 393;
+
+#Actions:
+-Anschauen
+--conditions
+---none
+----#Dialog:
+------dialog-beachcup-anschauen

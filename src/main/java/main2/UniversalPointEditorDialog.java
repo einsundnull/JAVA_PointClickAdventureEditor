@@ -50,7 +50,7 @@ public class UniversalPointEditorDialog extends JDialog {
 	 * Constructor for Item point editing
 	 */
 	public UniversalPointEditorDialog(EditorWindow parent, Item item) {
-		this(parent, item.getName(), item.getClickAreaPoints(), () -> {
+		this(parent, item.getName(), ensureItemHasPoints(item), () -> {
 			// Mark as custom when saving
 			item.setHasCustomClickArea(true);
 			item.updateClickAreaPolygon();
@@ -62,6 +62,7 @@ public class UniversalPointEditorDialog extends JDialog {
 			parent.autoSaveCurrentScene();
 			parent.getGame().repaintGamePanel();
 		});
+
 		this.editingItem = item;
 		System.out.println("UniversalPointEditorDialog created for Item: " + item.getName());
 		System.out.println("  Click area points: " + item.getClickAreaPoints().size());
@@ -70,6 +71,22 @@ public class UniversalPointEditorDialog extends JDialog {
 			Point p = item.getClickAreaPoints().get(i);
 			System.out.println("    Point " + i + ": (" + p.x + ", " + p.y + ")");
 		}
+	}
+
+	/**
+	 * Helper method to ensure item has click area points before passing to constructor
+	 */
+	private static List<Point> ensureItemHasPoints(Item item) {
+		if (item.getClickAreaPoints().isEmpty()) {
+			// If hasCustomClickArea is set but points are empty, something went wrong
+			// Reset the flag and create default points
+			if (item.hasCustomClickArea()) {
+				System.out.println("WARNING: Item has hasCustomClickArea=true but no points! Resetting flag.");
+				item.setHasCustomClickArea(false);
+			}
+			item.createClickAreaFromImage();
+		}
+		return item.getClickAreaPoints();
 	}
 
 	/**
@@ -195,9 +212,26 @@ public class UniversalPointEditorDialog extends JDialog {
 			loadPoints();
 			pointList.setSelectedIndex(selectedPointIndex);
 
-			// Mark item as having custom click area
+			// Mark item as having custom click area and update polygon
 			if (editingItem != null) {
 				editingItem.setHasCustomClickArea(true);
+				editingItem.updateClickAreaPolygon();
+
+				// CRITICAL: Also update the scene item
+				Scene currentScene = game.getCurrentScene();
+				if (currentScene != null) {
+					for (Item sceneItem : currentScene.getItems()) {
+						if (sceneItem.getName().equals(editingItem.getName())) {
+							sceneItem.getClickAreaPoints().clear();
+							for (Point p : editingItem.getClickAreaPoints()) {
+								sceneItem.getClickAreaPoints().add(new Point(p.x, p.y));
+							}
+							sceneItem.setHasCustomClickArea(true);
+							sceneItem.updateClickAreaPolygon();
+							break;
+						}
+					}
+				}
 			}
 
 			parent.log("Updated point " + selectedPointIndex + " to (" + x + ", " + y + ")");
@@ -219,9 +253,26 @@ public class UniversalPointEditorDialog extends JDialog {
 				points.add(new Point(x, y));
 				loadPoints();
 
-				// Mark item as having custom click area
+				// Mark item as having custom click area and update polygon
 				if (editingItem != null) {
 					editingItem.setHasCustomClickArea(true);
+					editingItem.updateClickAreaPolygon();
+
+					// CRITICAL: Also update the scene item
+					Scene currentScene = game.getCurrentScene();
+					if (currentScene != null) {
+						for (Item sceneItem : currentScene.getItems()) {
+							if (sceneItem.getName().equals(editingItem.getName())) {
+								sceneItem.getClickAreaPoints().clear();
+								for (Point p : editingItem.getClickAreaPoints()) {
+									sceneItem.getClickAreaPoints().add(new Point(p.x, p.y));
+								}
+								sceneItem.setHasCustomClickArea(true);
+								sceneItem.updateClickAreaPolygon();
+								break;
+							}
+						}
+					}
 				}
 
 				parent.log("Added point: (" + x + ", " + y + ")");
@@ -254,9 +305,26 @@ public class UniversalPointEditorDialog extends JDialog {
 			points.remove(selectedPointIndex);
 			loadPoints();
 
-			// Mark item as having custom click area
+			// Mark item as having custom click area and update polygon
 			if (editingItem != null) {
 				editingItem.setHasCustomClickArea(true);
+				editingItem.updateClickAreaPolygon();
+
+				// CRITICAL: Also update the scene item
+				Scene currentScene = game.getCurrentScene();
+				if (currentScene != null) {
+					for (Item sceneItem : currentScene.getItems()) {
+						if (sceneItem.getName().equals(editingItem.getName())) {
+							sceneItem.getClickAreaPoints().clear();
+							for (Point p : editingItem.getClickAreaPoints()) {
+								sceneItem.getClickAreaPoints().add(new Point(p.x, p.y));
+							}
+							sceneItem.setHasCustomClickArea(true);
+							sceneItem.updateClickAreaPolygon();
+							break;
+						}
+					}
+				}
 			}
 
 			parent.log("Deleted point " + selectedPointIndex);
@@ -284,18 +352,62 @@ public class UniversalPointEditorDialog extends JDialog {
 	 */
 	public void addPointAtPosition(int x, int y) {
 		points.add(new Point(x, y));
-		loadPoints();
+		System.out.println("UniversalPointEditorDialog.addPointAtPosition: Added point (" + x + ", " + y + ")");
+		System.out.println("  editingItem: " + (editingItem != null ? editingItem.getName() : "null"));
+		System.out.println("  points.size(): " + points.size());
 
-		// Mark item as having custom click area
+		// Mark item as having custom click area and update polygon immediately
 		if (editingItem != null) {
 			editingItem.setHasCustomClickArea(true);
+			editingItem.updateClickAreaPolygon();
+			System.out.println("  Updated item polygon, npoints: " + editingItem.getClickAreaPolygon().npoints);
+
+			// IMPORTANT: Also update the item in the current scene!
+			// The editingItem might be a different object than the one in the scene
+			Scene currentScene = game.getCurrentScene();
+			if (currentScene != null) {
+				for (Item sceneItem : currentScene.getItems()) {
+					if (sceneItem.getName().equals(editingItem.getName())) {
+						// Copy the points to the scene item
+						sceneItem.getClickAreaPoints().clear();
+						for (Point p : editingItem.getClickAreaPoints()) {
+							sceneItem.getClickAreaPoints().add(new Point(p.x, p.y));
+						}
+						sceneItem.setHasCustomClickArea(true);
+						sceneItem.updateClickAreaPolygon();
+						System.out.println("  Updated scene item polygon!");
+						break;
+					}
+				}
+			}
 		}
 
+		loadPoints();
+		parent.repaintGamePanel();
 		parent.log("Added point at (" + x + ", " + y + ")");
-		game.repaintGamePanel();
 	}
 
 	private void save() {
+		// Before calling onSave, ensure scene item is updated
+		if (editingItem != null) {
+			Scene currentScene = game.getCurrentScene();
+			if (currentScene != null) {
+				for (Item sceneItem : currentScene.getItems()) {
+					if (sceneItem.getName().equals(editingItem.getName())) {
+						// Copy all points to scene item
+						sceneItem.getClickAreaPoints().clear();
+						for (Point p : editingItem.getClickAreaPoints()) {
+							sceneItem.getClickAreaPoints().add(new Point(p.x, p.y));
+						}
+						sceneItem.setHasCustomClickArea(true);
+						sceneItem.updateClickAreaPolygon();
+						parent.log("Synchronized points with scene item: " + sceneItem.getName());
+						break;
+					}
+				}
+			}
+		}
+
 		if (onSave != null) {
 			onSave.run();
 		}
