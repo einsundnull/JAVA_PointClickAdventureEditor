@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -103,6 +105,14 @@ public class UniversalPointEditorDialog extends JDialog {
 		setSize(500, 600);
 		setLocationRelativeTo(parent);
 
+		// Add window listener to disable "Click to add" mode when dialog closes
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				disableClickToAddMode();
+			}
+		});
+
 		initUI();
 		loadPoints();
 	}
@@ -162,7 +172,7 @@ public class UniversalPointEditorDialog extends JDialog {
 		deleteBtn.addActionListener(e -> deletePoint());
 		bottomPanel.add(deleteBtn);
 
-		JButton addModeBtn = new JButton("🖱️ Click to Add");
+		JButton addModeBtn = new JButton("🖱️ Click to Add (Autosave)");
 		addModeBtn.setToolTipText("Click on the game screen to add points");
 		addModeBtn.addActionListener(e -> enableClickToAddMode());
 		bottomPanel.add(addModeBtn);
@@ -172,7 +182,10 @@ public class UniversalPointEditorDialog extends JDialog {
 		bottomPanel.add(saveBtn);
 
 		JButton closeBtn = new JButton("✓ Close");
-		closeBtn.addActionListener(e -> dispose());
+		closeBtn.addActionListener(e -> {
+			disableClickToAddMode();
+			dispose();
+		});
 		bottomPanel.add(closeBtn);
 
 		bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -345,6 +358,15 @@ public class UniversalPointEditorDialog extends JDialog {
 		JOptionPane.showMessageDialog(this,
 				"Click on the game screen to add points.\nClick 'Save' when done.",
 				"Click to Add Mode", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Disable Click to Add mode when dialog closes
+	 */
+	private void disableClickToAddMode() {
+		game.setAddPointMode(false, null);
+		game.setPointEditorForAddMode(null);
+		parent.log("Click to Add mode disabled");
 	}
 
 	/**

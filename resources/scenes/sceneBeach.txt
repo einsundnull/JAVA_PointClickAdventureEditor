@@ -75,7 +75,7 @@
 --conditions
 ---none;
 ----Display:
-------"Wooden Sign"
+------"a wooden Sign"
 -Image
 --conditions:
 ---none;

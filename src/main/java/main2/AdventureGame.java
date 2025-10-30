@@ -1,9 +1,11 @@
 package main2;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -304,7 +306,15 @@ public class AdventureGame extends JFrame {
 								int y = pos.y - imgHeight / 2;
 
 								// Draw image scaled to item size
-								g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+								// In editor mode, draw with transparency so polygon points are visible
+								if (showPaths) {
+									Composite originalComposite = g2d.getComposite();
+									g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+									g2d.setComposite(originalComposite);
+								} else {
+									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+								}
 
 								// Draw item boundary and drag points in editor mode
 								if (showPaths) {
@@ -384,7 +394,15 @@ public class AdventureGame extends JFrame {
 								int y = pos.y - imgHeight / 2;
 
 								// Draw image scaled to item size
-								g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+								// In editor mode, draw with transparency so polygon points are visible
+								if (showPaths) {
+									Composite originalComposite = g2d.getComposite();
+									g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+									g2d.setComposite(originalComposite);
+								} else {
+									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+								}
 
 								// Draw item boundary and drag points in editor mode with ORANGE color for selected
 								if (showPaths) {
@@ -586,12 +604,12 @@ public class AdventureGame extends JFrame {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (showPaths) {
-					// Check for item click first
-					handleItemPress(e.getPoint());
+					// Check for path points FIRST (higher priority for precise clicking)
+					handlePathPointPress(e.getPoint());
 
-					// If no item selected, check for path points
-					if (draggedItem == null) {
-						handlePathPointPress(e.getPoint());
+					// If no path point selected, check for item click
+					if (selectedPathPoint == null) {
+						handleItemPress(e.getPoint());
 					}
 				}
 			}
