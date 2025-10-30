@@ -2,7 +2,7 @@
 currentScene=sceneBeach
 
 # Boolean Variables
-pathToWoodIsClear=false
+pathToWoodIsClear=true
 hasLighter=false
 hasKey=false
 shelfIsBurned=false

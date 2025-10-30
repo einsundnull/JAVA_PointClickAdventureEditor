@@ -23,13 +23,16 @@
 
 #MouseHover:
 --conditions
----pathToWoodIsClear = false;
+---pathToWoodIsClear = true;
 ----Display:
 ------"a white cup"
+---pathToWoodIsClear = false;
+----Display:
+------"another white cup"
 
 #ImageConditions:
 --conditions:
----none
+---none;
 ----Image: resources/images/items/Copilot_20251016_094841_enhanced_floodfill_001.png;
 
 #ClickArea:
@@ -64,6 +67,6 @@
 #Actions:
 -Anschauen
 --conditions
----none
+---none;
 ----#Dialog:
 ------dialog-beachcup-anschauen

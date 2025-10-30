@@ -121,17 +121,29 @@ public class ItemHoverEditorDialog extends JDialog {
 	}
 
 	private void loadHoverData() {
+		parent.log("====================================================");
+		parent.log("LOADING HOVER DATA IN DIALOG");
+		parent.log("  Item: " + item.getName());
+		parent.log("  Item Instance: " + System.identityHashCode(item));
+
 		tableModel.setRowCount(0);
 
 		Map<String, String> hoverConditions = item.getHoverDisplayConditions();
+		parent.log("  hoverConditions: " + hoverConditions);
+		parent.log("  hoverConditions size: " + (hoverConditions != null ? hoverConditions.size() : "NULL"));
+
 		if (hoverConditions != null && !hoverConditions.isEmpty()) {
+			parent.log("  Loading " + hoverConditions.size() + " conditions into table:");
 			for (Map.Entry<String, String> entry : hoverConditions.entrySet()) {
+				parent.log("    - " + entry.getKey() + " -> " + entry.getValue());
 				tableModel.addRow(new Object[] { entry.getKey(), entry.getValue(), "Delete" });
 			}
 		} else {
+			parent.log("  No hover conditions found - adding default row");
 			// Add default row
 			tableModel.addRow(new Object[] { "none", item.getName(), "Delete" });
 		}
+		parent.log("====================================================");
 	}
 
 	private void saveHoverData() {

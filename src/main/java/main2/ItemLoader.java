@@ -51,6 +51,7 @@ public class ItemLoader {
             } else if (line.startsWith("#IsInInventory:")) {
                 currentSection = "INVENTORY";
             } else if (line.startsWith("#MouseHover:")) {
+                System.out.println("=====> ItemLoader: Found #MouseHover: section!");
                 currentSection = "MOUSEHOVER";
             } else if (line.startsWith("#ImageConditions:")) {
                 currentSection = "IMAGECONDITIONS";
@@ -87,8 +88,8 @@ public class ItemLoader {
                     }
                 }
             }
-            // Data lines
-            else if (line.startsWith("-")) {
+            // Data lines (only single dash, not --, ---, etc.)
+            else if (line.startsWith("-") && !line.startsWith("--")) {
                 String value = line.substring(1).trim();
 
                 switch (currentSection) {
@@ -186,8 +187,10 @@ public class ItemLoader {
             else if (line.startsWith("---") && !line.startsWith("----")) {
                 // Condition line
                 pendingCondition = line.substring(3).trim().replace(";", "");
+                System.out.println("ItemLoader: Found condition line: '" + pendingCondition + "' (Section: " + currentSection + ")");
             }
             else if (line.startsWith("----Display:")) {
+                System.out.println("ItemLoader: Found ----Display: (Setting currentSubSection=DISPLAY)");
                 currentSubSection = "DISPLAY";
             }
             else if (line.startsWith("----Image:")) {
@@ -250,6 +253,11 @@ public class ItemLoader {
             }
         } else {
             System.out.println("Loaded item: " + item.getName());
+        }
+
+        System.out.println("Final item hover display conditions size: " + item.getHoverDisplayConditions().size());
+        for (java.util.Map.Entry<String, String> entry : item.getHoverDisplayConditions().entrySet()) {
+            System.out.println("  " + entry.getKey() + " -> " + entry.getValue());
         }
 
         return item;

@@ -1,0 +1,9 @@
+# Default Condition Values
+# These are the starting values when game resets
+
+pathToWoodIsClear = false
+hasLighter = false
+hasKey = false
+shelfIsBurned = false
+doorIsLocked = false
+doorIsOpen = false
