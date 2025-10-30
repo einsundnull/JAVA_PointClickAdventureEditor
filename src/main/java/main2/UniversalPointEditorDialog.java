@@ -121,7 +121,7 @@ public class UniversalPointEditorDialog extends JDialog {
 		setLayout(new BorderLayout(10, 10));
 
 		// Title
-		JLabel titleLabel = new JLabel("📍 Point Editor: " + objectName);
+		JLabel titleLabel = new JLabel("Point Editor: " + objectName);
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 		add(titleLabel, BorderLayout.NORTH);
@@ -164,24 +164,24 @@ public class UniversalPointEditorDialog extends JDialog {
 		// Bottom: Buttons
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-		JButton addBtn = new JButton("➕ Add Point");
+		JButton addBtn = new JButton("Add Point");
 		addBtn.addActionListener(e -> addPoint());
 		bottomPanel.add(addBtn);
 
-		JButton deleteBtn = new JButton("🗑️ Delete Point");
+		JButton deleteBtn = new JButton("Delete Point");
 		deleteBtn.addActionListener(e -> deletePoint());
 		bottomPanel.add(deleteBtn);
 
-		JButton addModeBtn = new JButton("🖱️ Click to Add (Autosave)");
+		JButton addModeBtn = new JButton("Click to Add (Autosave)");
 		addModeBtn.setToolTipText("Click on the game screen to add points");
 		addModeBtn.addActionListener(e -> enableClickToAddMode());
 		bottomPanel.add(addModeBtn);
 
-		JButton saveBtn = new JButton("💾 Save");
+		JButton saveBtn = new JButton("Save");
 		saveBtn.addActionListener(e -> save());
 		bottomPanel.add(saveBtn);
 
-		JButton closeBtn = new JButton("✓ Close");
+		JButton closeBtn = new JButton("Close");
 		closeBtn.addActionListener(e -> {
 			disableClickToAddMode();
 			dispose();
