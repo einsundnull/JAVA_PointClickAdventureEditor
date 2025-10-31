@@ -1,0 +1,2 @@
+#Anschauen:lookedAtCupAtBeach=false -> 
+#Nimm:lookedAtCupAtBeach=false -> 

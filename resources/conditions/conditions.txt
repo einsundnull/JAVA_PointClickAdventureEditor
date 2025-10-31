@@ -3,3 +3,4 @@
 # Add, modify, or remove conditions here - no source code changes needed!
 
 pathToWoodIsClear = false
+lookedAtCupAtBeach = false

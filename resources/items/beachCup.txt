@@ -23,7 +23,7 @@
 
 #MouseHover:
 --conditions
----none;
+---lookedAtCupAtBeach = true;
 ----Display:
 ------"white cup"
 

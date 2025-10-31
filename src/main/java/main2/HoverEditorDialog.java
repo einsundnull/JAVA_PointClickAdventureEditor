@@ -153,8 +153,8 @@ public class HoverEditorDialog extends JDialog {
 				tableModel.addRow(new Object[] { entry.getKey(), entry.getValue(), "Delete" });
 			}
 		} else {
-			// Add default row
-			tableModel.addRow(new Object[] { "none", getName(), "Delete" });
+			// Add default row with empty text
+			tableModel.addRow(new Object[] { "none", "", "Delete" });
 		}
 	}
 
@@ -187,12 +187,13 @@ public class HoverEditorDialog extends JDialog {
 			String condition = (String) tableModel.getValueAt(row, 0);
 			String text = (String) tableModel.getValueAt(row, 1);
 
-			if (text != null && !text.trim().isEmpty()) {
+			if (text != null) {
 				// Remove quotes if user entered them
 				String cleanText = text.trim();
 				if (cleanText.startsWith("\"") && cleanText.endsWith("\"")) {
 					cleanText = cleanText.substring(1, cleanText.length() - 1);
 				}
+				// Allow empty strings as hover text
 				addHoverDisplayCondition(condition, cleanText);
 				parent.log("  Added: " + condition + " → \"" + cleanText + "\"");
 			}

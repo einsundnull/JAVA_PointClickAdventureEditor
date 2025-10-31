@@ -3,3 +3,4 @@ currentScene=sceneBeach
 
 # Boolean Variables
 pathToWoodIsClear=false
+lookedAtCupAtBeach=false
