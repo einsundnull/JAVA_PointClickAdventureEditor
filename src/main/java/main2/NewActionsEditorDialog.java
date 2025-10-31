@@ -6,9 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -220,6 +218,10 @@ public class NewActionsEditorDialog extends JDialog {
 
     private void saveActions() {
         File actionsFile = new File("resources/actions/" + keyArea.getName() + ".txt");
+        System.out.println("=== SAVING ACTIONS ===");
+        System.out.println("File: " + actionsFile.getAbsolutePath());
+        System.out.println("Action: " + actionName);
+        System.out.println("Number of ConditionsFields: " + conditionsFieldPanels.size());
 
         try {
             List<String> lines = new ArrayList<>();
@@ -227,10 +229,20 @@ public class NewActionsEditorDialog extends JDialog {
             // Read existing lines
             if (actionsFile.exists()) {
                 lines = new ArrayList<>(Files.readAllLines(actionsFile.toPath()));
+                System.out.println("Loaded " + lines.size() + " existing lines");
+            } else {
+                System.out.println("File does not exist, creating new");
             }
 
             // Remove old action lines for this action
-            lines.removeIf(line -> line.trim().startsWith("#" + actionName + ":"));
+            int removedLines = 0;
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (lines.get(i).trim().startsWith("#" + actionName + ":")) {
+                    lines.remove(i);
+                    removedLines++;
+                }
+            }
+            System.out.println("Removed " + removedLines + " old action lines");
 
             // Build new action lines from ConditionsFields
             for (ConditionsFieldPanel fieldPanel : conditionsFieldPanels) {
@@ -290,8 +302,15 @@ public class NewActionsEditorDialog extends JDialog {
                     } else {
                         actionLine += "true"; // Default condition if no conditions specified
                     }
-                    actionLine += " -> " + resultsStr.toString();
+
+                    if (resultsStr.length() > 0) {
+                        actionLine += " -> " + resultsStr.toString();
+                    } else {
+                        actionLine += " -> "; // Empty result
+                    }
+
                     lines.add(actionLine);
+                    System.out.println("Added action line: " + actionLine);
                 }
             }
 
@@ -299,7 +318,10 @@ public class NewActionsEditorDialog extends JDialog {
             actionsFile.getParentFile().mkdirs();
             Files.write(actionsFile.toPath(), lines);
 
-            JOptionPane.showMessageDialog(this, "Actions saved successfully!", "Saved",
+            System.out.println("File saved successfully with " + lines.size() + " total lines");
+            System.out.println("=== SAVE COMPLETE ===");
+
+            JOptionPane.showMessageDialog(this, "Actions saved successfully!\n\nFile: " + actionsFile.getAbsolutePath(), "Saved",
                 JOptionPane.INFORMATION_MESSAGE);
             dispose();
 
@@ -447,10 +469,13 @@ public class NewActionsEditorDialog extends JDialog {
         }
 
         private void openResultValuesEditor() {
-            ResultValuesEditorDialog dialog = new ResultValuesEditorDialog(
-                (Frame) SwingConstants.getWindowAncestor(this),
-                resultValues
-            );
+            // Get the owner of the main dialog
+            Frame owner = null;
+            if (NewActionsEditorDialog.this.getOwner() instanceof Frame) {
+                owner = (Frame) NewActionsEditorDialog.this.getOwner();
+            }
+
+            ResultValuesEditorDialog dialog = new ResultValuesEditorDialog(owner, resultValues);
             dialog.setVisible(true);
 
             if (!dialog.wasCancelled()) {
