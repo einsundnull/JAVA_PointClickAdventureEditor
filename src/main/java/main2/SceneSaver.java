@@ -1,8 +1,12 @@
 package main2;
 
 import java.awt.Point;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class SceneSaver {
     

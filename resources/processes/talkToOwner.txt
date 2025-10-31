@@ -1,0 +1,7 @@
+condition: dialogTalkToOwnerFinished = false
+dialog: dialog-owner-greeting
+pause: 3
+dialog: dialog-owner-question
+pause: 2
+result condition: dialogTalkToOwnerFinished = true
+result condition: hasKey = true

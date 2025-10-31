@@ -11,12 +11,16 @@
 ------"Go To Beach"
 -Image
 --conditions:
----none
+---none;
 ----Image: default.png;
 #Actions:
+-Gehe zu
+--conditions
+---none;
+----##loadsceneBeach
 -Anschauen
 --conditions
----none
+---none;
 ----#Dialog:
 ------dialog-pathtobeach-anschauen
 ##Location:
@@ -46,7 +50,7 @@
 ------"Door"
 -Image
 --conditions:
----none
+---none;
 ----Image: default.png;
 #Actions:
 -Drücke

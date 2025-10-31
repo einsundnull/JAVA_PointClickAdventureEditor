@@ -53,6 +53,7 @@ public class AdventureGame extends JFrame {
 	private JPanel gamePanel;
 	private JPanel menuPanel;
 	private JPanel inventoryPanel;
+	private ProcessExecutor processExecutor;
 	private Image backgroundImage;
 	private JLabel hoverTextLabel;
 	private String selectedAction = null;
@@ -1279,6 +1280,15 @@ public class AdventureGame extends JFrame {
 							Conditions.setCondition(parts[0].trim(), Boolean.parseBoolean(parts[1].trim()));
 							updateInventory(); // Update inventory when conditions change
 						}
+					} else if (result.startsWith("#AddItem:")) {
+						// Add item to inventory
+						String itemName = result.substring(9).trim();
+						addItemToInventoryByName(itemName);
+					} else if (result.startsWith("#Process:")) {
+						// Execute process
+						String processName = result.substring(9).trim();
+						System.out.println("Starting process: " + processName);
+						processExecutor.executeProcess(processName);
 					}
 				}
 			}
@@ -1361,6 +1371,13 @@ public class AdventureGame extends JFrame {
 		System.out.println("Inventory reloaded");
 	}
 
+	/**
+	 * Public method to show dialog by name (for ProcessExecutor)
+	 */
+	public void showDialogByName(String dialogName) {
+		showDialog(dialogName);
+	}
+
 	private void showDialog(String dialogName) {
 		if (currentScene == null) {
 			return;
@@ -1403,12 +1420,13 @@ public class AdventureGame extends JFrame {
 	private void updateInventory() {
 		inventoryPanel.removeAll();
 
-		// Check for items based on Conditions (now dynamic!)
-		if (Conditions.getCondition("hasLighter")) {
-			addItemToInventory("Feuerzeug");
-		}
-		if (Conditions.getCondition("hasKey")) {
-			addItemToInventory("Schlüssel");
+		// Show all items that are in inventory
+		if (currentScene != null) {
+			for (Item item : currentScene.getItems()) {
+				if (item.isInInventory()) {
+					addItemToInventory(item);
+				}
+			}
 		}
 
 		// If empty, show message
@@ -1422,23 +1440,78 @@ public class AdventureGame extends JFrame {
 		inventoryPanel.repaint();
 	}
 
-	private void addItemToInventory(String itemName) {
-		JButton itemBtn = new JButton(itemName);
-		itemBtn.setPreferredSize(new Dimension(120, 40));
+	/**
+	 * Adds an item to inventory by name
+	 * Sets isInInventory to true and makes item/clickArea invisible
+	 */
+	private void addItemToInventoryByName(String itemName) {
+		if (currentScene != null) {
+			for (Item item : currentScene.getItems()) {
+				if (item.getName().equals(itemName)) {
+					// Set item to inventory
+					item.setInInventory(true);
+					
+					// Make item mouseInvisible (handled in Item.shouldShowInScene())
+					// The item is already hidden when isInInventory is true
+					
+					System.out.println("Added item to inventory: " + itemName);
+					
+					// Update inventory display
+					updateInventory();
+					gamePanel.repaint();
+					return;
+				}
+			}
+			System.err.println("Item not found in scene: " + itemName);
+		}
+	}
+
+
+	/**
+	 * Adds an item to the inventory display with tile image
+	 */
+	private void addItemToInventory(Item item) {
+		JButton itemBtn = new JButton();
+		itemBtn.setPreferredSize(new Dimension(60, 60));
 		itemBtn.setBackground(new Color(80, 80, 80));
-		itemBtn.setForeground(Color.WHITE);
 		itemBtn.setFocusPainted(false);
 		itemBtn.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 2));
+		
+		// Try to load and display item image as tile
+		if (item.getImageFilePath() != null && !item.getImageFilePath().isEmpty()) {
+			try {
+				java.io.File imageFile = new java.io.File(item.getImageFilePath());
+				if (imageFile.exists()) {
+					ImageIcon icon = new ImageIcon(item.getImageFilePath());
+					Image img = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+					itemBtn.setIcon(new ImageIcon(img));
+				} else {
+					// Fallback to text if image not found
+					itemBtn.setText(item.getName());
+					itemBtn.setForeground(Color.WHITE);
+				}
+			} catch (Exception e) {
+				// Fallback to text if image loading fails
+				itemBtn.setText(item.getName());
+				itemBtn.setForeground(Color.WHITE);
+			}
+		} else {
+			// No image, show text
+			itemBtn.setText(item.getName());
+			itemBtn.setForeground(Color.WHITE);
+		}
+		
+		itemBtn.setToolTipText(item.getName());
 
 		itemBtn.addActionListener(e -> {
-			if (selectedItem != null && selectedItem.equals(itemName)) {
+			if (selectedItem != null && selectedItem.equals(item.getName())) {
 				// Deselect
 				selectedItem = null;
 				itemBtn.setBorder(BorderFactory.createLineBorder(Color.ORANGE, 2));
-				System.out.println("Item abgewählt: " + itemName);
+				System.out.println("Item abgewählt: " + item.getName());
 			} else {
 				// Select
-				selectedItem = itemName;
+				selectedItem = item.getName();
 				// Reset all borders
 				for (Component c : inventoryPanel.getComponents()) {
 					if (c instanceof JButton) {
@@ -1447,7 +1520,7 @@ public class AdventureGame extends JFrame {
 				}
 				// Highlight selected
 				itemBtn.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
-				System.out.println("Item gewählt: " + itemName);
+				System.out.println("Item gewählt: " + item.getName());
 			}
 		});
 

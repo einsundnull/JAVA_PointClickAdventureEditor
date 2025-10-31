@@ -40,12 +40,16 @@
 --conditions
 ---none;
 ----Display:
-------"PathToTown"
+------"Go to town"
 -Image
 --conditions:
 ---none;
 ----Image: default.png;
 #Actions:
+-Gehe zu
+--conditions
+---none;
+----##loadsceneTown
 -Anschauen
 --conditions
 ---none;

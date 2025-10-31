@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -15,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -352,6 +351,12 @@ public class EditorWindow extends JFrame {
 		editItemBtn.setPreferredSize(new Dimension(100, 28));
 		editItemBtn.addActionListener(e -> openItemEditorForItem());
 		itemButtonPanel.add(editItemBtn);
+
+		JButton actionsItemBtn = new JButton("🎬 Actions");
+		actionsItemBtn.setFont(new Font("Arial", Font.PLAIN, 11));
+		actionsItemBtn.setPreferredSize(new Dimension(95, 28));
+		actionsItemBtn.addActionListener(e -> openItemActionsEditor());
+		itemButtonPanel.add(actionsItemBtn);
 
 		JButton renameItemBtn = new JButton("✏️ Rename");
 		renameItemBtn.setFont(new Font("Arial", Font.PLAIN, 11));
@@ -1483,6 +1488,21 @@ public class EditorWindow extends JFrame {
 		// Open the existing ItemEditorDialog that's already in the Scene Manager
 		openItemEditor();
 	}
+
+	private void openItemActionsEditor() {
+		if (selectedItem == null) {
+			log("ERROR: Select an item first!");
+			JOptionPane.showMessageDialog(this, "Please select an item first!", "No Selection",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		log("Opening Actions Editor for item: " + selectedItem.getName());
+		ItemActionsEditorDialog dialog = new ItemActionsEditorDialog(this, selectedItem);
+		dialog.setVisible(true);
+		log("Actions Editor opened for item");
+	}
+
 
 	private void renameItem() {
 		if (selectedItem == null) {

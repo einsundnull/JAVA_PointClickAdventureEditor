@@ -23,12 +23,9 @@
 
 #MouseHover:
 --conditions
----testDelete = true;
+---none;
 ----Display:
-------"white cup true"
----pathToWoodIsClear = false;
-----Display:
-------"white cup false"
+------"white cup"
 
 #ImageConditions:
 --conditions:

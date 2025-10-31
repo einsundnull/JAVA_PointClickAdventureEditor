@@ -22,9 +22,11 @@ import javax.swing.table.TableCellRenderer;
 
 /**
  * Dialog zum Editieren von Hover-Text mit Conditions
+ * Works with both KeyArea and Item
  */
 public class HoverEditorDialog extends JDialog {
 	private KeyArea keyArea;
+	private Item item;
 	private EditorWindow parent;
 	private JTable hoverTable;
 	private DefaultTableModel tableModel;
@@ -33,6 +35,7 @@ public class HoverEditorDialog extends JDialog {
 		super(parent, "Hover Text Editor - " + keyArea.getName(), false); // Non-modal
 		this.parent = parent;
 		this.keyArea = keyArea;
+		this.item = null;
 
 		setSize(700, 400);
 		setLocationRelativeTo(parent);
@@ -41,11 +44,40 @@ public class HoverEditorDialog extends JDialog {
 		loadHoverData();
 	}
 
+	public HoverEditorDialog(EditorWindow parent, Item item) {
+		super(parent, "Hover Text Editor - " + item.getName(), false); // Non-modal
+		this.parent = parent;
+		this.item = item;
+		this.keyArea = null;
+
+		setSize(700, 400);
+		setLocationRelativeTo(parent);
+
+		initUI();
+		loadHoverData();
+	}
+
+	 public String getName() {
+		return keyArea != null ? keyArea.getName() : item.getName();
+	}
+
+	private Map<String, String> getHoverDisplayConditions() {
+		return keyArea != null ? keyArea.getHoverDisplayConditions() : item.getHoverDisplayConditions();
+	}
+
+	private void addHoverDisplayCondition(String condition, String text) {
+		if (keyArea != null) {
+			keyArea.addHoverDisplayCondition(condition, text);
+		} else {
+			item.addHoverDisplayCondition(condition, text);
+		}
+	}
+
 	private void initUI() {
 		setLayout(new BorderLayout(10, 10));
 
 		// Title
-		JLabel titleLabel = new JLabel("Hover Text Editor: " + keyArea.getName());
+		JLabel titleLabel = new JLabel("Hover Text Editor: " + getName());
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 		add(titleLabel, BorderLayout.NORTH);
@@ -110,21 +142,21 @@ public class HoverEditorDialog extends JDialog {
 	private void loadHoverData() {
 		tableModel.setRowCount(0);
 
-		Map<String, String> hoverConditions = keyArea.getHoverDisplayConditions();
+		Map<String, String> hoverConditions = getHoverDisplayConditions();
 		if (hoverConditions != null && !hoverConditions.isEmpty()) {
 			for (Map.Entry<String, String> entry : hoverConditions.entrySet()) {
 				tableModel.addRow(new Object[] { entry.getKey(), entry.getValue(), "Delete" });
 			}
 		} else {
 			// Add default row
-			tableModel.addRow(new Object[] { "none", keyArea.getName(), "Delete" });
+			tableModel.addRow(new Object[] { "none", getName(), "Delete" });
 		}
 	}
 
 	private void saveHoverData() {
 		parent.log("=== SAVING HOVER DATA ===");
-		parent.log("KeyArea Name: " + keyArea.getName());
-		parent.log("KeyArea Instance: " + System.identityHashCode(keyArea));
+		parent.log("Name: " + getName());
+		parent.log("Type: " + (keyArea != null ? "KeyArea" : "Item"));
 
 		// CRITICAL: Stop any active cell editing to commit changes
 		if (hoverTable.isEditing()) {
@@ -142,10 +174,10 @@ public class HoverEditorDialog extends JDialog {
 
 		// Clear existing hover conditions
 		parent.log("Clearing existing hover conditions...");
-		keyArea.getHoverDisplayConditions().clear();
+		getHoverDisplayConditions().clear();
 
 		// Save from table
-		parent.log("Saving from table to KeyArea...");
+		parent.log("Saving from table...");
 		for (int row = 0; row < tableModel.getRowCount(); row++) {
 			String condition = (String) tableModel.getValueAt(row, 0);
 			String text = (String) tableModel.getValueAt(row, 1);
@@ -156,36 +188,60 @@ public class HoverEditorDialog extends JDialog {
 				if (cleanText.startsWith("\"") && cleanText.endsWith("\"")) {
 					cleanText = cleanText.substring(1, cleanText.length() - 1);
 				}
-				keyArea.addHoverDisplayCondition(condition, cleanText);
+				addHoverDisplayCondition(condition, cleanText);
 				parent.log("  Added: " + condition + " → \"" + cleanText + "\"");
 			}
 		}
 
 		// Debug: Show what was saved
-		parent.log("Hover conditions now in KeyArea: " + keyArea.getHoverDisplayConditions());
+		parent.log("Hover conditions now: " + getHoverDisplayConditions());
 
-		// CRITICAL: Update all scene KeyAreas with the same name
+		// CRITICAL: Update scene objects
 		Scene currentScene = parent.getGame().getCurrentScene();
 		boolean found = false;
-		for (KeyArea area : currentScene.getKeyAreas()) {
-			if (area.getName().equals(keyArea.getName())) {
-				if (area == keyArea) {
-					found = true;
-					parent.log("KeyArea found in scene (same instance) - already updated");
-				} else {
-					// Different instance - copy hover conditions
-					parent.log("Updating scene KeyArea (different instance)...");
-					area.getHoverDisplayConditions().clear();
-					for (Map.Entry<String, String> entry : keyArea.getHoverDisplayConditions().entrySet()) {
-						area.addHoverDisplayCondition(entry.getKey(), entry.getValue());
+
+		if (keyArea != null) {
+			// Update KeyArea in scene
+			for (KeyArea area : currentScene.getKeyAreas()) {
+				if (area.getName().equals(keyArea.getName())) {
+					if (area == keyArea) {
+						found = true;
+						parent.log("KeyArea found in scene (same instance) - already updated");
+					} else {
+						// Different instance - copy hover conditions
+						parent.log("Updating scene KeyArea (different instance)...");
+						area.getHoverDisplayConditions().clear();
+						for (Map.Entry<String, String> entry : keyArea.getHoverDisplayConditions().entrySet()) {
+							area.addHoverDisplayCondition(entry.getKey(), entry.getValue());
+						}
+						parent.log("  Copied hover conditions to scene KeyArea");
+						found = true;
 					}
-					parent.log("  Copied hover conditions to scene KeyArea");
-					found = true;
+				}
+			}
+		} else {
+			// Update Item in scene
+			for (Item sceneItem : currentScene.getItems()) {
+				if (sceneItem.getName().equals(item.getName())) {
+					if (sceneItem == item) {
+						found = true;
+						parent.log("Item found in scene (same instance) - already updated");
+					} else {
+						// Different instance - copy hover conditions
+						parent.log("Updating scene Item (different instance)...");
+						sceneItem.getHoverDisplayConditions().clear();
+						for (Map.Entry<String, String> entry : item.getHoverDisplayConditions().entrySet()) {
+							sceneItem.addHoverDisplayCondition(entry.getKey(), entry.getValue());
+						}
+						parent.log("  Copied hover conditions to scene Item");
+						found = true;
+					}
 				}
 			}
 		}
+
 		if (!found) {
-			parent.log("ERROR: KeyArea NOT found in current scene!");
+			parent.log("ERROR: Object NOT found in current scene!");
 		}
 
 		// Auto-save scene
