@@ -1,2 +1,20 @@
-#Anschauen:lookedAtCupAtBeach=false -> 
-#Nimm:lookedAtCupAtBeach=false -> 
+-conditions
+--lookedAtCupAtBeach=true ->
+-process
+-conditions
+--lookedAtCupAtBeach=true ->
+-process
+-conditions
+--lookedAtCupAtBeach=true ->
+-process
+-conditions
+--lookedAtCupAtBeach=true -> =true
+-process
+#Anschauen:
+-conditions
+--lookedAtCupAtBeach=false -> =true
+-process
+#Nimm:
+-conditions
+--isInInventory_beachCup=false -> =true
+-process

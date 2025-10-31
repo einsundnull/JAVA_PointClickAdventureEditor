@@ -51,9 +51,11 @@ public class ItemSaver {
         }
         writer.write("\n");
 
-        // IsInInventory
+        // IsInInventory - item.isInInventory() now reads from Condition automatically
+        boolean isInInventory = item.isInInventory();
+        System.out.println("ItemSaver: Saving isInInventory for " + item.getName() + " = " + isInInventory);
         writer.write("#IsInInventory:\n");
-        writer.write("-" + item.isInInventory() + "\n\n");
+        writer.write("-" + isInInventory + "\n\n");
 
         // MouseHover (similar to KeyArea)
         writer.write("#MouseHover:\n");

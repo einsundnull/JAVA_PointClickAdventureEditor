@@ -44,6 +44,13 @@ public class Item {
         this.actions = new HashMap<>();
         this.hoverDisplayConditions = new HashMap<>();
 
+        // Create default isInInventory condition for this item
+        String inventoryConditionName = "isInInventory_" + name;
+        if (!Conditions.conditionExists(inventoryConditionName)) {
+            Conditions.addCondition(inventoryConditionName, false);
+            System.out.println("Item constructor: Created condition " + inventoryConditionName);
+        }
+
         // Don't create default click area yet - wait until image is loaded
     }
 
@@ -194,11 +201,31 @@ public class Item {
     }
 
     public boolean isInInventory() {
-        return isInInventory;
+        // Always read from condition to ensure consistency
+        String inventoryConditionName = "isInInventory_" + name;
+        if (Conditions.conditionExists(inventoryConditionName)) {
+            return Conditions.getCondition(inventoryConditionName);
+        }
+        return isInInventory; // Fallback to field if condition doesn't exist
     }
 
     public void setInInventory(boolean inInventory) {
         this.isInInventory = inInventory;
+        // Also update the condition
+        String inventoryConditionName = "isInInventory_" + name;
+        if (Conditions.conditionExists(inventoryConditionName)) {
+            Conditions.setCondition(inventoryConditionName, inInventory);
+        }
+    }
+
+    /**
+     * Synchronizes the isInInventory field with its corresponding condition
+     */
+    public void syncIsInInventoryFromCondition() {
+        String inventoryConditionName = "isInInventory_" + name;
+        if (Conditions.conditionExists(inventoryConditionName)) {
+            this.isInInventory = Conditions.getCondition(inventoryConditionName);
+        }
     }
 
     public int getWidth() {

@@ -38,13 +38,20 @@ public class ResultValuesEditorDialog extends JDialog {
 
     public ResultValuesEditorDialog(Frame owner, Map<String, Boolean> initialValues) {
         super(owner, "Result Values Editor", true);
+        System.out.println("=== ResultValuesEditorDialog CONSTRUCTOR ===");
+        System.out.println("Owner: " + owner);
+        System.out.println("Initial values: " + (initialValues != null ? initialValues.size() : "null"));
+
         this.resultValues = new HashMap<>(initialValues);
 
+        System.out.println("Calling initUI()...");
         initUI();
+        System.out.println("Calling loadData()...");
         loadData();
 
         setSize(600, 400);
         setLocationRelativeTo(owner);
+        System.out.println("=== ResultValuesEditorDialog READY ===");
     }
 
     private void initUI() {
@@ -97,8 +104,15 @@ public class ResultValuesEditorDialog extends JDialog {
     }
 
     private void loadData() {
+        System.out.println("=== ResultValuesEditorDialog.loadData() ===");
         // Load all available conditions
         Set<String> allConditions = Conditions.getAllConditionNames();
+        System.out.println("Available conditions: " + allConditions.size());
+
+        System.out.println("Initial result values: " + resultValues.size());
+        for (Map.Entry<String, Boolean> entry : resultValues.entrySet()) {
+            System.out.println("  " + entry.getKey() + " = " + entry.getValue());
+        }
 
         for (String conditionName : allConditions) {
             ResultValueRow row = new ResultValueRow(conditionName);
@@ -107,20 +121,33 @@ public class ResultValuesEditorDialog extends JDialog {
             if (resultValues.containsKey(conditionName)) {
                 row.use = true;
                 row.targetValue = resultValues.get(conditionName);
+                System.out.println("Loading row: " + conditionName + ", use=true, targetValue=" + row.targetValue);
+            } else {
+                System.out.println("Loading row: " + conditionName + ", use=false, targetValue=null");
             }
 
             tableModel.addRow(row);
         }
+        System.out.println("Total rows loaded: " + tableModel.getRowCount());
     }
 
     private void saveData() {
+        System.out.println("=== ResultValuesEditorDialog.saveData() ===");
         resultValues.clear();
 
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             ResultValueRow row = tableModel.getRow(i);
+            System.out.println("Row " + i + ": " + row.conditionName +
+                             ", use=" + row.use +
+                             ", targetValue=" + row.targetValue);
             if (row.use && row.targetValue != null) {
                 resultValues.put(row.conditionName, row.targetValue);
+                System.out.println("  -> Added to result values");
             }
+        }
+        System.out.println("Total result values saved: " + resultValues.size());
+        for (Map.Entry<String, Boolean> entry : resultValues.entrySet()) {
+            System.out.println("  " + entry.getKey() + " = " + entry.getValue());
         }
     }
 

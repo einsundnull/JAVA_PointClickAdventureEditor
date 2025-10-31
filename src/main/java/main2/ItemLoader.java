@@ -243,6 +243,17 @@ public class ItemLoader {
             throw new IOException("Invalid item file format - no name found");
         }
 
+        // Create or update isInInventory condition for this item
+        String inventoryConditionName = "isInInventory_" + item.getName();
+        if (!Conditions.conditionExists(inventoryConditionName)) {
+            Conditions.addCondition(inventoryConditionName, item.isInInventory());
+            System.out.println("Created condition: " + inventoryConditionName + " = " + item.isInInventory());
+        } else {
+            // Update condition with loaded value
+            Conditions.setCondition(inventoryConditionName, item.isInInventory());
+            System.out.println("Updated condition: " + inventoryConditionName + " = " + item.isInInventory());
+        }
+
         // Update polygon if custom points were loaded
         if (item.hasCustomClickArea()) {
             item.updateClickAreaPolygon();

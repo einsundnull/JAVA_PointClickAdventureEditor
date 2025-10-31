@@ -195,7 +195,11 @@ public class NewActionsEditorDialog extends JDialog {
                             if (resultPart.startsWith("=") && resultPart.length() > 1) {
                                 String resultValue = resultPart.substring(1).trim();
                                 boolean boolResult = Boolean.parseBoolean(resultValue);
-                                currentField.resultValues.put(condName, boolResult);
+
+                                // Add to result values table
+                                ResultValueRow rvRow = new ResultValueRow(condName);
+                                rvRow.targetValue = boolResult;
+                                currentField.resultValuesTableModel.addRow(rvRow);
                                 System.out.println("    Result value: " + boolResult);
                             }
                         }
@@ -294,14 +298,22 @@ public class NewActionsEditorDialog extends JDialog {
                 }
 
                 System.out.println("Used rows: " + usedRows.size());
-                System.out.println("Result values: " + fieldPanel.resultValues.size());
-                for (Map.Entry<String, Boolean> entry : fieldPanel.resultValues.entrySet()) {
-                    System.out.println("  " + entry.getKey() + " = " + entry.getValue());
+                System.out.println("Result values: " + fieldPanel.resultValuesTableModel.getRowCount());
+                for (int i = 0; i < fieldPanel.resultValuesTableModel.getRowCount(); i++) {
+                    ResultValueRow rvRow = fieldPanel.resultValuesTableModel.getRow(i);
+                    System.out.println("  " + rvRow.conditionName + " = " + rvRow.targetValue);
                 }
 
                 if (usedRows.isEmpty()) {
                     System.out.println("Skipping field (no used rows)");
                     continue; // Skip empty fields
+                }
+
+                // Build result values map for quick lookup
+                Map<String, Boolean> resultValuesMap = new HashMap<>();
+                for (int i = 0; i < fieldPanel.resultValuesTableModel.getRowCount(); i++) {
+                    ResultValueRow rvRow = fieldPanel.resultValuesTableModel.getRow(i);
+                    resultValuesMap.put(rvRow.conditionName, rvRow.targetValue);
                 }
 
                 // Build new format
@@ -323,9 +335,9 @@ public class NewActionsEditorDialog extends JDialog {
                         StringBuilder condLine = new StringBuilder();
                         condLine.append("--").append(row.conditionName).append("=").append(row.ifCurrentValue);
 
-                        // Add result value if exists in resultValues map
-                        if (fieldPanel.resultValues.containsKey(row.conditionName)) {
-                            Boolean resultValue = fieldPanel.resultValues.get(row.conditionName);
+                        // Add result value if exists in result values table
+                        if (resultValuesMap.containsKey(row.conditionName)) {
+                            Boolean resultValue = resultValuesMap.get(row.conditionName);
                             condLine.append(" -> =").append(resultValue);
                             System.out.println("    Added with result: " + resultValue);
                         } else {
@@ -395,8 +407,10 @@ public class NewActionsEditorDialog extends JDialog {
     class ConditionsFieldPanel extends JPanel {
         private JTable conditionsTable;
         private ConditionsTableModel tableModel;
-        private Map<String, Boolean> resultValues = new HashMap<>();
+        private JTable resultValuesTable;
+        private ResultValuesTableModel resultValuesTableModel;
         private JComboBox<String> addConditionCombo;
+        private JComboBox<String> addResultValueCombo;
 
         public ConditionsFieldPanel() {
             initUI();
@@ -408,14 +422,22 @@ public class NewActionsEditorDialog extends JDialog {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
             ));
             setLayout(new BorderLayout(5, 5));
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 500));
 
             // Title
             JLabel titleLabel = new JLabel("Conditions Field");
             titleLabel.setFont(titleLabel.getFont().deriveFont(14f).deriveFont(java.awt.Font.BOLD));
             add(titleLabel, BorderLayout.NORTH);
 
-            // Table
+            // Center panel with both tables
+            JPanel centerPanel = new JPanel();
+            centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+            // Conditions Table
+            JLabel conditionsLabel = new JLabel("Conditions:");
+            conditionsLabel.setFont(conditionsLabel.getFont().deriveFont(12f).deriveFont(java.awt.Font.BOLD));
+            centerPanel.add(conditionsLabel);
+
             tableModel = new ConditionsTableModel();
             conditionsTable = new JTable(tableModel);
             conditionsTable.setRowHeight(30);
@@ -424,8 +446,7 @@ public class NewActionsEditorDialog extends JDialog {
             conditionsTable.getColumnModel().getColumn(0).setPreferredWidth(200); // Conditions
             conditionsTable.getColumnModel().getColumn(1).setPreferredWidth(60);  // use
             conditionsTable.getColumnModel().getColumn(2).setPreferredWidth(200); // if Current Value
-            conditionsTable.getColumnModel().getColumn(3).setPreferredWidth(150); // Result Values
-            conditionsTable.getColumnModel().getColumn(4).setPreferredWidth(200); // Result Process
+            conditionsTable.getColumnModel().getColumn(3).setPreferredWidth(200); // Result Process
 
             // Set up custom renderers and editors
             conditionsTable.getColumnModel().getColumn(1).setCellRenderer(new CheckBoxRenderer());
@@ -434,36 +455,85 @@ public class NewActionsEditorDialog extends JDialog {
             conditionsTable.getColumnModel().getColumn(2).setCellRenderer(new IfCurrentValueRenderer());
             conditionsTable.getColumnModel().getColumn(2).setCellEditor(new IfCurrentValueEditor());
 
-            conditionsTable.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
-            conditionsTable.getColumnModel().getColumn(3).setCellEditor(new ButtonEditor());
+            conditionsTable.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new JTextField()));
 
-            conditionsTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JTextField()));
+            JScrollPane conditionsScrollPane = new JScrollPane(conditionsTable);
+            conditionsScrollPane.setPreferredSize(new Dimension(900, 120));
+            centerPanel.add(conditionsScrollPane);
 
-            JScrollPane scrollPane = new JScrollPane(conditionsTable);
-            scrollPane.setPreferredSize(new Dimension(900, 150));
-            add(scrollPane, BorderLayout.CENTER);
+            // Spacing
+            centerPanel.add(javax.swing.Box.createVerticalStrut(10));
+
+            // Result Values Table
+            JLabel resultValuesLabel = new JLabel("Result Values:");
+            resultValuesLabel.setFont(resultValuesLabel.getFont().deriveFont(12f).deriveFont(java.awt.Font.BOLD));
+            centerPanel.add(resultValuesLabel);
+
+            resultValuesTableModel = new ResultValuesTableModel();
+            resultValuesTable = new JTable(resultValuesTableModel);
+            resultValuesTable.setRowHeight(30);
+
+            // Set up column widths
+            resultValuesTable.getColumnModel().getColumn(0).setPreferredWidth(300); // Condition
+            resultValuesTable.getColumnModel().getColumn(1).setPreferredWidth(200); // Target Value
+
+            // Set up custom renderers and editors
+            resultValuesTable.getColumnModel().getColumn(1).setCellRenderer(new RadioButtonRenderer());
+            resultValuesTable.getColumnModel().getColumn(1).setCellEditor(new RadioButtonEditor());
+
+            JScrollPane resultValuesScrollPane = new JScrollPane(resultValuesTable);
+            resultValuesScrollPane.setPreferredSize(new Dimension(900, 100));
+            centerPanel.add(resultValuesScrollPane);
+
+            add(centerPanel, BorderLayout.CENTER);
 
             // Bottom buttons panel
-            JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel buttonsPanel = new JPanel();
+            buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
 
-            // Add Condition combo and button
+            // Conditions buttons
+            JPanel conditionsButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             addConditionCombo = new JComboBox<>();
             refreshAvailableConditions();
             addConditionCombo.setPreferredSize(new Dimension(150, 25));
-            buttonsPanel.add(new JLabel("Add:"));
-            buttonsPanel.add(addConditionCombo);
+            conditionsButtonsPanel.add(new JLabel("Add Condition:"));
+            conditionsButtonsPanel.add(addConditionCombo);
 
-            JButton addConditionBtn = new JButton("Add Condition");
+            JButton addConditionBtn = new JButton("Add");
             addConditionBtn.addActionListener(e -> addCondition());
-            buttonsPanel.add(addConditionBtn);
+            conditionsButtonsPanel.add(addConditionBtn);
 
             JButton removeConditionBtn = new JButton("Remove Selected Condition");
             removeConditionBtn.addActionListener(e -> removeSelectedCondition());
-            buttonsPanel.add(removeConditionBtn);
+            conditionsButtonsPanel.add(removeConditionBtn);
 
+            buttonsPanel.add(conditionsButtonsPanel);
+
+            // Result Values buttons
+            JPanel resultValuesButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            addResultValueCombo = new JComboBox<>();
+            refreshAvailableResultValues();
+            addResultValueCombo.setPreferredSize(new Dimension(150, 25));
+            resultValuesButtonsPanel.add(new JLabel("Add Result Value:"));
+            resultValuesButtonsPanel.add(addResultValueCombo);
+
+            JButton addResultValueBtn = new JButton("Add");
+            addResultValueBtn.addActionListener(e -> addResultValue());
+            resultValuesButtonsPanel.add(addResultValueBtn);
+
+            JButton removeResultValueBtn = new JButton("Remove Selected Result Value");
+            removeResultValueBtn.addActionListener(e -> removeSelectedResultValue());
+            resultValuesButtonsPanel.add(removeResultValueBtn);
+
+            buttonsPanel.add(resultValuesButtonsPanel);
+
+            // Field control button
+            JPanel fieldButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             JButton removeFieldBtn = new JButton("Remove this Conditions Field");
             removeFieldBtn.addActionListener(e -> removeThisField());
-            buttonsPanel.add(removeFieldBtn);
+            fieldButtonsPanel.add(removeFieldBtn);
+
+            buttonsPanel.add(fieldButtonsPanel);
 
             add(buttonsPanel, BorderLayout.SOUTH);
         }
@@ -473,6 +543,32 @@ public class NewActionsEditorDialog extends JDialog {
             Set<String> allConditions = Conditions.getAllConditionNames();
             for (String conditionName : allConditions) {
                 addConditionCombo.addItem(conditionName);
+            }
+        }
+
+        private void refreshAvailableResultValues() {
+            addResultValueCombo.removeAllItems();
+
+            // Add all regular conditions
+            Set<String> allConditions = Conditions.getAllConditionNames();
+            for (String conditionName : allConditions) {
+                addResultValueCombo.addItem(conditionName);
+            }
+
+            // Add isInInventory conditions for all items
+            try {
+                if (NewActionsEditorDialog.this.getOwner() instanceof EditorWindow) {
+                    EditorWindow editorWindow = (EditorWindow) NewActionsEditorDialog.this.getOwner();
+                    Scene currentScene = editorWindow.getGame().getCurrentScene();
+                    if (currentScene != null) {
+                        for (Item item : currentScene.getItems()) {
+                            String itemCondition = "isInInventory_" + item.getName();
+                            addResultValueCombo.addItem(itemCondition);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading items for result values: " + e.getMessage());
             }
         }
 
@@ -495,12 +591,41 @@ public class NewActionsEditorDialog extends JDialog {
             }
         }
 
+        private void addResultValue() {
+            String selectedCondition = (String) addResultValueCombo.getSelectedItem();
+            if (selectedCondition != null && !selectedCondition.trim().isEmpty()) {
+                // Check if condition already exists in result values
+                for (int i = 0; i < resultValuesTableModel.getRowCount(); i++) {
+                    if (resultValuesTableModel.getRow(i).conditionName.equals(selectedCondition)) {
+                        JOptionPane.showMessageDialog(this,
+                            "Result value for this condition already exists",
+                            "Duplicate", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+
+                ResultValueRow row = new ResultValueRow(selectedCondition);
+                row.targetValue = true; // Default to true
+                resultValuesTableModel.addRow(row);
+            }
+        }
+
         private void removeSelectedCondition() {
             int selectedRow = conditionsTable.getSelectedRow();
             if (selectedRow >= 0) {
                 tableModel.removeRow(selectedRow);
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a condition to remove",
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
+        private void removeSelectedResultValue() {
+            int selectedRow = resultValuesTable.getSelectedRow();
+            if (selectedRow >= 0) {
+                resultValuesTableModel.removeRow(selectedRow);
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a result value to remove",
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             }
         }
@@ -514,25 +639,10 @@ public class NewActionsEditorDialog extends JDialog {
             }
         }
 
-        private void openResultValuesEditor() {
-            // Get the owner of the main dialog
-            Frame owner = null;
-            if (NewActionsEditorDialog.this.getOwner() instanceof Frame) {
-                owner = (Frame) NewActionsEditorDialog.this.getOwner();
-            }
-
-            ResultValuesEditorDialog dialog = new ResultValuesEditorDialog(owner, resultValues);
-            dialog.setVisible(true);
-
-            if (!dialog.wasCancelled()) {
-                resultValues = dialog.getResultValues();
-            }
-        }
-
-        // Table Model
+        // Table Models
         class ConditionsTableModel extends AbstractTableModel {
             private List<ConditionRow> rows = new ArrayList<>();
-            private String[] columnNames = {"Conditions", "use", "if Current Value", "Result Values", "Result Process"};
+            private String[] columnNames = {"Conditions", "use", "if Current Value", "Result Process"};
 
             public void addRow(ConditionRow row) {
                 rows.add(row);
@@ -571,8 +681,7 @@ public class NewActionsEditorDialog extends JDialog {
                     case 0: return row.conditionName;
                     case 1: return row.use;
                     case 2: return row.ifCurrentValue;
-                    case 3: return "Edit...";
-                    case 4: return row.processName;
+                    case 3: return row.processName;
                     default: return null;
                 }
             }
@@ -588,7 +697,7 @@ public class NewActionsEditorDialog extends JDialog {
                     case 2:
                         row.ifCurrentValue = (String) value;
                         break;
-                    case 4:
+                    case 3:
                         row.processName = (String) value;
                         break;
                 }
@@ -598,8 +707,8 @@ public class NewActionsEditorDialog extends JDialog {
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                // Columns 1 (use), 2 (if current value), 3 (result values button), and 4 (process) are editable
-                return columnIndex == 1 || columnIndex == 2 || columnIndex == 3 || columnIndex == 4;
+                // Columns 1 (use), 2 (if current value), and 3 (process) are editable
+                return columnIndex == 1 || columnIndex == 2 || columnIndex == 3;
             }
 
             @Override
@@ -607,57 +716,84 @@ public class NewActionsEditorDialog extends JDialog {
                 switch (columnIndex) {
                     case 1: return Boolean.class;
                     case 2: return String.class;
-                    case 3: return String.class;
                     default: return String.class;
                 }
             }
         }
 
-        // Button Renderer for Result Values column
-        class ButtonRenderer extends JButton implements TableCellRenderer {
-            public ButtonRenderer() {
-                setOpaque(true);
+        // Result Values Table Model
+        class ResultValuesTableModel extends AbstractTableModel {
+            private List<ResultValueRow> rows = new ArrayList<>();
+            private String[] columnNames = {"Condition", "Target Value"};
+
+            public void addRow(ResultValueRow row) {
+                rows.add(row);
+                fireTableDataChanged();
+            }
+
+            public void removeRow(int rowIndex) {
+                rows.remove(rowIndex);
+                fireTableDataChanged();
+            }
+
+            public ResultValueRow getRow(int rowIndex) {
+                return rows.get(rowIndex);
             }
 
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                setText(value != null ? value.toString() : "Edit...");
-                return this;
-            }
-        }
-
-        // Button Editor for Result Values column
-        class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-            private JButton button;
-            private boolean isPushed;
-
-            public ButtonEditor() {
-                button = new JButton();
-                button.setOpaque(true);
-                button.addActionListener(e -> {
-                    openResultValuesEditor();
-                    fireEditingStopped();
-                });
+            public int getRowCount() {
+                return rows.size();
             }
 
             @Override
-            public Component getTableCellEditorComponent(JTable table, Object value,
-                    boolean isSelected, int row, int column) {
-                button.setText("Edit...");
-                isPushed = true;
-                return button;
+            public int getColumnCount() {
+                return columnNames.length;
             }
 
             @Override
-            public Object getCellEditorValue() {
-                isPushed = false;
-                return "Edit...";
+            public String getColumnName(int column) {
+                return columnNames[column];
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                ResultValueRow row = rows.get(rowIndex);
+
+                switch (columnIndex) {
+                    case 0: return row.conditionName;
+                    case 1: return row.targetValue;
+                    default: return null;
+                }
+            }
+
+            @Override
+            public void setValueAt(Object value, int rowIndex, int columnIndex) {
+                ResultValueRow row = rows.get(rowIndex);
+
+                if (columnIndex == 1) {
+                    row.targetValue = (Boolean) value;
+                }
+
+                fireTableCellUpdated(rowIndex, columnIndex);
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                // Only column 1 (target value) is editable
+                return columnIndex == 1;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 1) {
+                    return Boolean.class;
+                }
+                return String.class;
             }
         }
     }
 
-    // Data class for table rows
+    // Data classes for table rows
     class ConditionRow {
         String conditionName;
         boolean use = false;
@@ -670,6 +806,15 @@ public class NewActionsEditorDialog extends JDialog {
 
         public boolean getCurrentValue() {
             return Conditions.getCondition(conditionName);
+        }
+    }
+
+    class ResultValueRow {
+        String conditionName;
+        Boolean targetValue = true;
+
+        public ResultValueRow(String conditionName) {
+            this.conditionName = conditionName;
         }
     }
 
@@ -791,6 +936,83 @@ public class NewActionsEditorDialog extends JDialog {
         @Override
         public Object getCellEditorValue() {
             return checkBox.isSelected();
+        }
+    }
+
+    // RadioButton renderer and editor for Result Values (true/false only)
+    class RadioButtonRenderer extends JPanel implements TableCellRenderer {
+        private JRadioButton trueButton;
+        private JRadioButton falseButton;
+
+        public RadioButtonRenderer() {
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
+
+            trueButton = new JRadioButton("true");
+            falseButton = new JRadioButton("false");
+
+            ButtonGroup group = new ButtonGroup();
+            group.add(trueButton);
+            group.add(falseButton);
+
+            add(trueButton);
+            add(falseButton);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+            if (value == null) {
+                trueButton.setSelected(true);
+                falseButton.setSelected(false);
+            } else {
+                boolean boolValue = (Boolean) value;
+                trueButton.setSelected(boolValue);
+                falseButton.setSelected(!boolValue);
+            }
+
+            return this;
+        }
+    }
+
+    class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor {
+        private JPanel panel;
+        private JRadioButton trueButton;
+        private JRadioButton falseButton;
+
+        public RadioButtonEditor() {
+            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+
+            trueButton = new JRadioButton("true");
+            falseButton = new JRadioButton("false");
+
+            ButtonGroup group = new ButtonGroup();
+            group.add(trueButton);
+            group.add(falseButton);
+
+            panel.add(trueButton);
+            panel.add(falseButton);
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+
+            if (value == null) {
+                trueButton.setSelected(true);
+                falseButton.setSelected(false);
+            } else {
+                boolean boolValue = (Boolean) value;
+                trueButton.setSelected(boolValue);
+                falseButton.setSelected(!boolValue);
+            }
+
+            return panel;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return trueButton.isSelected();
         }
     }
 }

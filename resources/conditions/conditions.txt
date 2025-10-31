@@ -4,3 +4,4 @@
 
 pathToWoodIsClear = false
 lookedAtCupAtBeach = false
+isInInventory_beachCup = false
