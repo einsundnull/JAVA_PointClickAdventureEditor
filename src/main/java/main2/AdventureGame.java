@@ -62,6 +62,7 @@ public class AdventureGame extends JFrame {
 
 	// Editor features
 	private EditorWindow editorWindow;
+	private DebugWindow debugWindow;
 	private boolean showPaths = false; // Default OFF, only ON when editor is visible
 	private boolean pathEditMode = false;
 	private Point selectedPathPoint = null;
@@ -97,6 +98,9 @@ public class AdventureGame extends JFrame {
 		// Initialize editor
 		editorWindow = new EditorWindow(this);
 
+		// Initialize debug window
+		debugWindow = new DebugWindow();
+
 		// Set up condition change listener for inventory updates
 		setupConditionListener();
 
@@ -112,7 +116,10 @@ public class AdventureGame extends JFrame {
 	 * Sets up a listener to automatically update inventory and scene when isInInventory conditions change
 	 */
 	private void setupConditionListener() {
-		Conditions.setChangeListener((conditionName, newValue) -> {
+		Conditions.setChangeListener((conditionName, oldValue, newValue) -> {
+			// Log to debug window
+			debugWindow.logConditionChange(conditionName, oldValue, newValue);
+
 			// Check if this is an isInInventory condition
 			if (conditionName.startsWith("isInInventory_")) {
 				System.out.println("Inventory condition changed: " + conditionName + " = " + newValue);
@@ -162,6 +169,16 @@ public class AdventureGame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				togglePathVisualization();
+			}
+		});
+
+		// ALT + D: Toggle Debug Window
+		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.ALT_DOWN_MASK);
+		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(altD, "toggleDebug");
+		getRootPane().getActionMap().put("toggleDebug", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				debugWindow.toggle();
 			}
 		});
 
@@ -1276,6 +1293,9 @@ public class AdventureGame extends JFrame {
 			// Perform action on KeyArea
 			String result = clickedArea.performAction(selectedAction, progress);
 
+			// Log action to debug window
+			debugWindow.logAction(selectedAction, "KeyArea: " + clickedArea.getName(), result);
+
 			if (result != null) {
 				if (result != null) {
 					if (result.startsWith("##load")) {
@@ -1328,6 +1348,9 @@ public class AdventureGame extends JFrame {
 		try {
 			currentScene = SceneLoader.loadScene(sceneName, progress);
 			progress.setCurrentScene(sceneName);
+
+			// Log scene change to debug window
+			debugWindow.logSceneChange(sceneName);
 
 			// Load background image
 			String bgPath = currentScene.getBackgroundImagePath();

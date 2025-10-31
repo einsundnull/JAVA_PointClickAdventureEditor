@@ -24,7 +24,7 @@ public class Conditions {
 
     // Listener interface
     public interface ConditionChangeListener {
-        void onConditionChanged(String conditionName, boolean newValue);
+        void onConditionChanged(String conditionName, boolean oldValue, boolean newValue);
     }
 
     // Listener for condition changes
@@ -147,7 +147,7 @@ public class Conditions {
 
         // Notify listener if value actually changed
         if (changed && changeListener != null) {
-            changeListener.onConditionChanged(name, value);
+            changeListener.onConditionChanged(name, oldValue, value);
         }
     }
 

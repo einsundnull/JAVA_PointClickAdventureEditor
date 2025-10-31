@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 
 public class SceneLoader {
     
@@ -278,6 +279,27 @@ public class SceneLoader {
         }
 
         reader.close();
+
+        // Load actions from separate files for all KeyAreas
+        System.out.println("Loading actions from separate files...");
+        for (KeyArea keyArea : scene.getKeyAreas()) {
+            Map<String, java.util.List<ActionsLoader.ConditionsField>> actionsMap =
+                ActionsLoader.loadActions(keyArea.getName());
+            if (!actionsMap.isEmpty()) {
+                ActionsLoader.applyActionsToKeyArea(keyArea, actionsMap);
+                System.out.println("  Loaded actions for KeyArea: " + keyArea.getName());
+            }
+        }
+
+        // Load actions from separate files for all Items
+        for (Item item : scene.getItems()) {
+            Map<String, java.util.List<ActionsLoader.ConditionsField>> actionsMap =
+                ActionsLoader.loadActions(item.getName());
+            if (!actionsMap.isEmpty()) {
+                ActionsLoader.applyActionsToItem(item, actionsMap);
+                System.out.println("  Loaded actions for Item: " + item.getName());
+            }
+        }
 
         System.out.println("Loaded scene: " + sceneName);
         System.out.println("  KeyAreas: " + scene.getKeyAreas().size());
