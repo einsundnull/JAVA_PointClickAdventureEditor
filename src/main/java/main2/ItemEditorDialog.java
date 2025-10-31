@@ -973,7 +973,7 @@ public class ItemEditorDialog extends JDialog {
 		}
 
 		parent.log("Opening Mouse Hover Dialog for item: " + selectedItem.getName());
-		ItemHoverEditorDialog dialog = new ItemHoverEditorDialog(parent, selectedItem);
+		HoverEditorDialog dialog = new HoverEditorDialog(parent, selectedItem);
 		dialog.setVisible(true);
 	}
 

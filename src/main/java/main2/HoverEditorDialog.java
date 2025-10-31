@@ -122,6 +122,11 @@ public class HoverEditorDialog extends JDialog {
 			tableModel.addRow(new Object[] { "none", "", "Delete" });
 		});
 		addPanel.add(addButton);
+
+		JButton manageConditionsBtn = new JButton("Manage Conditions");
+		manageConditionsBtn.addActionListener(e -> openConditionsManager());
+		addPanel.add(manageConditionsBtn);
+
 		bottomPanel.add(addPanel, BorderLayout.WEST);
 
 		JPanel savePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -346,5 +351,12 @@ public class HoverEditorDialog extends JDialog {
 
 			return comboBox;
 		}
+	}
+
+	private void openConditionsManager() {
+		ConditionsManagerDialog dialog = new ConditionsManagerDialog(parent);
+		dialog.setVisible(true);
+		// Reload table to show new conditions
+		loadHoverData();
 	}
 }

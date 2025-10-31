@@ -59,11 +59,16 @@ public class NewItemActionsEditorDialog extends JDialog {
     private void initUI() {
         setLayout(new BorderLayout(10, 10));
 
-        // Top panel with filter
+        // Top panel with filter and manage conditions button
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         filterCheckbox = new JCheckBox("Zeige nur aktuell zugewiesene Conditions");
         filterCheckbox.addActionListener(e -> applyFilter());
         topPanel.add(filterCheckbox);
+
+        JButton manageConditionsBtn = new JButton("Manage Conditions");
+        manageConditionsBtn.addActionListener(e -> openConditionsManager());
+        topPanel.add(manageConditionsBtn);
+
         add(topPanel, BorderLayout.NORTH);
 
         // Table with conditions
@@ -558,6 +563,17 @@ public class NewItemActionsEditorDialog extends JDialog {
                 return false;
             }
             return null;
+        }
+    }
+
+    private void openConditionsManager() {
+        // Cast owner to EditorWindow since we know it's EditorWindow
+        if (getOwner() instanceof EditorWindow) {
+            EditorWindow editorWindow = (EditorWindow) getOwner();
+            ConditionsManagerDialog dialog = new ConditionsManagerDialog(editorWindow);
+            dialog.setVisible(true);
+            // Reload table to show new conditions
+            loadExistingActions();
         }
     }
 }
