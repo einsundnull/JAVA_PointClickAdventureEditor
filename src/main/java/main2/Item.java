@@ -338,7 +338,8 @@ public class Item {
      * Check if item should be visible based on conditions
      */
     public boolean isVisible() {
-        if (isInInventory) {
+        // Use getter method to read from condition
+        if (isInInventory()) {
             return false; // Don't show in scene if in inventory
         }
 

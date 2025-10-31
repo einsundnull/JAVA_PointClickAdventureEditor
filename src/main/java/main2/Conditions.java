@@ -22,9 +22,24 @@ public class Conditions {
     // Dynamische Map für alle Conditions
     private static Map<String, Boolean> conditions = new LinkedHashMap<>();
 
+    // Listener interface
+    public interface ConditionChangeListener {
+        void onConditionChanged(String conditionName, boolean newValue);
+    }
+
+    // Listener for condition changes
+    private static ConditionChangeListener changeListener = null;
+
     // Static initializer - lädt Conditions beim ersten Zugriff
     static {
         loadConditionsFromFile();
+    }
+
+    /**
+     * Sets a listener that will be notified when conditions change
+     */
+    public static void setChangeListener(ConditionChangeListener listener) {
+        changeListener = listener;
     }
 
     /**
@@ -119,12 +134,20 @@ public class Conditions {
      * Setzt eine Condition per Namen
      */
     public static void setCondition(String name, boolean value) {
+        boolean oldValue = conditions.getOrDefault(name, false);
+        boolean changed = oldValue != value;
+
         if (conditions.containsKey(name)) {
             conditions.put(name, value);
             System.out.println("Condition gesetzt: " + name + " = " + value);
         } else {
             System.err.println("⚠️ Unbekannte Condition (wird trotzdem gesetzt): " + name);
             conditions.put(name, value);
+        }
+
+        // Notify listener if value actually changed
+        if (changed && changeListener != null) {
+            changeListener.onConditionChanged(name, value);
         }
     }
 

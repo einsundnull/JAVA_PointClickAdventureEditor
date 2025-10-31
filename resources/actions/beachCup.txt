@@ -10,11 +10,23 @@
 -conditions
 --lookedAtCupAtBeach=true -> =true
 -process
-#Anschauen:
 -conditions
 --lookedAtCupAtBeach=false -> =true
+-process
+-conditions
+--isInInventory_beachCup=false -> =true
+-process
+-conditions
+--lookedAtCupAtBeach=false -> =true
+--isInInventory_beachCup=false -> =true
 -process
 #Nimm:
 -conditions
 --isInInventory_beachCup=false -> =true
 -process
+#Anschauen:
+-conditions
+--lookedAtCupAtBeach=false -> =true
+--isInInventory_beachCup=false -> =true
+-process
+#Nimm:

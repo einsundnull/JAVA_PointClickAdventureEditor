@@ -97,12 +97,33 @@ public class AdventureGame extends JFrame {
 		// Initialize editor
 		editorWindow = new EditorWindow(this);
 
+		// Set up condition change listener for inventory updates
+		setupConditionListener();
+
 		initUI();
 		setupHotkeys();
 		setupCursorBlinking();
 		loadScene(progress.getCurrentScene());
 
 		setVisible(true);
+	}
+
+	/**
+	 * Sets up a listener to automatically update inventory and scene when isInInventory conditions change
+	 */
+	private void setupConditionListener() {
+		Conditions.setChangeListener((conditionName, newValue) -> {
+			// Check if this is an isInInventory condition
+			if (conditionName.startsWith("isInInventory_")) {
+				System.out.println("Inventory condition changed: " + conditionName + " = " + newValue);
+				// Update inventory display
+				updateInventory();
+				// Repaint scene to show/hide items
+				if (gamePanel != null) {
+					gamePanel.repaint();
+				}
+			}
+		});
 	}
 
 	private void setupCursorBlinking() {
