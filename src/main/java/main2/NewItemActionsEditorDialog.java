@@ -32,7 +32,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -124,12 +123,18 @@ public class NewItemActionsEditorDialog extends JDialog {
 
     private void loadExistingActions() {
         File actionsFile = new File("resources/actions/" + item.getName() + ".txt");
+        System.out.println("=== LOADING ITEM ACTIONS ===");
+        System.out.println("File: " + actionsFile.getAbsolutePath());
+        System.out.println("Action: " + actionName);
+
         if (!actionsFile.exists()) {
+            System.out.println("File does not exist - creating empty field");
             return;
         }
 
         try {
             List<String> lines = Files.readAllLines(actionsFile.toPath());
+            System.out.println("Loaded " + lines.size() + " lines from file");
 
             // Clear existing fields
             for (ConditionsFieldPanel panel : conditionsFieldPanels) {
@@ -137,79 +142,103 @@ public class NewItemActionsEditorDialog extends JDialog {
             }
             conditionsFieldPanels.clear();
 
+            // Parse new format
+            int lineNumber = 0;
+            ConditionsFieldPanel currentField = null;
+            String currentSection = "";
+            String processName = "";
+
             for (String line : lines) {
-                line = line.trim();
+                lineNumber++;
+                String trimmedLine = line.trim();
+                System.out.println("Line " + lineNumber + ": " + trimmedLine);
 
-                if (line.startsWith("#" + actionName + ":")) {
-                    // Parse action line
-                    String content = line.substring(actionName.length() + 2).trim();
+                if (trimmedLine.startsWith("#" + actionName + ":")) {
+                    System.out.println("  -> Found action header!");
+                    // Start a new ConditionsField
+                    currentField = new ConditionsFieldPanel();
+                    currentSection = "header";
+                } else if (trimmedLine.equals("-conditions")) {
+                    System.out.println("  -> Conditions section");
+                    currentSection = "conditions";
+                } else if (trimmedLine.equals("-process")) {
+                    System.out.println("  -> Process section");
+                    currentSection = "process";
+                } else if (trimmedLine.startsWith("--") && "conditions".equals(currentSection) && currentField != null) {
+                    // Parse condition line: --conditionName=ifValue -> =resultValue
+                    String condLine = trimmedLine.substring(2); // Remove "--"
+                    System.out.println("  -> Parsing condition: " + condLine);
 
-                    // Split into condition and result parts
-                    String[] parts = content.split("->");
-                    if (parts.length == 2) {
-                        String conditionsStr = parts[0].trim();
-                        String resultsStr = parts[1].trim();
+                    // Split by "->"
+                    String[] parts = condLine.split("->");
+                    if (parts.length >= 1) {
+                        String condPart = parts[0].trim(); // e.g. "lookedAtCupAtBeach=false"
+                        String resultPart = parts.length > 1 ? parts[1].trim() : ""; // e.g. "=true"
 
-                        // Create a new ConditionsField for this line
-                        ConditionsFieldPanel fieldPanel = new ConditionsFieldPanel();
+                        // Parse condition part
+                        String[] condSplit = condPart.split("=");
+                        if (condSplit.length == 2) {
+                            String condName = condSplit[0].trim();
+                            String ifValue = condSplit[1].trim();
+                            System.out.println("    Condition: " + condName + ", ifValue: " + ifValue);
 
-                        // Parse conditions (could be multiple with AND)
-                        String[] conditions = conditionsStr.split("&&");
+                            // Create row
+                            ConditionRow row = new ConditionRow(condName);
+                            row.use = true;
+                            row.ifCurrentValue = ifValue;
+                            row.processName = processName;
 
-                        // Parse results
-                        String processName = "";
-                        Map<String, Boolean> resultValues = new HashMap<>();
+                            currentField.tableModel.addRow(row);
+                            System.out.println("    -> Added to table");
 
-                        String[] results = resultsStr.split("\\|\\|");
-                        for (String result : results) {
-                            result = result.trim();
-
-                            if (result.startsWith("#SetBoolean:")) {
-                                String boolStr = result.substring(12).trim();
-                                String[] boolParts = boolStr.split("=");
-                                if (boolParts.length == 2) {
-                                    String condName = boolParts[0].trim();
-                                    boolean value = Boolean.parseBoolean(boolParts[1].trim());
-                                    resultValues.put(condName, value);
-                                }
-                            } else if (result.startsWith("#Process:")) {
-                                processName = result.substring(9).trim();
+                            // Parse result part
+                            if (resultPart.startsWith("=") && resultPart.length() > 1) {
+                                String resultValue = resultPart.substring(1).trim();
+                                boolean boolResult = Boolean.parseBoolean(resultValue);
+                                currentField.resultValues.put(condName, boolResult);
+                                System.out.println("    Result value: " + boolResult);
                             }
                         }
-
-                        // Add conditions to the field
-                        for (String cond : conditions) {
-                            cond = cond.trim();
-                            String[] condParts = cond.split("=");
-                            if (condParts.length == 2) {
-                                String condName = condParts[0].trim();
-                                String condValue = condParts[1].trim();
-
-                                ConditionRow row = new ConditionRow(condName);
-                                row.use = true;
-                                row.ifCurrentValue = condValue; // "true" or "false"
-                                row.processName = processName;
-
-                                fieldPanel.tableModel.addRow(row);
-                            }
-                        }
-
-                        // Set result values for the field
-                        fieldPanel.resultValues = resultValues;
-
-                        conditionsFieldPanels.add(fieldPanel);
-                        conditionsFieldsContainer.add(fieldPanel);
+                    }
+                } else if ("process".equals(currentSection) && !trimmedLine.isEmpty() && currentField != null) {
+                    // Process name
+                    processName = trimmedLine;
+                    System.out.println("  -> Process name: " + processName);
+                    // Set process name on all rows
+                    for (int i = 0; i < currentField.tableModel.getRowCount(); i++) {
+                        currentField.tableModel.getRow(i).processName = processName;
+                    }
+                } else if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
+                    // End of current action or start of new one
+                    if (currentField != null && currentField.tableModel.getRowCount() > 0) {
+                        conditionsFieldPanels.add(currentField);
+                        conditionsFieldsContainer.add(currentField);
+                        System.out.println("  -> ConditionsField added with " + currentField.tableModel.getRowCount() + " rows");
+                        currentField = null;
+                        currentSection = "";
+                        processName = "";
                     }
                 }
             }
 
+            // Add last field if any
+            if (currentField != null && currentField.tableModel.getRowCount() > 0) {
+                conditionsFieldPanels.add(currentField);
+                conditionsFieldsContainer.add(currentField);
+                System.out.println("  -> Last ConditionsField added with " + currentField.tableModel.getRowCount() + " rows");
+            }
+
             // If no fields were loaded, add an empty one
             if (conditionsFieldPanels.isEmpty()) {
+                System.out.println("No fields loaded - adding empty field");
                 addNewConditionsField();
+            } else {
+                System.out.println("Loaded " + conditionsFieldPanels.size() + " ConditionsFields");
             }
 
             conditionsFieldsContainer.revalidate();
             conditionsFieldsContainer.repaint();
+            System.out.println("=== LOAD COMPLETE ===\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -245,72 +274,88 @@ public class NewItemActionsEditorDialog extends JDialog {
             System.out.println("Removed " + removedLines + " old action lines");
 
             // Build new action lines from ConditionsFields
+            int fieldIndex = 0;
             for (ConditionsFieldPanel fieldPanel : conditionsFieldPanels) {
+                fieldIndex++;
+                System.out.println("\n--- Processing ConditionsField #" + fieldIndex + " ---");
+                System.out.println("Table has " + fieldPanel.tableModel.getRowCount() + " rows");
+
                 List<ConditionRow> usedRows = new ArrayList<>();
                 for (int i = 0; i < fieldPanel.tableModel.getRowCount(); i++) {
                     ConditionRow row = fieldPanel.tableModel.getRow(i);
+                    System.out.println("  Row " + i + ": " + row.conditionName +
+                                     ", use=" + row.use +
+                                     ", ifCurrentValue=" + row.ifCurrentValue +
+                                     ", processName=" + row.processName);
                     if (row.use) {
                         usedRows.add(row);
                     }
                 }
 
+                System.out.println("Used rows: " + usedRows.size());
+                System.out.println("Result values: " + fieldPanel.resultValues.size());
+                for (Map.Entry<String, Boolean> entry : fieldPanel.resultValues.entrySet()) {
+                    System.out.println("  " + entry.getKey() + " = " + entry.getValue());
+                }
+
                 if (usedRows.isEmpty()) {
+                    System.out.println("Skipping field (no used rows)");
                     continue; // Skip empty fields
                 }
 
-                StringBuilder conditionsStr = new StringBuilder();
-                StringBuilder resultsStr = new StringBuilder();
+                // Build new format
+                System.out.println("Building new format...");
+                List<String> actionLines = new ArrayList<>();
+
+                // Add header
+                actionLines.add("#" + actionName + ":");
+                actionLines.add("-conditions");
+
                 String processName = "";
 
-                // Build conditions string
+                // Add condition lines
                 for (ConditionRow row : usedRows) {
+                    System.out.println("  Processing row: " + row.conditionName + ", ifCurrentValue=" + row.ifCurrentValue);
+
                     // Skip conditions with "ignore"
                     if (!"ignore".equals(row.ifCurrentValue)) {
-                        if (conditionsStr.length() > 0) {
-                            conditionsStr.append(" && ");
+                        StringBuilder condLine = new StringBuilder();
+                        condLine.append("--").append(row.conditionName).append("=").append(row.ifCurrentValue);
+
+                        // Add result value if exists in resultValues map
+                        if (fieldPanel.resultValues.containsKey(row.conditionName)) {
+                            Boolean resultValue = fieldPanel.resultValues.get(row.conditionName);
+                            condLine.append(" -> =").append(resultValue);
+                            System.out.println("    Added with result: " + resultValue);
+                        } else {
+                            condLine.append(" ->");
+                            System.out.println("    Added without result");
                         }
-                        conditionsStr.append(row.conditionName).append("=").append(row.ifCurrentValue);
+
+                        actionLines.add(condLine.toString());
+                    } else {
+                        System.out.println("    Skipped (ignore)");
                     }
 
                     // Get process name (from first row that has one)
                     if (!row.processName.isEmpty() && processName.isEmpty()) {
                         processName = row.processName;
+                        System.out.println("    Process name: " + processName);
                     }
                 }
 
-                // Build results string from result values
-                for (Map.Entry<String, Boolean> entry : fieldPanel.resultValues.entrySet()) {
-                    if (resultsStr.length() > 0) {
-                        resultsStr.append(" || ");
-                    }
-                    resultsStr.append("#SetBoolean:").append(entry.getKey()).append("=").append(entry.getValue());
-                }
-
-                // Add process to results
+                // Add process section
+                actionLines.add("-process");
                 if (!processName.isEmpty()) {
-                    if (resultsStr.length() > 0) {
-                        resultsStr.append(" || ");
-                    }
-                    resultsStr.append("#Process:").append(processName);
+                    actionLines.add(processName);
                 }
 
-                // Only save if we have conditions or results
-                if (conditionsStr.length() > 0 || resultsStr.length() > 0) {
-                    String actionLine = "#" + actionName + ":";
-                    if (conditionsStr.length() > 0) {
-                        actionLine += conditionsStr.toString();
-                    } else {
-                        actionLine += "true"; // Default condition if no conditions specified
+                // Add all lines
+                if (actionLines.size() > 2) { // More than just header and -conditions
+                    for (String line : actionLines) {
+                        lines.add(line);
+                        System.out.println("Added line: " + line);
                     }
-
-                    if (resultsStr.length() > 0) {
-                        actionLine += " -> " + resultsStr.toString();
-                    } else {
-                        actionLine += " -> "; // Empty result
-                    }
-
-                    lines.add(actionLine);
-                    System.out.println("Added action line: " + actionLine);
                 }
             }
 
