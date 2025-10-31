@@ -80,7 +80,7 @@ public class AdventureGame extends JFrame {
 
 	// Menu actions
 	private static final String[] MENU_ACTIONS = { "Nimm", "Gib", "Ziehe", "Drücke", "Drehe", "Hebe", "Anschauen",
-			"Sprich", "Benutze" };
+			"Sprich", "Benutze", "Gehe zu" };
 
 	public AdventureGame() {
 		setTitle("Point & Click Adventure");

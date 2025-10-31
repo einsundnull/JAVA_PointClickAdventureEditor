@@ -291,9 +291,6 @@ public class SceneReferenceManager {
 
 	/**
 	 * Gets the background image path from a scene file
-	 * Format in scene files:
-	 * #Backgroundimage:
-	 * -imagename.png
 	 */
 	public static String getSceneBackgroundImage(String sceneName) throws IOException {
 		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
@@ -302,25 +299,10 @@ public class SceneReferenceManager {
 		}
 
 		List<String> lines = Files.readAllLines(sceneFile.toPath());
-		boolean foundBackgroundSection = false;
-
 		for (String line : lines) {
 			String trimmed = line.trim();
-
-			// Look for #Backgroundimage: section
-			if (trimmed.equals("#Backgroundimage:")) {
-				foundBackgroundSection = true;
-				continue;
-			}
-
-			// If we found the section, next line starting with - is the image
-			if (foundBackgroundSection && trimmed.startsWith("-")) {
-				return trimmed.substring(1).trim(); // Remove leading dash
-			}
-
-			// If we hit another # section, stop looking
-			if (foundBackgroundSection && trimmed.startsWith("#")) {
-				break;
+			if (trimmed.startsWith("backgroundImage=")) {
+				return trimmed.substring("backgroundImage=".length()).trim();
 			}
 		}
 
@@ -329,9 +311,6 @@ public class SceneReferenceManager {
 
 	/**
 	 * Sets the background image path in a scene file
-	 * Format in scene files:
-	 * #Backgroundimage:
-	 * -imagename.png
 	 */
 	public static void setSceneBackgroundImage(String sceneName, String imagePath) throws IOException {
 		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
@@ -341,45 +320,21 @@ public class SceneReferenceManager {
 
 		List<String> lines = Files.readAllLines(sceneFile.toPath());
 		List<String> newLines = new ArrayList<>();
-		boolean foundBackgroundSection = false;
-		boolean replacedImage = false;
+		boolean found = false;
 
-		for (int i = 0; i < lines.size(); i++) {
-			String line = lines.get(i);
+		for (String line : lines) {
 			String trimmed = line.trim();
-
-			// Look for #Backgroundimage: section
-			if (trimmed.equals("#Backgroundimage:")) {
-				foundBackgroundSection = true;
+			if (trimmed.startsWith("backgroundImage=")) {
+				newLines.add("backgroundImage=" + imagePath);
+				found = true;
+			} else {
 				newLines.add(line);
-				continue;
 			}
-
-			// If we found the section, replace or add the image line
-			if (foundBackgroundSection && !replacedImage) {
-				if (trimmed.startsWith("-")) {
-					// Replace existing image
-					String indent = line.substring(0, line.indexOf('-'));
-					newLines.add(indent + "-" + imagePath);
-					replacedImage = true;
-					continue;
-				} else if (trimmed.startsWith("#") || trimmed.isEmpty()) {
-					// No image line exists, insert before next section
-					newLines.add("-" + imagePath);
-					replacedImage = true;
-					newLines.add(line);
-					continue;
-				}
-			}
-
-			newLines.add(line);
 		}
 
-		// If no #Backgroundimage: section exists, add it at the beginning
-		if (!foundBackgroundSection) {
-			newLines.add(0, "#Backgroundimage:");
-			newLines.add(1, "-" + imagePath);
-			newLines.add(2, "");
+		// If backgroundImage line doesn't exist, add it at the beginning
+		if (!found) {
+			newLines.add(0, "backgroundImage=" + imagePath);
 		}
 
 		Files.write(sceneFile.toPath(), newLines);

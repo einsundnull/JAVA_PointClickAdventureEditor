@@ -139,6 +139,8 @@ public class EditorWindow extends JFrame {
 		sceneListModel = new DefaultListModel<>();
 		sceneList = new JList<>(sceneListModel);
 		sceneList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		sceneList.setCellRenderer(new SceneTileRenderer());
+		sceneList.setFixedCellHeight(60);
 		sceneList.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				onSceneSelected();
@@ -146,7 +148,7 @@ public class EditorWindow extends JFrame {
 		});
 
 		JScrollPane sceneListScroll = new JScrollPane(sceneList);
-		sceneListScroll.setPreferredSize(new Dimension(0, 80));
+		sceneListScroll.setPreferredSize(new Dimension(0, 120));
 		sceneListContentPanel.add(sceneListScroll, BorderLayout.CENTER);
 
 		JPanel sceneButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -262,6 +264,12 @@ public class EditorWindow extends JFrame {
 		renameBtn.setPreferredSize(new Dimension(95, 28));
 		renameBtn.addActionListener(e -> renameKeyArea());
 		listButtonPanel.add(renameBtn);
+
+		JButton changeTypeBtn = new JButton("🔄 Type");
+		changeTypeBtn.setFont(new Font("Arial", Font.PLAIN, 11));
+		changeTypeBtn.setPreferredSize(new Dimension(85, 28));
+		changeTypeBtn.addActionListener(e -> changeKeyAreaType());
+		listButtonPanel.add(changeTypeBtn);
 
 		JButton deleteBtn = new JButton("🗑️ Delete");
 		deleteBtn.setFont(new Font("Arial", Font.PLAIN, 11));
@@ -1106,6 +1114,59 @@ public class EditorWindow extends JFrame {
 		}
 	}
 
+	private void changeKeyAreaType() {
+		if (selectedKeyArea == null) {
+			log("ERROR: Select a KeyArea first!");
+			JOptionPane.showMessageDialog(this, "Please select a KeyArea first!", "No Selection",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		KeyArea.Type currentType = selectedKeyArea.getType();
+		KeyArea.Type[] types = KeyArea.Type.values();
+		String[] typeNames = new String[types.length];
+		for (int i = 0; i < types.length; i++) {
+			typeNames[i] = types[i].toString();
+		}
+
+		String selected = (String) JOptionPane.showInputDialog(
+				this,
+				"Select type for KeyArea '" + selectedKeyArea.getName() + "':",
+				"Change KeyArea Type",
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				typeNames,
+				currentType.toString());
+
+		if (selected != null) {
+			KeyArea.Type newType = KeyArea.Type.valueOf(selected);
+			selectedKeyArea.setType(newType);
+			refreshKeyAreaList();
+			autoSaveCurrentScene();
+			log("✓ Changed KeyArea type to: " + newType);
+
+			// Show info about the type
+			String info = "";
+			switch (newType) {
+				case TRANSITION:
+					info = "TRANSITION: Use Actions → LoadScene to define which scene to load when clicked";
+					break;
+				case INTERACTION:
+					info = "INTERACTION: Use Actions to define dialogs or other interactions";
+					break;
+				case MOVEMENT_BOUNDS:
+					info = "MOVEMENT_BOUNDS: Defines where the player can move";
+					break;
+				case CHARACTER_RANGE:
+					info = "CHARACTER_RANGE: Defines movement area for NPCs/characters";
+					break;
+			}
+			if (!info.isEmpty()) {
+				JOptionPane.showMessageDialog(this, info, "Type Info", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+	}
+
 	private void deleteKeyArea() {
 		if (selectedKeyArea == null) {
 			log("ERROR: Select a KeyArea first!");
@@ -1603,6 +1664,78 @@ public class EditorWindow extends JFrame {
 			}
 
 			return null;
+		}
+	}
+
+	/**
+	 * Custom renderer for scene list that shows a thumbnail preview
+	 */
+	class SceneTileRenderer extends JPanel implements javax.swing.ListCellRenderer<String> {
+		private JLabel iconLabel;
+		private JLabel textLabel;
+		private java.util.Map<String, ImageIcon> iconCache = new java.util.HashMap<>();
+
+		public SceneTileRenderer() {
+			setLayout(new BorderLayout(5, 0));
+			setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+
+			iconLabel = new JLabel();
+			iconLabel.setPreferredSize(new Dimension(80, 50));
+			iconLabel.setHorizontalAlignment(JLabel.CENTER);
+			iconLabel.setBorder(BorderFactory.createLineBorder(java.awt.Color.GRAY, 1));
+
+			textLabel = new JLabel();
+			textLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+
+			add(iconLabel, BorderLayout.WEST);
+			add(textLabel, BorderLayout.CENTER);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList<? extends String> list, String sceneName, int index,
+				boolean isSelected, boolean cellHasFocus) {
+
+			textLabel.setText(sceneName);
+
+			// Load and cache thumbnail
+			if (!iconCache.containsKey(sceneName)) {
+				try {
+					String bgImage = SceneReferenceManager.getSceneBackgroundImage(sceneName);
+					if (bgImage != null && !bgImage.isEmpty()) {
+						File imageFile = new File("resources/images/" + bgImage);
+						if (imageFile.exists()) {
+							ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
+							Image img = icon.getImage().getScaledInstance(75, 45, Image.SCALE_SMOOTH);
+							iconCache.put(sceneName, new ImageIcon(img));
+						}
+					}
+				} catch (Exception e) {
+					// Image load failed
+				}
+			}
+
+			ImageIcon cachedIcon = iconCache.get(sceneName);
+			if (cachedIcon != null) {
+				iconLabel.setIcon(cachedIcon);
+			} else {
+				iconLabel.setIcon(null);
+				iconLabel.setText("No Image");
+			}
+
+			if (isSelected) {
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
+				textLabel.setForeground(list.getSelectionForeground());
+			} else {
+				setBackground(list.getBackground());
+				setForeground(list.getForeground());
+				textLabel.setForeground(list.getForeground());
+			}
+
+			setEnabled(list.isEnabled());
+			setOpaque(true);
+
+			return this;
 		}
 	}
 }

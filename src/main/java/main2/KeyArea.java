@@ -71,7 +71,11 @@ public class KeyArea {
     public Type getType() {
         return type;
     }
-    
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     public String getName() {
         return name;
     }

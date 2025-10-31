@@ -2,6 +2,7 @@ package main2;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class ItemActionsEditorDialog extends JDialog {
 	private EditorWindow parent;
 
 	private static final String[] ALL_ACTIONS = { "Nimm", "Gib", "Ziehe", "Drücke", "Drehe", "Hebe", "Anschauen",
-			"Sprich", "Benutze" };
+			"Sprich", "Benutze", "Gehe zu" };
 
 	private JTabbedPane tabbedPane;
 
@@ -102,6 +103,11 @@ public class ItemActionsEditorDialog extends JDialog {
 	}
 
 	private JPanel createActionPanel(String actionName) {
+		// Special panel for "Gehe zu" action
+		if ("Gehe zu".equals(actionName)) {
+			return createGeheZuPanel(actionName);
+		}
+
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -207,6 +213,74 @@ public class ItemActionsEditorDialog extends JDialog {
 		}
 	}
 
+	/**
+	 * Creates special panel for "Gehe zu" action
+	 * This action can have 0 or exactly 1 entry (condition -> scene)
+	 */
+	private JPanel createGeheZuPanel(String actionName) {
+		JPanel panel = new JPanel(new BorderLayout(10, 10));
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		// Info label
+		JLabel infoLabel = new JLabel("<html><b>Gehe zu: Scene-Wechsel</b><br>" +
+				"Wenn die Condition erfüllt ist, wechselt die Scene.</html>");
+		infoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		panel.add(infoLabel, BorderLayout.NORTH);
+
+		// Center panel with condition and scene selection
+		JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+
+		// Condition selection
+		centerPanel.add(new JLabel("Condition:"));
+		JComboBox<String> conditionCombo = new JComboBox<>();
+		conditionCombo.addItem("none");
+		for (String conditionName : Conditions.getAllConditionNames()) {
+			conditionCombo.addItem(conditionName + " = true");
+			conditionCombo.addItem(conditionName + " = false");
+		}
+		conditionCombo.setPreferredSize(new Dimension(200, 30));
+		centerPanel.add(conditionCombo);
+
+		centerPanel.add(new JLabel("  →  "));
+
+		// Scene selection
+		centerPanel.add(new JLabel("Ziel-Scene:"));
+		JComboBox<String> sceneCombo = new JComboBox<>();
+		java.util.List<String> scenes = SceneReferenceManager.getAllSceneNames();
+		for (String sceneName : scenes) {
+			sceneCombo.addItem(sceneName);
+		}
+		sceneCombo.setPreferredSize(new Dimension(200, 30));
+		centerPanel.add(sceneCombo);
+
+		panel.add(centerPanel, BorderLayout.CENTER);
+
+		// Load existing data
+		KeyArea.ActionHandler handler = item.getActions().get(actionName);
+		if (handler != null && handler.getConditionalResults() != null && !handler.getConditionalResults().isEmpty()) {
+			// Load the first (and only) entry
+			Map.Entry<String, String> entry = handler.getConditionalResults().entrySet().iterator().next();
+			String condition = entry.getKey();
+			String result = entry.getValue();
+
+			conditionCombo.setSelectedItem(condition);
+
+			// Extract scene name from result (format: ##loadSceneName or #GeheZu:SceneName)
+			if (result.startsWith("##load")) {
+				sceneCombo.setSelectedItem(result.substring(6).trim());
+			} else if (result.startsWith("#GeheZu:")) {
+				sceneCombo.setSelectedItem(result.substring(8).trim());
+			}
+		}
+
+		// Store components for later retrieval during save
+		panel.putClientProperty("actionName", actionName);
+		panel.putClientProperty("conditionCombo", conditionCombo);
+		panel.putClientProperty("sceneCombo", sceneCombo);
+
+		return panel;
+	}
+
 	private void saveAllActions() {
 		parent.log("Saving actions for item " + item.getName() + "...");
 
@@ -220,40 +294,63 @@ public class ItemActionsEditorDialog extends JDialog {
 
 			if (comp instanceof JPanel) {
 				JPanel panel = (JPanel) comp;
-				JScrollPane scrollPane = (JScrollPane) panel.getComponent(1);
-				JTable table = (JTable) scrollPane.getViewport().getView();
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
 
-				if (model.getRowCount() > 0) {
-					KeyArea.ActionHandler handler = new KeyArea.ActionHandler();
+				// Special handling for "Gehe zu" action
+				if ("Gehe zu".equals(actionName)) {
+					@SuppressWarnings("unchecked")
+					JComboBox<String> conditionCombo = (JComboBox<String>) panel.getClientProperty("conditionCombo");
+					@SuppressWarnings("unchecked")
+					JComboBox<String> sceneCombo = (JComboBox<String>) panel.getClientProperty("sceneCombo");
 
-					for (int row = 0; row < model.getRowCount(); row++) {
-						String condition = (String) model.getValueAt(row, 0);
-						String resultType = (String) model.getValueAt(row, 1);
-						String resultValue = (String) model.getValueAt(row, 2);
+					if (conditionCombo != null && sceneCombo != null) {
+						String condition = (String) conditionCombo.getSelectedItem();
+						String sceneName = (String) sceneCombo.getSelectedItem();
 
-						if (resultValue != null && !resultValue.trim().isEmpty()) {
-							String result;
-							switch (resultType) {
-							case "Dialog":
-								result = "#Dialog:" + resultValue.trim();
-								break;
-							case "LoadScene":
-								result = "##load" + resultValue.trim();
-								break;
-							case "SetBoolean":
-								result = "#SetBoolean:" + resultValue.trim();
-								break;
-							default:
-								result = resultValue.trim();
-							}
-
+						if (sceneName != null && !sceneName.trim().isEmpty()) {
+							KeyArea.ActionHandler handler = new KeyArea.ActionHandler();
+							String result = "##load" + sceneName.trim();
 							handler.addConditionalResult(condition, result);
+							item.addAction(actionName, handler);
 							parent.log("  " + actionName + ": " + condition + " → " + result);
 						}
 					}
+				} else {
+					// Normal action handling
+					JScrollPane scrollPane = (JScrollPane) panel.getComponent(1);
+					JTable table = (JTable) scrollPane.getViewport().getView();
+					DefaultTableModel model = (DefaultTableModel) table.getModel();
 
-					item.addAction(actionName, handler);
+					if (model.getRowCount() > 0) {
+						KeyArea.ActionHandler handler = new KeyArea.ActionHandler();
+
+						for (int row = 0; row < model.getRowCount(); row++) {
+							String condition = (String) model.getValueAt(row, 0);
+							String resultType = (String) model.getValueAt(row, 1);
+							String resultValue = (String) model.getValueAt(row, 2);
+
+							if (resultValue != null && !resultValue.trim().isEmpty()) {
+								String result;
+								switch (resultType) {
+								case "Dialog":
+									result = "#Dialog:" + resultValue.trim();
+									break;
+								case "LoadScene":
+									result = "##load" + resultValue.trim();
+									break;
+								case "SetBoolean":
+									result = "#SetBoolean:" + resultValue.trim();
+									break;
+								default:
+									result = resultValue.trim();
+								}
+
+								handler.addConditionalResult(condition, result);
+								parent.log("  " + actionName + ": " + condition + " → " + result);
+							}
+						}
+
+						item.addAction(actionName, handler);
+					}
 				}
 			}
 		}

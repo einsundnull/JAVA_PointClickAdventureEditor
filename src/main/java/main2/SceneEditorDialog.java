@@ -94,8 +94,25 @@ public class SceneEditorDialog extends JDialog {
 					if (!droppedFiles.isEmpty()) {
 						File file = droppedFiles.get(0);
 						if (isImageFile(file)) {
+							// Copy file to resources/images if it's not already there
+							File imagesDir = new File("resources/images");
+							if (!imagesDir.exists()) {
+								imagesDir.mkdirs();
+							}
+
+							File targetFile = new File(imagesDir, file.getName());
+							if (!targetFile.exists() || !file.getAbsolutePath().equals(targetFile.getAbsolutePath())) {
+								try {
+									java.nio.file.Files.copy(file.toPath(), targetFile.toPath(),
+											java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+									parent.log("Copied image to: " + targetFile.getPath());
+								} catch (Exception copyEx) {
+									parent.log("ERROR copying image: " + copyEx.getMessage());
+								}
+							}
+
 							backgroundImageField.setText(file.getName());
-							updateImagePreview(file.getAbsolutePath());
+							updateImagePreview(targetFile.getAbsolutePath());
 							parent.log("Image selected: " + file.getName());
 						} else {
 							JOptionPane.showMessageDialog(SceneEditorDialog.this,
@@ -115,6 +132,13 @@ public class SceneEditorDialog extends JDialog {
 		JPanel imageFieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		imageFieldPanel.add(new JLabel("Image File:"));
 		backgroundImageField = new JTextField(20);
+		backgroundImageField.addActionListener(e -> {
+			// Update preview when Enter is pressed
+			String filename = backgroundImageField.getText().trim();
+			if (!filename.isEmpty()) {
+				updateImagePreview("resources/images/" + filename);
+			}
+		});
 		imageFieldPanel.add(backgroundImageField);
 
 		JButton browseBtn = new JButton("Browse...");

@@ -1,70 +1,95 @@
-backgroundImage=ChatGPT Image 28. Okt. 2025, 10_47_01.png
 #Backgroundimage:
--sceneTown.png
+-ChatGPT Image 28. Okt. 2025, 10_47_01.png
 
 #KeyArea:
--Type: Transition
+-Type: TRANSITION
 -Name: PathToBeach;
--Location:
---x1 = 800;
---x2 = 900;
---y1 = 400;
---y2 = 500;
-#Actions:
+-MouseHover
 --conditions
+---none;
+----Display:
+------"Go To Beach"
+-Image
+--conditions:
 ---none
-----##loadsceneBeach
-
-#KeyArea:
--Type: Interaction
--Name: Door;
--Location:
---x1 = 380;
---x2 = 520;
---y1 = 280;
---y2 = 600;
-
+----Image: default.png;
 #Actions:
 -Anschauen
 --conditions
 ---none
 ----#Dialog:
-------dialog-door-anschauen
+------dialog-pathtobeach-anschauen
+##Location:
+###
+--x = 1559;
+--y = 626;
+###
+--x = 1526;
+--y = 633;
+###
+--x = 1521;
+--y = 438;
+###
+--x = 1554;
+--y = 436;
+###
+--x = 1560;
+--y = 525;
+
+#KeyArea:
+-Type: INTERACTION
+-Name: Door;
+-MouseHover
+--conditions
+---none;
+----Display:
+------"Door"
+-Image
+--conditions:
+---none
+----Image: default.png;
+#Actions:
 -Drücke
 --conditions
----doorIsLocked = false;
-----#Dialog:
-------dialog-door-open
 ---doorIsLocked = true;
 ----#Dialog:
 ------dialog-door-locked
+---doorIsLocked = false;
+----#Dialog:
+------dialog-door-open
 -Benutze
 --conditions
----hasKey = true;
-----#Dialog:
-------dialog-door-unlock
-----#SetBoolean:doorIsLocked=false
 ---hasKey = false;
 ----#Dialog:
 ------dialog-door-need-key
+---hasKey = true;
+----#Dialog:
+------dialog-door-unlock
+-Anschauen
+--conditions
+---none;
+----#Dialog:
+------dialog-door-anschauen
+##Location:
 
 #Dialogs:
--dialog-door-anschauen
---Das ist eine alte Holztür.
---Sie sieht robust aus, aber das Schloss ist verrostet.
-
 -dialog-door-open
 --Die Tür ist nicht verschlossen.
 --Du öffnest sie und gehst hindurch.
-
--dialog-door-locked
---Die Tür ist verschlossen!
---Du brauchst einen Schlüssel um sie zu öffnen.
 
 -dialog-door-unlock
 --Du benutzt den Schlüssel.
 --*KLICK* Die Tür ist jetzt entriegelt!
 
+-dialog-door-locked
+--Die Tür ist verschlossen!
+--Du brauchst einen Schlüssel um sie zu öffnen.
+
 -dialog-door-need-key
 --Du versuchst die Tür zu benutzen, aber sie ist verschlossen.
 --Du brauchst einen Schlüssel.
+
+-dialog-door-anschauen
+--Das ist eine alte Holztür.
+--Sie sieht robust aus, aber das Schloss ist verrostet.
+
