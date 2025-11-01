@@ -189,7 +189,13 @@ public class KeyArea {
         }
         
         public void addConditionalResult(String condition, String result) {
-            conditionalResults.put(condition, result);
+            // Support multiple results for same condition by concatenating with separator
+            if (conditionalResults.containsKey(condition)) {
+                String existingResult = conditionalResults.get(condition);
+                conditionalResults.put(condition, existingResult + "|||" + result);
+            } else {
+                conditionalResults.put(condition, result);
+            }
         }
         
         public Map<String, String> getConditionalResults() {

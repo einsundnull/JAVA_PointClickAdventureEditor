@@ -184,9 +184,7 @@ public class NewActionsEditorDialog extends JDialog {
 
                             // Create row
                             ConditionRow row = new ConditionRow(condName);
-                            row.use = true;
                             row.ifCurrentValue = ifValue;
-                            row.processName = processName;
 
                             currentField.tableModel.addRow(row);
                             System.out.println("    -> Added to table");
@@ -207,11 +205,8 @@ public class NewActionsEditorDialog extends JDialog {
                 } else if ("process".equals(currentSection) && !trimmedLine.isEmpty() && currentField != null) {
                     // Process name
                     processName = trimmedLine;
-                    System.out.println("  -> Process name: " + processName);
-                    // Set process name on all rows
-                    for (int i = 0; i < currentField.tableModel.getRowCount(); i++) {
-                        currentField.tableModel.getRow(i).processName = processName;
-                    }
+                    System.out.println("  -> Process name (ignored): " + processName);
+                    // Process names are no longer stored in conditions
                 } else if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
                     // End of current action or start of new one
                     if (currentField != null && currentField.tableModel.getRowCount() > 0) {
@@ -285,19 +280,16 @@ public class NewActionsEditorDialog extends JDialog {
                 System.out.println("\n--- Processing ConditionsField #" + fieldIndex + " ---");
                 System.out.println("Table has " + fieldPanel.tableModel.getRowCount() + " rows");
 
+                // All rows are used (no "use" checkbox anymore)
                 List<ConditionRow> usedRows = new ArrayList<>();
                 for (int i = 0; i < fieldPanel.tableModel.getRowCount(); i++) {
                     ConditionRow row = fieldPanel.tableModel.getRow(i);
                     System.out.println("  Row " + i + ": " + row.conditionName +
-                                     ", use=" + row.use +
-                                     ", ifCurrentValue=" + row.ifCurrentValue +
-                                     ", processName=" + row.processName);
-                    if (row.use) {
-                        usedRows.add(row);
-                    }
+                                     ", ifCurrentValue=" + row.ifCurrentValue);
+                    usedRows.add(row);
                 }
 
-                System.out.println("Used rows: " + usedRows.size());
+                System.out.println("Total rows: " + usedRows.size());
                 System.out.println("Result values: " + fieldPanel.resultValuesTableModel.getRowCount());
                 for (int i = 0; i < fieldPanel.resultValuesTableModel.getRowCount(); i++) {
                     ResultValueRow rvRow = fieldPanel.resultValuesTableModel.getRow(i);
@@ -305,7 +297,7 @@ public class NewActionsEditorDialog extends JDialog {
                 }
 
                 if (usedRows.isEmpty()) {
-                    System.out.println("Skipping field (no used rows)");
+                    System.out.println("Skipping field (no rows)");
                     continue; // Skip empty fields
                 }
 
@@ -350,18 +342,9 @@ public class NewActionsEditorDialog extends JDialog {
                         System.out.println("    Skipped (ignore)");
                     }
 
-                    // Get process name (from first row that has one)
-                    if (!row.processName.isEmpty() && processName.isEmpty()) {
-                        processName = row.processName;
-                        System.out.println("    Process name: " + processName);
-                    }
                 }
 
-                // Add process section
-                actionLines.add("-process");
-                if (!processName.isEmpty()) {
-                    actionLines.add(processName);
-                }
+                // No longer using -process section
 
                 // Add all lines
                 if (actionLines.size() > 2) { // More than just header and -conditions
@@ -443,19 +426,12 @@ public class NewActionsEditorDialog extends JDialog {
             conditionsTable.setRowHeight(30);
 
             // Set up column widths
-            conditionsTable.getColumnModel().getColumn(0).setPreferredWidth(200); // Conditions
-            conditionsTable.getColumnModel().getColumn(1).setPreferredWidth(60);  // use
-            conditionsTable.getColumnModel().getColumn(2).setPreferredWidth(200); // if Current Value
-            conditionsTable.getColumnModel().getColumn(3).setPreferredWidth(200); // Result Process
+            conditionsTable.getColumnModel().getColumn(0).setPreferredWidth(400); // Conditions
+            conditionsTable.getColumnModel().getColumn(1).setPreferredWidth(150); // if Current Value
 
             // Set up custom renderers and editors
-            conditionsTable.getColumnModel().getColumn(1).setCellRenderer(new CheckBoxRenderer());
-            conditionsTable.getColumnModel().getColumn(1).setCellEditor(new CheckBoxEditor());
-
-            conditionsTable.getColumnModel().getColumn(2).setCellRenderer(new IfCurrentValueRenderer());
-            conditionsTable.getColumnModel().getColumn(2).setCellEditor(new IfCurrentValueEditor());
-
-            conditionsTable.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new JTextField()));
+            conditionsTable.getColumnModel().getColumn(1).setCellRenderer(new IfCurrentValueRenderer());
+            conditionsTable.getColumnModel().getColumn(1).setCellEditor(new IfCurrentValueEditor());
 
             JScrollPane conditionsScrollPane = new JScrollPane(conditionsTable);
             conditionsScrollPane.setPreferredSize(new Dimension(900, 120));
@@ -549,26 +525,10 @@ public class NewActionsEditorDialog extends JDialog {
         private void refreshAvailableResultValues() {
             addResultValueCombo.removeAllItems();
 
-            // Add all regular conditions
+            // Add all conditions from Conditions (includes isInInventory_* automatically)
             Set<String> allConditions = Conditions.getAllConditionNames();
             for (String conditionName : allConditions) {
                 addResultValueCombo.addItem(conditionName);
-            }
-
-            // Add isInInventory conditions for all items
-            try {
-                if (NewActionsEditorDialog.this.getOwner() instanceof EditorWindow) {
-                    EditorWindow editorWindow = (EditorWindow) NewActionsEditorDialog.this.getOwner();
-                    Scene currentScene = editorWindow.getGame().getCurrentScene();
-                    if (currentScene != null) {
-                        for (Item item : currentScene.getItems()) {
-                            String itemCondition = "isInInventory_" + item.getName();
-                            addResultValueCombo.addItem(itemCondition);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error loading items for result values: " + e.getMessage());
             }
         }
 
@@ -586,7 +546,6 @@ public class NewActionsEditorDialog extends JDialog {
                 }
 
                 ConditionRow row = new ConditionRow(selectedCondition);
-                row.use = true;
                 tableModel.addRow(row);
             }
         }
@@ -642,7 +601,7 @@ public class NewActionsEditorDialog extends JDialog {
         // Table Models
         class ConditionsTableModel extends AbstractTableModel {
             private List<ConditionRow> rows = new ArrayList<>();
-            private String[] columnNames = {"Conditions", "use", "if Current Value", "Result Process"};
+            private String[] columnNames = {"Conditions", "if Current Value"};
 
             public void addRow(ConditionRow row) {
                 rows.add(row);
@@ -679,9 +638,7 @@ public class NewActionsEditorDialog extends JDialog {
 
                 switch (columnIndex) {
                     case 0: return row.conditionName;
-                    case 1: return row.use;
-                    case 2: return row.ifCurrentValue;
-                    case 3: return row.processName;
+                    case 1: return row.ifCurrentValue;
                     default: return null;
                 }
             }
@@ -690,16 +647,8 @@ public class NewActionsEditorDialog extends JDialog {
             public void setValueAt(Object value, int rowIndex, int columnIndex) {
                 ConditionRow row = rows.get(rowIndex);
 
-                switch (columnIndex) {
-                    case 1:
-                        row.use = (Boolean) value;
-                        break;
-                    case 2:
-                        row.ifCurrentValue = (String) value;
-                        break;
-                    case 3:
-                        row.processName = (String) value;
-                        break;
+                if (columnIndex == 1) {
+                    row.ifCurrentValue = (String) value;
                 }
 
                 fireTableCellUpdated(rowIndex, columnIndex);
@@ -707,17 +656,13 @@ public class NewActionsEditorDialog extends JDialog {
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                // Columns 1 (use), 2 (if current value), and 3 (process) are editable
-                return columnIndex == 1 || columnIndex == 2 || columnIndex == 3;
+                // Only column 1 (if current value) is editable
+                return columnIndex == 1;
             }
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                switch (columnIndex) {
-                    case 1: return Boolean.class;
-                    case 2: return String.class;
-                    default: return String.class;
-                }
+                return String.class;
             }
         }
 
@@ -796,9 +741,7 @@ public class NewActionsEditorDialog extends JDialog {
     // Data classes for table rows
     class ConditionRow {
         String conditionName;
-        boolean use = false;
-        String ifCurrentValue = "ignore"; // "true", "false", or "ignore"
-        String processName = "";
+        String ifCurrentValue = "true"; // "true" or "false"
 
         public ConditionRow(String conditionName) {
             this.conditionName = conditionName;
@@ -835,34 +778,29 @@ public class NewActionsEditorDialog extends JDialog {
     class IfCurrentValueRenderer extends JPanel implements TableCellRenderer {
         private JRadioButton trueButton;
         private JRadioButton falseButton;
-        private JRadioButton ignoreButton;
 
         public IfCurrentValueRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
             trueButton = new JRadioButton("true");
             falseButton = new JRadioButton("false");
-            ignoreButton = new JRadioButton("ignore");
 
             ButtonGroup group = new ButtonGroup();
             group.add(trueButton);
             group.add(falseButton);
-            group.add(ignoreButton);
 
             add(trueButton);
             add(falseButton);
-            add(ignoreButton);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            String strValue = value != null ? value.toString() : "ignore";
+            String strValue = value != null ? value.toString() : "true";
 
             trueButton.setSelected("true".equals(strValue));
             falseButton.setSelected("false".equals(strValue));
-            ignoreButton.setSelected("ignore".equals(strValue));
 
             return this;
         }
@@ -873,34 +811,29 @@ public class NewActionsEditorDialog extends JDialog {
         private JPanel panel;
         private JRadioButton trueButton;
         private JRadioButton falseButton;
-        private JRadioButton ignoreButton;
 
         public IfCurrentValueEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
             trueButton = new JRadioButton("true");
             falseButton = new JRadioButton("false");
-            ignoreButton = new JRadioButton("ignore");
 
             ButtonGroup group = new ButtonGroup();
             group.add(trueButton);
             group.add(falseButton);
-            group.add(ignoreButton);
 
             panel.add(trueButton);
             panel.add(falseButton);
-            panel.add(ignoreButton);
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
 
-            String strValue = value != null ? value.toString() : "ignore";
+            String strValue = value != null ? value.toString() : "true";
 
             trueButton.setSelected("true".equals(strValue));
             falseButton.setSelected("false".equals(strValue));
-            ignoreButton.setSelected("ignore".equals(strValue));
 
             return panel;
         }
@@ -909,10 +842,8 @@ public class NewActionsEditorDialog extends JDialog {
         public Object getCellEditorValue() {
             if (trueButton.isSelected()) {
                 return "true";
-            } else if (falseButton.isSelected()) {
-                return "false";
             } else {
-                return "ignore";
+                return "false";
             }
         }
     }

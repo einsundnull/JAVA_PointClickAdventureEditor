@@ -44,11 +44,11 @@ public class Item {
         this.actions = new HashMap<>();
         this.hoverDisplayConditions = new HashMap<>();
 
-        // Create default isInInventory condition for this item
+        // Create default isInInventory condition for this item (runtime only, not saved to conditions.txt)
         String inventoryConditionName = "isInInventory_" + name;
         if (!Conditions.conditionExists(inventoryConditionName)) {
-            Conditions.addCondition(inventoryConditionName, false);
-            System.out.println("Item constructor: Created condition " + inventoryConditionName);
+            Conditions.addConditionRuntimeOnly(inventoryConditionName, false);
+            System.out.println("Item constructor: Created runtime condition " + inventoryConditionName);
         }
 
         // Don't create default click area yet - wait until image is loaded

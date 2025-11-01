@@ -122,19 +122,21 @@ public class NewItemActionsEditorDialog extends JDialog {
     }
 
     private void loadExistingActions() {
-        File actionsFile = new File("resources/actions/" + item.getName() + ".txt");
-        System.out.println("=== LOADING ACTIONS ===");
-        System.out.println("File: " + actionsFile.getAbsolutePath());
+        System.out.println("=== LOADING ACTIONS FROM ITEM OBJECT ===");
+        System.out.println("Item: " + item.getName());
         System.out.println("Action: " + actionName);
 
-        if (!actionsFile.exists()) {
-            System.out.println("File does not exist - creating empty field");
+        // Get the action handler from the item
+        KeyArea.ActionHandler handler = item.getActions().get(actionName);
+
+        if (handler == null || handler.getConditionalResults() == null || handler.getConditionalResults().isEmpty()) {
+            System.out.println("No actions found in item - creating empty field");
             return;
         }
 
         try {
-            List<String> lines = Files.readAllLines(actionsFile.toPath());
-            System.out.println("Loaded " + lines.size() + " lines from file");
+            Map<String, String> conditionalResults = handler.getConditionalResults();
+            System.out.println("Found " + conditionalResults.size() + " conditional results");
 
             // Clear existing fields
             for (ConditionsFieldPanel panel : conditionsFieldPanels) {
@@ -142,94 +144,69 @@ public class NewItemActionsEditorDialog extends JDialog {
             }
             conditionsFieldPanels.clear();
 
-            // Parse new format
-            int lineNumber = 0;
-            ConditionsFieldPanel currentField = null;
-            String currentSection = "";
-            String processName = "";
+            // Process each condition/result pair from the item's action handler
+            for (Map.Entry<String, String> entry : conditionalResults.entrySet()) {
+                String conditionString = entry.getKey();
+                String resultString = entry.getValue();
 
-            for (String line : lines) {
-                lineNumber++;
-                String trimmedLine = line.trim();
-                System.out.println("Line " + lineNumber + ": " + trimmedLine);
+                System.out.println("\nProcessing: " + conditionString + " -> " + resultString);
 
-                if (trimmedLine.startsWith("#" + actionName + ":")) {
-                    System.out.println("  -> Found action header!");
-                    // Start a new ConditionsField
-                    currentField = new ConditionsFieldPanel();
-                    currentSection = "header";
-                } else if (trimmedLine.equals("-conditions")) {
-                    System.out.println("  -> Conditions section");
-                    currentSection = "conditions";
-                } else if (trimmedLine.equals("-process")) {
-                    System.out.println("  -> Process section");
-                    currentSection = "process";
-                } else if (trimmedLine.startsWith("--") && "conditions".equals(currentSection) && currentField != null) {
-                    // Parse condition line: --conditionName=ifValue -> =resultValue
-                    String condLine = trimmedLine.substring(2); // Remove "--"
-                    System.out.println("  -> Parsing condition: " + condLine);
+                // Create a new ConditionsFieldPanel for each condition/result pair
+                ConditionsFieldPanel currentField = new ConditionsFieldPanel();
 
-                    // Split by "->"
-                    String[] parts = condLine.split("->");
-                    if (parts.length >= 1) {
-                        String condPart = parts[0].trim(); // e.g. "lookedAtCupAtBeach=false"
-                        String resultPart = parts.length > 1 ? parts[1].trim() : ""; // e.g. "=true"
+                // Split condition by AND
+                String[] conditions = conditionString.split(" AND ");
+                System.out.println("  Found " + conditions.length + " conditions");
 
-                        // Parse condition part
-                        String[] condSplit = condPart.split("=");
-                        if (condSplit.length == 2) {
-                            String condName = condSplit[0].trim();
-                            String ifValue = condSplit[1].trim();
-                            System.out.println("    Condition: " + condName + ", ifValue: " + ifValue);
+                for (String condition : conditions) {
+                    condition = condition.trim();
 
-                            // Create row
-                            ConditionRow row = new ConditionRow(condName);
-                            row.use = true;
-                            row.ifCurrentValue = ifValue;
-                            row.processName = processName;
+                    // Parse condition: "conditionName = value"
+                    String[] parts = condition.split("=");
+                    if (parts.length == 2) {
+                        String condName = parts[0].trim();
+                        String ifValue = parts[1].trim();
 
-                            currentField.tableModel.addRow(row);
-                            System.out.println("    -> Added to table");
+                        System.out.println("    Condition: " + condName + " = " + ifValue);
 
-                            // Parse result part
-                            if (resultPart.startsWith("=") && resultPart.length() > 1) {
-                                String resultValue = resultPart.substring(1).trim();
-                                boolean boolResult = Boolean.parseBoolean(resultValue);
-
-                                // Add to result values table
-                                ResultValueRow rvRow = new ResultValueRow(condName);
-                                rvRow.targetValue = boolResult;
-                                currentField.resultValuesTableModel.addRow(rvRow);
-                                System.out.println("    Result value: " + boolResult);
-                            }
-                        }
-                    }
-                } else if ("process".equals(currentSection) && !trimmedLine.isEmpty() && currentField != null) {
-                    // Process name
-                    processName = trimmedLine;
-                    System.out.println("  -> Process name: " + processName);
-                    // Set process name on all rows
-                    for (int i = 0; i < currentField.tableModel.getRowCount(); i++) {
-                        currentField.tableModel.getRow(i).processName = processName;
-                    }
-                } else if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
-                    // End of current action or start of new one
-                    if (currentField != null && currentField.tableModel.getRowCount() > 0) {
-                        conditionsFieldPanels.add(currentField);
-                        conditionsFieldsContainer.add(currentField);
-                        System.out.println("  -> ConditionsField added with " + currentField.tableModel.getRowCount() + " rows");
-                        currentField = null;
-                        currentSection = "";
-                        processName = "";
+                        // Create row
+                        ConditionRow row = new ConditionRow(condName);
+                        row.ifCurrentValue = ifValue;
+                        currentField.tableModel.addRow(row);
                     }
                 }
-            }
 
-            // Add last field if any
-            if (currentField != null && currentField.tableModel.getRowCount() > 0) {
-                conditionsFieldPanels.add(currentField);
-                conditionsFieldsContainer.add(currentField);
-                System.out.println("  -> Last ConditionsField added with " + currentField.tableModel.getRowCount() + " rows");
+                // Process results (can be multiple, separated by |||)
+                String[] results = resultString.split("\\|\\|\\|");
+                System.out.println("  Found " + results.length + " results");
+
+                for (String result : results) {
+                    result = result.trim();
+                    System.out.println("    Result: " + result);
+
+                    // Extract #SetBoolean results for the Result Values table
+                    if (result.startsWith("#SetBoolean:")) {
+                        String setBooleanLine = result.substring(12); // Remove "#SetBoolean:"
+                        String[] setBoolParts = setBooleanLine.split("=");
+                        if (setBoolParts.length == 2) {
+                            String condName = setBoolParts[0].trim();
+                            boolean targetValue = Boolean.parseBoolean(setBoolParts[1].trim());
+
+                            System.out.println("      SetBoolean: " + condName + " = " + targetValue);
+
+                            ResultValueRow rvRow = new ResultValueRow(condName);
+                            rvRow.targetValue = targetValue;
+                            currentField.resultValuesTableModel.addRow(rvRow);
+                        }
+                    }
+                }
+
+                // Add the field if it has conditions
+                if (currentField.tableModel.getRowCount() > 0) {
+                    conditionsFieldPanels.add(currentField);
+                    conditionsFieldsContainer.add(currentField);
+                    System.out.println("  -> ConditionsField added with " + currentField.tableModel.getRowCount() + " rows");
+                }
             }
 
             // If no fields were loaded, add an empty one
@@ -244,146 +221,111 @@ public class NewItemActionsEditorDialog extends JDialog {
             conditionsFieldsContainer.repaint();
             System.out.println("=== LOAD COMPLETE ===\n");
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("ERROR loading: " + e.getMessage());
         }
     }
 
     private void saveActions() {
-        File actionsFile = new File("resources/actions/" + item.getName() + ".txt");
-        System.out.println("=== SAVING ACTIONS ===");
-        System.out.println("File: " + actionsFile.getAbsolutePath());
+        System.out.println("=== SAVING ACTIONS TO ITEM ===");
+        System.out.println("Item: " + item.getName());
         System.out.println("Action: " + actionName);
         System.out.println("Number of ConditionsFields: " + conditionsFieldPanels.size());
 
         try {
-            List<String> lines = new ArrayList<>();
+            // Get existing handler to preserve #Dialog results
+            KeyArea.ActionHandler oldHandler = item.getActions().get(actionName);
 
-            // Read existing lines
-            if (actionsFile.exists()) {
-                lines = new ArrayList<>(Files.readAllLines(actionsFile.toPath()));
-                System.out.println("Loaded " + lines.size() + " existing lines");
-            } else {
-                System.out.println("File does not exist, creating new");
-            }
+            // Clear and create new action handler
+            item.getActions().remove(actionName);
+            System.out.println("Removed old action handler");
 
-            // Remove old action lines for this action
-            int removedLines = 0;
-            for (int i = lines.size() - 1; i >= 0; i--) {
-                if (lines.get(i).trim().startsWith("#" + actionName + ":")) {
-                    lines.remove(i);
-                    removedLines++;
-                }
-            }
-            System.out.println("Removed " + removedLines + " old action lines");
+            KeyArea.ActionHandler newHandler = new KeyArea.ActionHandler();
 
-            // Build new action lines from ConditionsFields
+            // Build conditions and results from ConditionsFields
             int fieldIndex = 0;
             for (ConditionsFieldPanel fieldPanel : conditionsFieldPanels) {
                 fieldIndex++;
                 System.out.println("\n--- Processing ConditionsField #" + fieldIndex + " ---");
                 System.out.println("Table has " + fieldPanel.tableModel.getRowCount() + " rows");
 
-                List<ConditionRow> usedRows = new ArrayList<>();
+                // Collect all conditions from this field
+                List<String> conditionParts = new ArrayList<>();
                 for (int i = 0; i < fieldPanel.tableModel.getRowCount(); i++) {
                     ConditionRow row = fieldPanel.tableModel.getRow(i);
-                    System.out.println("  Row " + i + ": " + row.conditionName +
-                                     ", use=" + row.use +
-                                     ", ifCurrentValue=" + row.ifCurrentValue +
-                                     ", processName=" + row.processName);
-                    if (row.use) {
-                        usedRows.add(row);
-                    }
+                    String condPart = row.conditionName + " = " + row.ifCurrentValue;
+                    conditionParts.add(condPart);
+                    System.out.println("  Condition: " + condPart);
                 }
 
-                System.out.println("Used rows: " + usedRows.size());
-                System.out.println("Result values: " + fieldPanel.resultValuesTableModel.getRowCount());
+                if (conditionParts.isEmpty()) {
+                    System.out.println("Skipping field (no conditions)");
+                    continue;
+                }
+
+                // Combine all conditions with AND
+                String combinedCondition = String.join(" AND ", conditionParts);
+                System.out.println("Combined condition: " + combinedCondition);
+
+                // Collect all results
+                List<String> resultParts = new ArrayList<>();
+
+                // Add #SetBoolean results from Result Values table
                 for (int i = 0; i < fieldPanel.resultValuesTableModel.getRowCount(); i++) {
                     ResultValueRow rvRow = fieldPanel.resultValuesTableModel.getRow(i);
-                    System.out.println("  " + rvRow.conditionName + " = " + rvRow.targetValue);
+                    String setBoolean = "#SetBoolean:" + rvRow.conditionName + "=" + rvRow.targetValue;
+                    resultParts.add(setBoolean);
+                    System.out.println("  SetBoolean result: " + setBoolean);
                 }
 
-                if (usedRows.isEmpty()) {
-                    System.out.println("Skipping field (no used rows)");
-                    continue; // Skip empty fields
-                }
-
-                // Build result values map for quick lookup
-                Map<String, Boolean> resultValuesMap = new HashMap<>();
-                for (int i = 0; i < fieldPanel.resultValuesTableModel.getRowCount(); i++) {
-                    ResultValueRow rvRow = fieldPanel.resultValuesTableModel.getRow(i);
-                    resultValuesMap.put(rvRow.conditionName, rvRow.targetValue);
-                }
-
-                // Build new format
-                System.out.println("Building new format...");
-                List<String> actionLines = new ArrayList<>();
-
-                // Add header
-                actionLines.add("#" + actionName + ":");
-                actionLines.add("-conditions");
-
-                String processName = "";
-
-                // Add condition lines
-                for (ConditionRow row : usedRows) {
-                    System.out.println("  Processing row: " + row.conditionName + ", ifCurrentValue=" + row.ifCurrentValue);
-
-                    // Skip conditions with "ignore"
-                    if (!"ignore".equals(row.ifCurrentValue)) {
-                        StringBuilder condLine = new StringBuilder();
-                        condLine.append("--").append(row.conditionName).append("=").append(row.ifCurrentValue);
-
-                        // Add result value if exists in result values table
-                        if (resultValuesMap.containsKey(row.conditionName)) {
-                            Boolean resultValue = resultValuesMap.get(row.conditionName);
-                            condLine.append(" -> =").append(resultValue);
-                            System.out.println("    Added with result: " + resultValue);
-                        } else {
-                            condLine.append(" ->");
-                            System.out.println("    Added without result");
+                // Preserve #Dialog results from old handler if they match this condition
+                if (oldHandler != null && oldHandler.getConditionalResults() != null) {
+                    for (Map.Entry<String, String> oldEntry : oldHandler.getConditionalResults().entrySet()) {
+                        if (oldEntry.getKey().equals(combinedCondition)) {
+                            // This is the same condition - extract #Dialog results
+                            String[] oldResults = oldEntry.getValue().split("\\|\\|\\|");
+                            for (String oldResult : oldResults) {
+                                if (oldResult.trim().startsWith("#Dialog:")) {
+                                    resultParts.add(oldResult.trim());
+                                    System.out.println("  Preserved Dialog result: " + oldResult.trim());
+                                }
+                            }
                         }
-
-                        actionLines.add(condLine.toString());
-                    } else {
-                        System.out.println("    Skipped (ignore)");
-                    }
-
-                    // Get process name (from first row that has one)
-                    if (!row.processName.isEmpty() && processName.isEmpty()) {
-                        processName = row.processName;
-                        System.out.println("    Process name: " + processName);
                     }
                 }
 
-                // Add process section
-                actionLines.add("-process");
-                if (!processName.isEmpty()) {
-                    actionLines.add(processName);
+                // Combine all results with |||
+                String combinedResult;
+                if (!resultParts.isEmpty()) {
+                    combinedResult = String.join("|||", resultParts);
+                } else {
+                    combinedResult = ""; // No results
                 }
+                System.out.println("Combined result: " + combinedResult);
 
-                // Add all lines
-                if (actionLines.size() > 2) { // More than just header and -conditions
-                    for (String line : actionLines) {
-                        lines.add(line);
-                        System.out.println("Added line: " + line);
-                    }
+                // Add to action handler
+                if (!combinedResult.isEmpty()) {
+                    newHandler.addConditionalResult(combinedCondition, combinedResult);
+                    System.out.println("Added to action handler");
                 }
             }
 
-            // Write back to file
-            actionsFile.getParentFile().mkdirs();
-            Files.write(actionsFile.toPath(), lines);
+            // Add the action handler to the item
+            item.addAction(actionName, newHandler);
+            System.out.println("Action handler added to item");
 
-            System.out.println("File saved successfully with " + lines.size() + " total lines");
+            // Save the entire item to file
+            ItemSaver.saveItemByName(item);
+            System.out.println("Item saved to file");
+
             System.out.println("=== SAVE COMPLETE ===");
 
-            JOptionPane.showMessageDialog(this, "Actions saved successfully!\n\nFile: " + actionsFile.getAbsolutePath(), "Saved",
+            JOptionPane.showMessageDialog(this, "Actions saved successfully to " + item.getName() + ".txt!", "Saved",
                 JOptionPane.INFORMATION_MESSAGE);
             dispose();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error saving actions: " + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -443,19 +385,12 @@ public class NewItemActionsEditorDialog extends JDialog {
             conditionsTable.setRowHeight(30);
 
             // Set up column widths
-            conditionsTable.getColumnModel().getColumn(0).setPreferredWidth(200); // Conditions
-            conditionsTable.getColumnModel().getColumn(1).setPreferredWidth(60);  // use
-            conditionsTable.getColumnModel().getColumn(2).setPreferredWidth(200); // if Current Value
-            conditionsTable.getColumnModel().getColumn(3).setPreferredWidth(200); // Result Process
+            conditionsTable.getColumnModel().getColumn(0).setPreferredWidth(400); // Conditions
+            conditionsTable.getColumnModel().getColumn(1).setPreferredWidth(150); // if Current Value
 
             // Set up custom renderers and editors
-            conditionsTable.getColumnModel().getColumn(1).setCellRenderer(new CheckBoxRenderer());
-            conditionsTable.getColumnModel().getColumn(1).setCellEditor(new CheckBoxEditor());
-
-            conditionsTable.getColumnModel().getColumn(2).setCellRenderer(new IfCurrentValueRenderer());
-            conditionsTable.getColumnModel().getColumn(2).setCellEditor(new IfCurrentValueEditor());
-
-            conditionsTable.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new JTextField()));
+            conditionsTable.getColumnModel().getColumn(1).setCellRenderer(new IfCurrentValueRenderer());
+            conditionsTable.getColumnModel().getColumn(1).setCellEditor(new IfCurrentValueEditor());
 
             JScrollPane conditionsScrollPane = new JScrollPane(conditionsTable);
             conditionsScrollPane.setPreferredSize(new Dimension(900, 120));
@@ -549,26 +484,10 @@ public class NewItemActionsEditorDialog extends JDialog {
         private void refreshAvailableResultValues() {
             addResultValueCombo.removeAllItems();
 
-            // Add all regular conditions
+            // Add all conditions from Conditions (includes isInInventory_* automatically)
             Set<String> allConditions = Conditions.getAllConditionNames();
             for (String conditionName : allConditions) {
                 addResultValueCombo.addItem(conditionName);
-            }
-
-            // Add isInInventory conditions for all items
-            try {
-                if (NewItemActionsEditorDialog.this.getOwner() instanceof EditorWindow) {
-                    EditorWindow editorWindow = (EditorWindow) NewItemActionsEditorDialog.this.getOwner();
-                    Scene currentScene = editorWindow.getGame().getCurrentScene();
-                    if (currentScene != null) {
-                        for (Item sceneItem : currentScene.getItems()) {
-                            String itemCondition = "isInInventory_" + sceneItem.getName();
-                            addResultValueCombo.addItem(itemCondition);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error loading items for result values: " + e.getMessage());
             }
         }
 
@@ -586,7 +505,6 @@ public class NewItemActionsEditorDialog extends JDialog {
                 }
 
                 ConditionRow row = new ConditionRow(selectedCondition);
-                row.use = true;
                 tableModel.addRow(row);
             }
         }
@@ -642,7 +560,7 @@ public class NewItemActionsEditorDialog extends JDialog {
         // Table Models
         class ConditionsTableModel extends AbstractTableModel {
             private List<ConditionRow> rows = new ArrayList<>();
-            private String[] columnNames = {"Conditions", "use", "if Current Value", "Result Process"};
+            private String[] columnNames = {"Conditions", "if Current Value"};
 
             public void addRow(ConditionRow row) {
                 rows.add(row);
@@ -679,9 +597,7 @@ public class NewItemActionsEditorDialog extends JDialog {
 
                 switch (columnIndex) {
                     case 0: return row.conditionName;
-                    case 1: return row.use;
-                    case 2: return row.ifCurrentValue;
-                    case 3: return row.processName;
+                    case 1: return row.ifCurrentValue;
                     default: return null;
                 }
             }
@@ -692,13 +608,7 @@ public class NewItemActionsEditorDialog extends JDialog {
 
                 switch (columnIndex) {
                     case 1:
-                        row.use = (Boolean) value;
-                        break;
-                    case 2:
                         row.ifCurrentValue = (String) value;
-                        break;
-                    case 3:
-                        row.processName = (String) value;
                         break;
                 }
 
@@ -707,17 +617,13 @@ public class NewItemActionsEditorDialog extends JDialog {
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                // Columns 1 (use), 2 (if current value), and 3 (process) are editable
-                return columnIndex == 1 || columnIndex == 2 || columnIndex == 3;
+                // Only column 1 (if current value) is editable
+                return columnIndex == 1;
             }
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                switch (columnIndex) {
-                    case 1: return Boolean.class;
-                    case 2: return String.class;
-                    default: return String.class;
-                }
+                return String.class;
             }
         }
 
@@ -796,9 +702,7 @@ public class NewItemActionsEditorDialog extends JDialog {
     // Data classes for table rows
     class ConditionRow {
         String conditionName;
-        boolean use = false;
-        String ifCurrentValue = "ignore"; // "true", "false", or "ignore"
-        String processName = "";
+        String ifCurrentValue = "true"; // "true" or "false"
 
         public ConditionRow(String conditionName) {
             this.conditionName = conditionName;
@@ -835,34 +739,29 @@ public class NewItemActionsEditorDialog extends JDialog {
     class IfCurrentValueRenderer extends JPanel implements TableCellRenderer {
         private JRadioButton trueButton;
         private JRadioButton falseButton;
-        private JRadioButton ignoreButton;
 
         public IfCurrentValueRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
             trueButton = new JRadioButton("true");
             falseButton = new JRadioButton("false");
-            ignoreButton = new JRadioButton("ignore");
 
             ButtonGroup group = new ButtonGroup();
             group.add(trueButton);
             group.add(falseButton);
-            group.add(ignoreButton);
 
             add(trueButton);
             add(falseButton);
-            add(ignoreButton);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            String strValue = value != null ? value.toString() : "ignore";
+            String strValue = value != null ? value.toString() : "true";
 
             trueButton.setSelected("true".equals(strValue));
             falseButton.setSelected("false".equals(strValue));
-            ignoreButton.setSelected("ignore".equals(strValue));
 
             return this;
         }
@@ -873,34 +772,29 @@ public class NewItemActionsEditorDialog extends JDialog {
         private JPanel panel;
         private JRadioButton trueButton;
         private JRadioButton falseButton;
-        private JRadioButton ignoreButton;
 
         public IfCurrentValueEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
             trueButton = new JRadioButton("true");
             falseButton = new JRadioButton("false");
-            ignoreButton = new JRadioButton("ignore");
 
             ButtonGroup group = new ButtonGroup();
             group.add(trueButton);
             group.add(falseButton);
-            group.add(ignoreButton);
 
             panel.add(trueButton);
             panel.add(falseButton);
-            panel.add(ignoreButton);
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
 
-            String strValue = value != null ? value.toString() : "ignore";
+            String strValue = value != null ? value.toString() : "true";
 
             trueButton.setSelected("true".equals(strValue));
             falseButton.setSelected("false".equals(strValue));
-            ignoreButton.setSelected("ignore".equals(strValue));
 
             return panel;
         }
@@ -909,10 +803,8 @@ public class NewItemActionsEditorDialog extends JDialog {
         public Object getCellEditorValue() {
             if (trueButton.isSelected()) {
                 return "true";
-            } else if (falseButton.isSelected()) {
-                return "false";
             } else {
-                return "ignore";
+                return "false";
             }
         }
     }

@@ -165,26 +165,44 @@
 --Du drückst gegen das Regal.
 --Es ist fest verankert.
 
--dialog-shelf-beach-sprich
---Du sprichst mit dem Regal.
---Es antwortet nicht.
---Vielleicht solltest du mit jemandem sprechen, der tatsächlich antworten kann.
-
 -dialog-shelf-beach-2
 --Das Regal sieht interessant aus.
 --Es scheint alt und verwittert zu sein.
-
--dialog-shelf-beach-drehe
---Das Regal lässt sich nicht drehen.
---Es steht fest an der Wand.
 
 -dialog-shelf-beach-benutze
 --Du benutzt das Regal.
 --Es dient als Aufbewahrungsort für verschiedene Gegenstände.
 
+-dialog-pathtowood-anschauen
+--A path leading to the woods.
+
 -dialog-shelf-beach-ziehe
 --Du ziehst am Regal.
 --Es bewegt sich ein wenig, aber nicht genug.
+
+-dialog-beachcup-nimm
+--You took the white cup.
+--It's now in your inventory.
+
+-dialog-shelf-beach-gib
+--Du gibst dem Regal etwas.
+--Das Regal reagiert nicht darauf.
+
+-dialog-beachcup-anschauen
+--A white cup.
+--It looks like someone left it here.
+
+-dialog-beachbarsign-anschauen
+--It says "Beach Bar". A beautiful wooden sign.
+
+-dialog-shelf-beach-sprich
+--Du sprichst mit dem Regal.
+--Es antwortet nicht.
+--Vielleicht solltest du mit jemandem sprechen, der tatsächlich antworten kann.
+
+-dialog-shelf-beach-drehe
+--Das Regal lässt sich nicht drehen.
+--Es steht fest an der Wand.
 
 -dialog-shelf-beach-hebe
 --Das Regal ist viel zu schwer zum Heben.
@@ -196,9 +214,11 @@
 --Du versuchst das Regal zu nehmen, aber es ist zu schwer.
 --Vielleicht solltest du etwas anderes versuchen?
 
--dialog-shelf-beach-gib
---Du gibst dem Regal etwas.
---Das Regal reagiert nicht darauf.
+-dialog-pathtotown-anschauen
+--A path leading to the town.
+
+-dialog-glass-anschauen
+--A glass on the counter.
 
 -dialog-path-blocked
 --Der Weg ist blockiert!

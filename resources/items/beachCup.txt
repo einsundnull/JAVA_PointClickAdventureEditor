@@ -64,6 +64,14 @@
 #Actions:
 -Anschauen
 --conditions
----none;
+---isInInventory_beachCup = false;
+---lookedAtCupAtBeach = false;
+----#SetBoolean:lookedAtCupAtBeach=true
 ----#Dialog:
 ------dialog-beachcup-anschauen
+-Nimm
+--conditions
+---lookedAtCupAtBeach = true;
+----#SetBoolean:isInInventory_beachCup=true
+----#Dialog:
+------dialog-beachcup-nimm

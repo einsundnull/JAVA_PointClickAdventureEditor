@@ -1286,6 +1286,65 @@ public class AdventureGame extends JFrame {
 		if (currentScene == null)
 			return;
 
+		// Check if clicked on an Item FIRST (Items should have priority over KeyAreas)
+		Item clickedItem = currentScene.getItemAt(clickPoint);
+
+		if (clickedItem != null && clickedItem.isVisible() && selectedAction != null) {
+			// Perform action on Item
+			String result = clickedItem.performAction(selectedAction, progress);
+
+			// Log action to debug window
+			debugWindow.logAction(selectedAction, "Item: " + clickedItem.getName(), result);
+
+			if (result != null) {
+				// Support multiple results separated by |||
+				String[] results = result.split("\\|\\|\\|");
+				for (String singleResult : results) {
+					singleResult = singleResult.trim();
+
+					if (singleResult.startsWith("##load")) {
+						// Load new scene
+						String sceneName = singleResult.substring(6).trim();
+						loadScene(sceneName);
+					} else if (singleResult.startsWith("#Dialog:")) {
+						// Show dialog by name - extract dialog name after the 6 dashes
+						String dialogLine = singleResult.substring(8).trim();
+						// Remove leading dashes (------dialogname.txt)
+						while (dialogLine.startsWith("-")) {
+							dialogLine = dialogLine.substring(1);
+						}
+						// Remove .txt if present
+						if (dialogLine.endsWith(".txt")) {
+							dialogLine = dialogLine.substring(0, dialogLine.length() - 4);
+						}
+						showDialog(dialogLine.trim());
+					} else if (singleResult.startsWith("#SetBoolean:")) {
+						// Set boolean variable in Conditions
+						String[] parts = singleResult.substring(12).split("=");
+						if (parts.length == 2) {
+							Conditions.setCondition(parts[0].trim(), Boolean.parseBoolean(parts[1].trim()));
+							updateInventory(); // Update inventory when conditions change
+						}
+					} else if (singleResult.startsWith("#AddItem:")) {
+						// Add item to inventory
+						String itemName = singleResult.substring(9).trim();
+						addItemToInventoryByName(itemName);
+					} else if (singleResult.startsWith("#Process:")) {
+						// Execute process
+						String processName = singleResult.substring(9).trim();
+						System.out.println("Starting process: " + processName);
+						processExecutor.executeProcess(processName);
+					}
+				}
+			}
+
+			selectedAction = null;
+			// Reset cursor to default
+			updateCursorForAction(null);
+			gamePanel.repaint();
+			return; // Don't check KeyAreas if Item was clicked
+		}
+
 		// Check if clicked on a KeyArea
 		KeyArea clickedArea = currentScene.getKeyAreaAt(clickPoint);
 
@@ -1297,14 +1356,18 @@ public class AdventureGame extends JFrame {
 			debugWindow.logAction(selectedAction, "KeyArea: " + clickedArea.getName(), result);
 
 			if (result != null) {
-				if (result != null) {
-					if (result.startsWith("##load")) {
+				// Support multiple results separated by |||
+				String[] results = result.split("\\|\\|\\|");
+				for (String singleResult : results) {
+					singleResult = singleResult.trim();
+
+					if (singleResult.startsWith("##load")) {
 						// Load new scene
-						String sceneName = result.substring(6).trim();
+						String sceneName = singleResult.substring(6).trim();
 						loadScene(sceneName);
-					} else if (result.startsWith("#Dialog:")) {
+					} else if (singleResult.startsWith("#Dialog:")) {
 						// Show dialog by name - extract dialog name after the 6 dashes
-						String dialogLine = result.substring(8).trim();
+						String dialogLine = singleResult.substring(8).trim();
 						// Remove leading dashes (------dialogname.txt)
 						while (dialogLine.startsWith("-")) {
 							dialogLine = dialogLine.substring(1);
@@ -1314,20 +1377,20 @@ public class AdventureGame extends JFrame {
 							dialogLine = dialogLine.substring(0, dialogLine.length() - 4);
 						}
 						showDialog(dialogLine.trim());
-					} else if (result.startsWith("#SetBoolean:")) {
+					} else if (singleResult.startsWith("#SetBoolean:")) {
 						// Set boolean variable in Conditions
-						String[] parts = result.substring(12).split("=");
+						String[] parts = singleResult.substring(12).split("=");
 						if (parts.length == 2) {
 							Conditions.setCondition(parts[0].trim(), Boolean.parseBoolean(parts[1].trim()));
 							updateInventory(); // Update inventory when conditions change
 						}
-					} else if (result.startsWith("#AddItem:")) {
+					} else if (singleResult.startsWith("#AddItem:")) {
 						// Add item to inventory
-						String itemName = result.substring(9).trim();
+						String itemName = singleResult.substring(9).trim();
 						addItemToInventoryByName(itemName);
-					} else if (result.startsWith("#Process:")) {
+					} else if (singleResult.startsWith("#Process:")) {
 						// Execute process
-						String processName = result.substring(9).trim();
+						String processName = singleResult.substring(9).trim();
 						System.out.println("Starting process: " + processName);
 						processExecutor.executeProcess(processName);
 					}

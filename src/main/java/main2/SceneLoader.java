@@ -39,6 +39,7 @@ public class SceneLoader {
         boolean inDialogs = false;
         boolean inMouseHover = false;
         String pendingCondition = null;
+        java.util.List<String> pendingConditions = new java.util.ArrayList<>(); // Collect multiple --- lines
         String currentDialogName = null;
         StringBuilder currentDialogText = null;
         
@@ -140,17 +141,21 @@ public class SceneLoader {
                     continue;
                 }
                 else if (inMouseHover && trimmed.startsWith("---") && !trimmed.startsWith("----")) {
-                    pendingCondition = trimmed.substring(3).trim().replace(";", "");
+                    String conditionLine = trimmed.substring(3).trim().replace(";", "");
+                    pendingConditions.add(conditionLine);
                 }
                 else if (inMouseHover && trimmed.startsWith("----Display:")) {
                     continue;
                 }
                 else if (inMouseHover && trimmed.startsWith("------")) {
                     String displayText = trimmed.substring(6).trim().replace("\"", "");
-                    if (currentKeyArea != null && pendingCondition != null) {
+                    // Combine all pending conditions with AND
+                    if (currentKeyArea != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         currentKeyArea.addHoverDisplayCondition(pendingCondition, displayText);
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
                 }
                 // Image section
                 else if (trimmed.equals("-Image")) {
@@ -163,14 +168,18 @@ public class SceneLoader {
                     continue;
                 }
                 else if (inImage && trimmed.startsWith("---") && !trimmed.startsWith("----")) {
-                    pendingCondition = trimmed.substring(3).trim().replace(";", "");
+                    String conditionLine = trimmed.substring(3).trim().replace(";", "");
+                    pendingConditions.add(conditionLine);
                 }
                 else if (inImage && trimmed.startsWith("----Image:")) {
                     String imagePath = trimmed.substring(10).trim().replace(";", "");
-                    if (currentKeyArea != null && pendingCondition != null) {
+                    // Combine all pending conditions with AND
+                    if (currentKeyArea != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         currentKeyArea.addImageCondition(pendingCondition, imagePath);
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
                 }
                 // Actions section (with #Actions:)
                 else if (trimmed.equals("#Actions:")) {
@@ -192,24 +201,42 @@ public class SceneLoader {
                     continue;
                 }
                 else if (inActions && trimmed.startsWith("---") && !trimmed.startsWith("----")) {
-                    pendingCondition = trimmed.substring(3).trim().replace(";", "");
+                    String conditionLine = trimmed.substring(3).trim().replace(";", "");
+                    pendingConditions.add(conditionLine);
                 }
                 else if (inActions && trimmed.startsWith("----#Dialog:")) {
                     continue;
                 }
                 else if (inActions && trimmed.startsWith("------")) {
                     String result = trimmed.substring(6).trim();
-                    if (currentActionHandler != null && pendingCondition != null) {
+                    // Combine all pending conditions with AND
+                    if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         currentActionHandler.addConditionalResult(pendingCondition, "#Dialog:" + result);
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
                 }
                 else if (inActions && trimmed.startsWith("----##load")) {
                     String result = trimmed.substring(4).trim();
-                    if (currentActionHandler != null && pendingCondition != null) {
+                    // Combine all pending conditions with AND
+                    if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         currentActionHandler.addConditionalResult(pendingCondition, result);
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
+                }
+                else if (inActions && trimmed.startsWith("----#SetBoolean:")) {
+                    String result = trimmed.substring(4).trim();
+                    // Combine all pending conditions with AND
+                    if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
+                        currentActionHandler.addConditionalResult(pendingCondition, result);
+                        System.out.println("SceneLoader: Added SetBoolean result: " + result + " for condition: " + pendingCondition);
+                    }
+                    pendingCondition = null;
+                    pendingConditions.clear();
                 }
                 // Location section (comes AFTER Actions, starts with ##Location:)
                 else if (trimmed.equals("##Location:")) {

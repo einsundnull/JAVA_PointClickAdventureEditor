@@ -23,6 +23,7 @@ public class ItemLoader {
         String currentSection = "";
         String currentSubSection = "";
         String pendingCondition = null;
+        java.util.List<String> pendingConditions = new java.util.ArrayList<>(); // Collect multiple --- lines
         String currentAction = null;
         KeyArea.ActionHandler currentActionHandler = null;
         int clickAreaX = 0;
@@ -185,9 +186,10 @@ public class ItemLoader {
                 currentSubSection = "CONDITIONS";
             }
             else if (line.startsWith("---") && !line.startsWith("----")) {
-                // Condition line
-                pendingCondition = line.substring(3).trim().replace(";", "");
-                System.out.println("ItemLoader: Found condition line: '" + pendingCondition + "' (Section: " + currentSection + ")");
+                // Condition line - collect multiple conditions
+                String conditionLine = line.substring(3).trim().replace(";", "");
+                pendingConditions.add(conditionLine);
+                System.out.println("ItemLoader: Added condition to list: '" + conditionLine + "' (Total: " + pendingConditions.size() + ")");
             }
             else if (line.startsWith("----Display:")) {
                 System.out.println("ItemLoader: Found ----Display: (Setting currentSubSection=DISPLAY)");
@@ -195,44 +197,66 @@ public class ItemLoader {
             }
             else if (line.startsWith("----Image:")) {
                 String imagePath = line.substring(10).trim().replace(";", "");
-                if (item != null && pendingCondition != null && currentSection.equals("IMAGECONDITIONS")) {
+                // Combine all pending conditions with AND
+                if (item != null && !pendingConditions.isEmpty() && currentSection.equals("IMAGECONDITIONS")) {
+                    pendingCondition = String.join(" AND ", pendingConditions);
                     item.addImageCondition(pendingCondition, imagePath);
                 }
                 pendingCondition = null;
+                pendingConditions.clear();
             }
             else if (line.startsWith("----#Dialog:")) {
                 currentSubSection = "DIALOG";
             }
             else if (line.startsWith("----##load")) {
                 String result = line.substring(4).trim();
-                if (currentActionHandler != null && pendingCondition != null) {
+                // Combine all pending conditions with AND
+                if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                    pendingCondition = String.join(" AND ", pendingConditions);
                     currentActionHandler.addConditionalResult(pendingCondition, result);
                 }
                 pendingCondition = null;
+                pendingConditions.clear();
+            }
+            else if (line.startsWith("----#SetBoolean:")) {
+                String result = line.substring(4).trim();
+                // Combine all pending conditions with AND
+                if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                    pendingCondition = String.join(" AND ", pendingConditions);
+                    currentActionHandler.addConditionalResult(pendingCondition, result);
+                    System.out.println("ItemLoader: Added SetBoolean result: " + result + " for condition: " + pendingCondition);
+                }
+                pendingCondition = null;
+                pendingConditions.clear();
             }
             else if (line.startsWith("------")) {
                 String value = line.substring(6).trim();
 
                 if (currentSection.equals("MOUSEHOVER") && currentSubSection.equals("DISPLAY")) {
-                    // Hover text
+                    // Hover text - combine all pending conditions with AND
                     String displayText = value.replace("\"", "");
                     System.out.println("DEBUG ItemLoader: Loading hover text for item");
                     System.out.println("  item: " + (item != null ? item.getName() : "null"));
-                    System.out.println("  pendingCondition: '" + pendingCondition + "'");
+                    System.out.println("  pendingConditions size: " + pendingConditions.size());
                     System.out.println("  displayText: '" + displayText + "'");
-                    if (item != null && pendingCondition != null) {
+
+                    if (item != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         item.addHoverDisplayCondition(pendingCondition, displayText);
-                        System.out.println("  -> Added hover condition!");
+                        System.out.println("  -> Added hover condition: " + pendingCondition);
                     } else {
-                        System.out.println("  -> NOT added (item or condition is null)");
+                        System.out.println("  -> NOT added (item or conditions is null/empty)");
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
                 } else if (currentSection.equals("ACTIONS") && currentSubSection.equals("DIALOG")) {
-                    // Action dialog result
-                    if (currentActionHandler != null && pendingCondition != null) {
+                    // Action dialog result - combine all pending conditions with AND
+                    if (currentActionHandler != null && !pendingConditions.isEmpty()) {
+                        pendingCondition = String.join(" AND ", pendingConditions);
                         currentActionHandler.addConditionalResult(pendingCondition, "#Dialog:" + value);
                     }
                     pendingCondition = null;
+                    pendingConditions.clear();
                 }
             }
         }
@@ -243,11 +267,11 @@ public class ItemLoader {
             throw new IOException("Invalid item file format - no name found");
         }
 
-        // Create or update isInInventory condition for this item
+        // Create or update isInInventory condition for this item (runtime only, not saved to conditions.txt)
         String inventoryConditionName = "isInInventory_" + item.getName();
         if (!Conditions.conditionExists(inventoryConditionName)) {
-            Conditions.addCondition(inventoryConditionName, item.isInInventory());
-            System.out.println("Created condition: " + inventoryConditionName + " = " + item.isInInventory());
+            Conditions.addConditionRuntimeOnly(inventoryConditionName, item.isInInventory());
+            System.out.println("Created runtime condition: " + inventoryConditionName + " = " + item.isInInventory());
         } else {
             // Update condition with loaded value
             Conditions.setCondition(inventoryConditionName, item.isInInventory());

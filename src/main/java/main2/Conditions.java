@@ -164,12 +164,21 @@ public class Conditions {
     }
 
     /**
-     * Fügt eine neue Condition hinzu
+     * Fügt eine neue Condition hinzu und speichert in conditions.txt
      */
     public static void addCondition(String name, boolean defaultValue) {
         conditions.put(name, defaultValue);
         saveConditionsToFile();
         System.out.println("✓ Neue Condition hinzugefügt: " + name + " = " + defaultValue);
+    }
+
+    /**
+     * Fügt eine Condition nur zur Laufzeit hinzu, OHNE in conditions.txt zu speichern
+     * Wird für isInInventory_* Conditions verwendet, die nur in Item-Dateien gespeichert werden
+     */
+    public static void addConditionRuntimeOnly(String name, boolean defaultValue) {
+        conditions.put(name, defaultValue);
+        System.out.println("✓ Runtime Condition hinzugefügt: " + name + " = " + defaultValue);
     }
 
     /**
@@ -219,7 +228,10 @@ public class Conditions {
             writer.write("# Add, modify, or remove conditions here - no source code changes needed!\n\n");
 
             for (Map.Entry<String, Boolean> entry : conditions.entrySet()) {
-                writer.write(entry.getKey() + " = " + entry.getValue() + "\n");
+                // Skip isInInventory_* conditions - they are stored in item files only
+                if (!entry.getKey().startsWith("isInInventory_")) {
+                    writer.write(entry.getKey() + " = " + entry.getValue() + "\n");
+                }
             }
 
             writer.close();

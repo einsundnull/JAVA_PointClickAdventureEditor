@@ -65,7 +65,13 @@ public class ItemSaver {
             for (Map.Entry<String, String> entry : hoverConditions.entrySet()) {
                 String condition = entry.getKey();
                 String displayText = entry.getValue();
-                writer.write("---" + condition + ";\n");
+
+                // Split condition by AND and write each on separate line
+                String[] conditionParts = condition.split(" AND ");
+                for (String condPart : conditionParts) {
+                    writer.write("---" + condPart.trim() + ";\n");
+                }
+
                 writer.write("----Display:\n");
                 writer.write("------\"" + displayText + "\"\n");
             }
@@ -84,7 +90,13 @@ public class ItemSaver {
             for (Map.Entry<String, String> entry : imageConditions.entrySet()) {
                 String condition = entry.getKey();
                 String imagePath = entry.getValue();
-                writer.write("---" + condition + ";\n");
+
+                // Split condition by AND and write each on separate line
+                String[] conditionParts = condition.split(" AND ");
+                for (String condPart : conditionParts) {
+                    writer.write("---" + condPart.trim() + ";\n");
+                }
+
                 writer.write("----Image: " + imagePath + ";\n");
             }
         } else {
@@ -157,7 +169,12 @@ public class ItemSaver {
                         }
 
                         hasValidConditions = true;
-                        writer.write("---" + condition + ";\n");
+
+                        // Split condition by AND and write each on separate line
+                        String[] conditionParts = condition.split(" AND ");
+                        for (String condPart : conditionParts) {
+                            writer.write("---" + condPart.trim() + ";\n");
+                        }
 
                         if (result.startsWith("#Dialog:")) {
                             writer.write("----#Dialog:\n");

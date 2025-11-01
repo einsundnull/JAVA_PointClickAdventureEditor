@@ -38,7 +38,13 @@ public class SceneSaver {
                     String displayText = entry.getValue();
 
                     System.out.println("  Writing: " + condition + " -> " + displayText);
-                    writer.write("---" + condition + ";\n");
+
+                    // Split condition by AND and write each on separate line
+                    String[] conditionParts = condition.split(" AND ");
+                    for (String condPart : conditionParts) {
+                        writer.write("---" + condPart.trim() + ";\n");
+                    }
+
                     writer.write("----Display:\n");
                     writer.write("------\"" + displayText + "\"\n");
                 }
@@ -60,7 +66,12 @@ public class SceneSaver {
                     String condition = entry.getKey();
                     String imagePath = entry.getValue();
 
-                    writer.write("---" + condition + ";\n");
+                    // Split condition by AND and write each on separate line
+                    String[] conditionParts = condition.split(" AND ");
+                    for (String condPart : conditionParts) {
+                        writer.write("---" + condPart.trim() + ";\n");
+                    }
+
                     writer.write("----Image: " + imagePath + ";\n");
                 }
             } else {
@@ -86,9 +97,13 @@ public class SceneSaver {
                         for (Map.Entry<String, String> condEntry : conditions.entrySet()) {
                             String condition = condEntry.getKey();
                             String result = condEntry.getValue();
-                            
-                            writer.write("---" + condition + ";\n");
-                            
+
+                            // Split condition by AND and write each on separate line
+                            String[] conditionParts = condition.split(" AND ");
+                            for (String condPart : conditionParts) {
+                                writer.write("---" + condPart.trim() + ";\n");
+                            }
+
                             if (result.startsWith("#Dialog:")) {
                                 writer.write("----#Dialog:\n");
                                 writer.write("------" + result.substring(8).trim() + "\n");
