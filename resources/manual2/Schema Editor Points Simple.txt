@@ -1,0 +1,34 @@
+"Schema Editor Points Simple.txt"
+
+Point Editor
+
+#<ListViewPoints>########################
+-listItemPoint1>--------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]				(selectable/editable)
+-</listItemPoint1>------------------------------------- 
+-<listItemPoint2>-------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]				(selectable/editable)
+-</listItemPoint2>------------------------------------- 
+-<listItemPoint_n>-------------------------------------
+x:[    ]      y:[    ]        z:[    ]				(selectable/editable)
+-</listItemPoint_n>------------------------------------
+#<ListViewPoints>#########################
+[New] [Remove] [↑] [↓]                          [Close]
+-------------------------------------------------------
+
+1. Der Point Editor is "alwaysOnTop"
+2. Points will be add in the ListView under the selected Point. If no Point is selected append new Point.
+2. New Points schould be rendered immediately on the UI of the Scene.
+3. When this Editor opens all other Edit Windows minimize.
+4. Every change that is made in this Editor is autosaved and updates the files / cache / ram and UI immediately. 
+5. New Points schould be rendered immediately on the UI of the "Edit Scene".
+
+[New] → Adds a new Point Manually.  (100; 100; 1)
+[Remove] → Remove selected Point from ListView and from references in file.
+[↑] → Move selected Point on up in ListView and references in file.
+[↓] → Move selected Point on down in ListView and references in file.
+x:[    ] y:[    ] z:[    ] → These are InputFields that hold the current value and allow to edit. Z is always set to "1" by default.
+Enter confirms and updates the files / cache / ram and UI.
+[Close] → Closes Menu and ends Click by Add. Other Editor Windows reapear.
+
+Uses the "Schema Editor Guidelines.txt"

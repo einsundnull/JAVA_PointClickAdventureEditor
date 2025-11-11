@@ -1,0 +1,41 @@
+
+├─ conditions
+│     ├─ <nameOfCondition> = true/false
+│ 
+├─ image
+│     ├─ <pathOfImage>
+│     └─ <nameOfImage>)
+│ 
+├─ customClickArea
+│     ├─ Point_1 x:<m>, y:<m>, z:<m>
+│     ├─ Point_n x:<m>, y:<m>, z:<m>
+│ 
+├─ movingRange
+│     ├─ Point_1 x:<m>, y:<m>, z:<m>
+│     ├─ Point_n x:<m>, y:<m>, z:<m>
+│ 
+├─ path
+│     ├─ Point_1 x:<m>, y:<m>, z:<m>
+│     ├─ Point_n x:<m>, y:<m>, z:<m>
+│ 
+└─ actions
+     │ 
+     ├─ <nameOfActionFromButton_1> 
+     │        │ 
+     │       (if contions:) 
+     │        ├─ <nameOf(/resources/condions/<nameOfCondition_1>) = true/false     
+     │        ├─  <nameOf(/resources/condions/<nameOfCondition_n>) = true/false     
+     │                  │
+     │                 (then condions:)
+     │                  ├─ <nameOf(/resources/condions/<nameOfCondition_m>) = true/false     
+     │                  ├─ <nameOf(/resources/condions/<nameOfCondition_mn>) = true/false     
+     │   
+     ├─ <nameOfActionFromButton_n> 
+     │        │ 
+     │       (if contions:) 
+     │        ├─ <nameOf(/resources/condions/<nameOfCondition_1>) = true/false     
+     │        ├─  <nameOf(/resources/condions/<nameOfCondition_n>) = true/false     
+                          │
+                         (then condions:)
+                          ├─  <nameOf(/resources/condions/<nameOfCondition_m>) = true/false     
+                          ├─  <nameOf(/resources/condions/<nameOfCondition_mn>) = true/false    

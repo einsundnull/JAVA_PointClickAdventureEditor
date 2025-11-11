@@ -1,0 +1,10 @@
+> Im Main Editor wird die Pipeline zum Laden und Anzeigen der Werte nicht durchlaufen. Es werden die eingetragenen
+Punkte nicht angezeigt. Es können keine neuen "Points" zu MovingRAnge und Path hinzugefügt und gespeichert werden.
+Schau dir diese Datei an und vergleiche die angegebene Pipeline mit der tatsächlichen Implemntierung in den JAVA
+Klassen. "Schema Segment Points Simple.txt"
+
+##
+Es müssen Bilder für verschieden Orientationen gesetzt werden.
+
+Kannst du einen zweiten Main Editor erzeugen. Er soll die selben Funktionen haben. Der Unterschied ist, dass die Segmente unter Scene ausser ItemsInScene alle tabbed sind und nicht in
+  segmenten.

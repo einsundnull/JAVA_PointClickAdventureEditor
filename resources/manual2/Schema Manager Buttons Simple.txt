@@ -1,0 +1,49 @@
+"resources/manual2/Schema Manager Buttons Simple.txt"
+
+######################################################################################################################
+Button Manager
+
+Image                      | Text on button       | Hover Text on Button  | Use Text	| Use Hover Text  | Use Image |
+----------------------------------------------------------------------------------------------------------------------|
+{Thumbnail of Image_1}     | {<textOnButton_1>}   | {<hover Text_1>}      | [x]        	|  [x]	          | [x]	      | 
+{Thumbnail of Image_2}     | {<textOnButton_2>}   | {<hover Text_2>}      | [x]        	|  [x]	          | [x]	      | 
+{Thumbnail of Image_n}     | {<textOnButton_n>}   | {<hover Text_n>}      | [x]        	|  [x]	          | [x]	      | 
+----------------------------------------------------------------------------------------------------------------------|
+[↑][↓][New][Delete][Save][Cancel]  
+
+
+Size:
+With: {editable text} px
+Height: {editable text} px
+
+[Open Resources][Open Image Resources][Open Button Resources][Manage Conditions][Save][Cancel]
+
+######################################################################################################################
+{Thumbnail of Image}  -> Shows a thumbnail and is also a dropField for Image files. Image files for buttons are stored and loaded
+from:
+ 
+resources/
+  │
+  ├─ images/
+  │   │
+  │   ├─items/
+  │   │  │
+  │   │  ├─whiteCup.jpg
+  │   │  ├─book.jpg
+  │   │  
+  │   ├─scenes/
+  │   │  │
+  │   │  ├─beach.jpg
+  │   │  ├─town.jpg
+  │   │  
+  │   ├─cursors/
+  │   │  ├─give.jpg
+  │   │  ├─take.jpg
+  │   │
+  │   ├─buttons/           (Store and Load Images for Buttons here)
+  │   │  ├─give.jpg
+  │   │  ├─take.jpg
+
+
+Uses the "Schema Editor Guidlines"
+

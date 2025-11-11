@@ -1,0 +1,9 @@
+# Game Progress
+currentScene=Beach/MainBeach
+
+# Boolean Variables
+pathToWoodIsClear=false
+lookedAtCupAtBeach=false
+isInInventory_beachCup=false
+isInInventory_book=false
+isInInventory_cup=false

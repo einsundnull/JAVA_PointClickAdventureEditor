@@ -1,0 +1,17 @@
+"Schema Segment Hover Text Simple.txt"
+
+
+[Collapse]
+HoverText:          
+|----------------------------------|
+|<text>           		   | (editable)
+|----------------------------------|
+[Add] [Rename]
+-<SplitPane>-------------------------------------------
+
+All Edits and Changes in this Segment are Autosaved.
+[Collapse] -> Collapses/Expands the SplitPane of this segment.
+Uses the "Schema Editor Guidelines.txt"
+
+
+

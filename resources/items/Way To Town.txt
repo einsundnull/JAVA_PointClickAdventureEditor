@@ -1,0 +1,62 @@
+#Name:
+-Way To Town
+
+#ImagePath:
+-
+
+#ImagePathTopLeft:
+-
+
+#ImagePathTop:
+-
+
+#ImagePathTopRight:
+-
+
+#ImagePathLeft:
+-
+
+#ImagePathMiddle:
+-
+
+#ImagePathRight:
+-
+
+#ImagePathBottomLeft:
+-
+
+#ImagePathBottom:
+-
+
+#ImagePathBottomRight:
+-
+
+#Position:
+-x = 100;
+-y = 100;
+-z = 1;
+
+#Size:
+-width = 100;
+-height = 100;
+
+#IsInInventory:
+-false
+
+#IsFollowingMouse:
+-false
+
+#IsFollowingOnMouseClick:
+-false
+
+#MouseHover:
+-"Way To Town"
+
+#Actions:
+-LookAt
+--Conditions IF
+---none
+--Conditions THEN
+---none
+--Processes:
+---processLookAt (Processes need to be implemented yet)

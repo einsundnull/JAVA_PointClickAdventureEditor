@@ -1,0 +1,5 @@
+pathToWoodIsClear = true
+lookedAtCupAtBeach = false
+burnedPaperBag = false
+foundSecretRoom = false
+

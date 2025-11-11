@@ -1,0 +1,33 @@
+"resources/manual2/Schema File Structure Scene Simple.txt"
+
+<nameOfScene_n directory>
+│
+├─ <nameOfSubScene_n_1>
+│    │   
+│    ├─
+│    
+├─ <nameOfSubScene_n_n>.txt
+│    │   
+│   (show and use if)
+│    │
+│    ├─ conditions
+     ├─ <nameOfCondition> = true/false
+     ├─ <nameOfCondition> = true/false
+     │
+     ├─ image
+     │   ├── <pathOfImageFile>
+     │   ├── <nameOfImageFile>
+     │   ├── flipped horizontally = false
+     │   ├── flipped vertically = false
+     │ 
+     ├─ items
+     │   ├─ <pathOfItemFile>
+     │   └─ <pathOfItemFile>
+     │
+     ├─ isFollowingMouse
+     │      ├─<nameOfItem_1>
+     │      ├─<nameOfItem_n>
+     │
+     ├─ isFollowingOnMouseClick
+     │      ├─<nameOfItem_1>
+     │      ├─<nameOfItem_n>

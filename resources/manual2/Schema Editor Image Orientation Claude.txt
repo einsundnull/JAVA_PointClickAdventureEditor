@@ -1,0 +1,134 @@
+ ✅ Vollständige Orientation-Image-Implementierung
+
+  🎯 Kernfunktionalität
+
+  Wie es funktioniert:
+  1. Item mit isFollowingMouse oder isFollowingOnMouseClick aktivieren
+  2. Orientation-Images im Editor zuweisen
+  3. Maus bewegen → Orientation wird automatisch berechnet
+  4. Debug-Log: "Item 'MyItem' Orientation: TopLeft" etc.
+  5. Passende Bild wird automatisch gerendert
+
+  📦 Implementierte Komponenten:
+
+  1. Item.java - Datenmodell
+
+  - 9 neue Felder für Orientierungsbilder (main/Item.java:27-38)
+  - Sternförmige Berechnung mit 8 Sektoren à 45° (main/Item.java:753-808)
+  - Debug-Logging bei Orientierungswechsel (main/Item.java:804-807)
+  - Smart-Image-Selection (main/Item.java:817-835)
+
+  Orientierungen:
+  TopLeft (202.5°-247.5°)    Top (247.5°-292.5°)     TopRight (292.5°-337.5°)
+  Left (157.5°-202.5°)       Middle (<20px)           Right (337.5°-22.5°)
+  BottomLeft (112.5°-157.5°) Bottom (67.5°-112.5°)   BottomRight (22.5°-67.5°)
+
+  2. AdventureGame.java - Rendering & Mouse-Handling
+
+  - Rendering-Priorität (main/AdventureGame.java:648-650, 746-749):
+        i. Orientation Image (wenn isFollowingMouse/Click = true)
+        ii. Conditional Image
+        iii. Default Image
+  - Mouse-Handler (main/AdventureGame.java:1280-1288):
+  // In mouseMoved() Event
+  for (Item item : currentScene.getItems()) {
+      if (item.isFollowingMouse() || item.isFollowingOnMouseClick()) {
+          item.updateOrientationBasedOnCursor(e.getX(), e.getY());
+      }
+  }
+
+  3. ItemSaver.java & ItemLoader.java - Persistierung
+
+  - ItemSaver (main/ItemSaver.java:28-54): Speichert alle 9 Orientation-Pfade
+  - ItemLoader (main/ItemLoader.java:101-118, 468-520): Lädt Orientation-Pfade
+
+  Datei-Format:
+  #ImagePath:
+  -whiteCup.png
+
+  #ImagePathTopLeft:
+  -whiteCup_topLeft.png
+
+  #ImagePathTop:
+  -whiteCup_top.png
+  ...
+
+  4. ItemOrientationEditor.java - Visual Editor ⭐ NEU!
+
+  Features:
+  - ComboBox mit allen Items aus aktueller Scene
+  - 10 Drop-Felder (Default + 9 Orientierungen) mit Labels:
+    - z = Default/Fallback
+    - a = TopLeft, b = Top, c = TopRight
+    - d = Left, e = Middle, f = Right
+    - g = BottomLeft, h = Bottom, i = BottomRight
+  - Drag & Drop für Bilder (PNG, JPG, JPEG, GIF)
+  - Live-Thumbnails (120x120px skaliert)
+  - Auto-Save nach jedem Drop
+  - Buttons:
+    - Open Resources - Öffnet resources/images/itemsOrientation/
+    - Clear All - Löscht alle Orientation-Images
+    - Save - Manuelles Speichern
+    - Close - Editor schließen
+
+  UI-Layout:
+  ┌────────────────────────────────────────┐
+  │ Select Item: [ComboBox with items▼]   │
+  ├────────────────────────────────────────┤
+  │  Default/Fallback Image (z)            │
+  │  ┌────────────┐                        │
+  │  │ [Thumbnail]│                        │
+  │  └────────────┘                        │
+  ├────────────────────────────────────────┤
+  │  Orientation Images                    │
+  │  ┌──────┐ ┌──────┐ ┌──────┐          │
+  │  │ a-TL │ │ b-T  │ │ c-TR │          │
+  │  └──────┘ └──────┘ └──────┘          │
+  │  ┌──────┐ ┌──────┐ ┌──────┐          │
+  │  │ d-L  │ │ e-M  │ │ f-R  │          │
+  │  └──────┘ └──────┘ └──────┘          │
+  │  ┌──────┐ ┌──────┐ ┌──────┐          │
+  │  │ g-BL │ │ h-B  │ │ i-BR │          │
+  │  └──────┘ └──────┘ └──────┘          │
+  ├────────────────────────────────────────┤
+  │  [Open Resources] [Clear] [Save] [Close]│
+  └────────────────────────────────────────┘
+
+  5. EditorMainSimple.java - Integration
+
+  - Neuer Button (main/EditorMainSimple.java:730-734):
+  "Open Orientation Editor"
+  - Öffnet Editor (main/EditorMainSimple.java:3416-3426)
+
+  🎮 Verwendung:
+
+  1. Im Editor:
+    - Szene laden
+    - Button "Open Orientation Editor" klicken
+    - Item aus ComboBox wählen
+    - Bilder per Drag & Drop auf Felder ziehen
+    - Automatisches Speichern
+  2. Im Spiel:
+    - Item-Checkbox "Follow" oder "Click" aktivieren
+    - Maus bewegen
+    - Console zeigt: "Item 'player' Orientation: TopRight"
+    - Bild wechselt automatisch
+  3. Empfohlene Bildorganisation:
+  resources/images/itemsOrientation/
+    ├─ player_topLeft.png
+    ├─ player_top.png
+    ├─ player_topRight.png
+    ├─ player_left.png
+    ├─ player_middle.png
+    ├─ player_right.png
+    ├─ player_bottomLeft.png
+    ├─ player_bottom.png
+    └─ player_bottomRight.png
+
+  ✨ Besonderheiten:
+
+  - Performance-optimiert: Nur Items mit isFollowingMouse/Click werden aktualisiert
+  - Spam-Prevention: Debug-Log nur bei Orientierungswechsel
+  - Fallback-System: Kein Orientation-Image? → Verwendet Conditional/Default Image
+  - Middle-Zone: Cursor innerhalb 20px vom Item-Zentrum = "Middle"
+  - Auto-Save: Jede Änderung wird sofort gespeichert

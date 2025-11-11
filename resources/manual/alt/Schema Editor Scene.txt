@@ -1,0 +1,193 @@
+Scene Editor: <nameOfScene>
+
+Name: 
+{inputFieldWithNameOfScene}
+
+[…] 
+#<ListViewBackgrounds>#######################################
+-<ListItemBackgrounds_1>------------------------------------------------------------------
+Name: 
+{inputFieldWithNameOfImageID}
+
+Image:
+[Drop Image]  {inputFieldWithNameOfImage}
+{inputFieldWithImagePath}     [Browse] [Open Image Resources]
+|--------------------------|
+|                          |
+| {Tile View Image}        |
+|                          |
+|--------------------------|
+[Remove] [Delete]
+Flip Image: [horizontally]  [vertically]
+
+Conditions:       
+show Image if          true / false
+|--------------------------------------------------|
+|<nameOfCondition1>    [x]     [x]	           |
+|<nameOfCondition2>    [ ]     [ ]	           |
+|<nameOfCondition_2>   [ ]     [x]	           |
+|--------------------------------------------------|
+[Add] [Remove]
+
+[Delete this Field]
+-</ListItemBackgrounds1>-----------------------------
+-<ListItemBackgrounds_n>------------------------------------------------------------------
+Name: 
+{inputFieldWithNameOfImageID}
+
+Image:
+[Drop Image]  {inputFieldWithNameOfImage}
+{inputFieldWithImagePath}     [Browse] [Open Image Resources]
+|--------------------------|
+|                          |
+| {Tile View Image}        |
+|                          |
+|--------------------------|
+[Remove] [Delete]
+Flip Image: [horizontally]  [vertically]
+
+Conditions:       
+show Image if          true / false
+|--------------------------------------------------|
+|<nameOfCondition1>    [x]     [x]	           |
+|<nameOfCondition2>    [ ]     [ ]	           |
+|<nameOfCondition_2>   [ ]     [x]	           |
+|--------------------------------------------------|
+[Add] [Remove]
+
+[Delete this Field]
+-</ListItemBackgrounds_n>-----------------------------
+#</ListViewBackgrounds>#############################
+[Add new List Item]
+
+[…] 
+#<ListViewItems>####################################
+-<ListItemItems1>------------------------------------
+
+[Drop Image]  {inputFieldWithNameOfImage}
+{inputFieldWithImagePath}     [Browse] [Open Image Resources]
+|--------------------------|
+|                          |
+| {Tile View Image}        |
+|                          |
+|--------------------------|
+[Remove] [Delete]
+Flip Image: [horizontally]  [vertically]
+
+Conditions:       
+show Image if          true / false
+|--------------------------------------------------|
+|<nameOfCondition1>    [x]     [x]	           |
+|<nameOfCondition2>    [ ]     [ ]	           |
+|<nameOfCondition_2>   [ ]     [x]	           |
+|--------------------------------------------------|
+[Add] [Remove]
+
+[Delete this Field]
+
+-</ListItemItems1>-----------------------------------
+-<ListItemItems_n>------------------------------------
+
+[Drop Image]  {inputFieldWithNameOfImage}
+{inputFieldWithImagePath}     [Browse] [Open Image Resources]
+|--------------------------|
+|                          |
+| {Tile View Image}        |
+|                          |
+|--------------------------|
+[Remove] [Delete]
+Flip Image: [horizontally]  [vertically]
+
+Conditions:       
+show Image if          true / false
+|--------------------------------------------------|
+|<nameOfCondition1>    [x]     [x]	           |
+|<nameOfCondition2>    [ ]     [ ]	           |
+|<nameOfCondition_2>   [ ]     [x]	           |
+|--------------------------------------------------|
+[Add] [Remove]
+
+[Delete this Field]
+
+-</ListItemItems_n>-----------------------------------
+#</ListViewItems>###################################
+[Add new List Item]
+
+[…]
+#<ListViewKeyAreas>#################################
+-<ListItemKeyAreas>---------------------------------
+
+|--------------------------|
+|  <nameOfKeyArea          |
+|--------------------------|
+
+Conditions:
+show Image if          true / false
+|--------------------------------------------------|
+|<nameOfCondition1>    [x]     [x]	           |
+|<nameOfCondition2>    [ ]     [ ]	           |
+|<nameOfCondition_2>   [ ]     [x]	           |
+|--------------------------------------------------|
+[Add] [Remove]
+
+[Delete this Field]
+-</ListItemKeyAreas>--------------------------------
+#</ListItemKeyAreas>################################
+[Add new List Item]
+
+
+
+[Manage Conditions] [Save] [Cancel]
+
+########################################################
+
+Eyery value and every change in this Editor will be stored and loaded from the defaults /resources/scenes/<nameOfScene>.txt file.
+
+Name:
+{inputFieldWithNameOfImage} → Rename Scene file in the /resources/scenes/ directory. A check of all /resources/<category>/<name>.txt files must be run for references and references must be refactored if found. 
+
+ListViewBackgrounds: → A ListView that holds the following ListItem
+<ListItemBackrounds>----------------------------------------------------------------------------------------------------
+
+Name: 
+{inputFieldWithNameOfImageID}
+
+Image:
+[Drop Image] → DropField for image file. Copies the dropped image to the /resources/images/ directory and writes a reference to the <nameOfScene>.txt file.
+{inputFieldWithImagePath} → Manually type in the image path. Enter confirms the change and stores a reference in the <nameOfScene>.txt file.
+[Browse] → Browse for image.
+[Open Image Resources] → Opens the image resource folder /resources/images.
+{Tile View Image} → TileView of the Image that is stored in the <nameOfScene>.txt file.
+[Remove] → Removes the Image from ListView and deletes the
+reference that is stored <nameOfScene>.txt file.
+[Delete] → Delete Image file <nameOfImage> from directory /resources/images/ (Alert: Yes/no). Before deleting a check of all /resources/<category>/<name>.txt files must be run for references and references must be deleted if found. If references are found a warning with a ListView of all Categories that hold a reference will be show. „Found multiple references to this entry! Do you want to delete it anyway? [Yes] [No]“
+Flip Image: [horizontally]  [vertically]→ Flip Image and store the orientation in the <nameOfScene>.txt file with the reference #Backgrounds-Background--<nameOfImage> tag.
+
+Conditions: 
+[x]     [ ] → These CheckBoxes determine whether the value of the stored Conditions in the <nameOfScene>.txt file under the #Backgrounds-Background--<nameOfImage>---Conditions----<nameOfCondition> reference are true or false.
+[Add] → Opens a DropDownMenu that shows a list of all conditions from the  /resources/conditions/conditions.txt file and all „isIninventory_<nameOfItem> Conditions from the  /resources/items/<nameOfItem>.txt files.
+[Remove] → Removes the reference of the selected Condition from the <nameOfScene>.txt file.
+
+[Delete] → Removes the ListItemBackrounds from the ListViewBackrounds and deletes the 
+reference that is stored in the <nameOfScene>.txt file.
+</ListItemImages>----------------------------------------------------------------------------------------------------
+
+ListViewItems: → A ListView that holds the following ListItem
+<ListItemItems>-----------------------------------------------------------------------------------------------
+
+ListViewKeyAreas: → A ListView that holds the following ListItem
+<ListItemKeyAreas>-----------------------------------------------------------------------------------------------
+
+
+Die Regeln die für das ListViewBackgrounds / ListItemBackgrounds gilt, sollen auch für
+ListViewItems / ListItemItems
+ListViewKeyAreas / ListItemKeyAreas
+gelten.
+
+1. [Add new List Item] → Adds a new ListItem to the concerned ListView and writes a new reference in the <nameOfScene>.txt file.
+2. [Delete this Field] → Removes the ListItem from the ListView and deletes the corresponding reference in the <nameOfScene>.txt file.
+
+[Manage Conditions] → Opens Conditions Manager.
+[Save] → Saves values in /resources/scenes/<nameOfScene>.txt
+[Cancel] → Discard Changes
+[…] → Collapses corresponding ListView.

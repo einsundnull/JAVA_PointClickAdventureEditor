@@ -1,0 +1,127 @@
+Editor Item: <nameOfItem>
+############################################
+Name:
+{<nameOfItem>}
+
+[...]
+#<ListViewImages>###########################
+-<ListItemImages>---------------------------
+[Drop Image]  {inputFieldWithNameOfImage}
+{inputFieldWithImagePath}     [Browse]
+   
+|---------------------------|
+| 	                    |
+|     {ImagOfItem}          |
+|                           |
+|---------------------------|
+[Remove] [Delete]
+Flip Image: [horizontally]  [vertically]
+Size:
+↔:{<horizontally>}dp ↕:{<vertically>}dp
+
+Conditions:
+show and use if:       true / false
+|------------------------------------------|
+|<nameOfCondition1>    [x]     [ ]         |
+|<nameOfCondition2>    [x]     [ ]         |
+|<nameOfCondition_n>   [ ]     [x]         |
+|------------------------------------------|
+[Add] [Remove]
+
+[Delete]
+-<ListItemImages>---------------------------
+#</ListViewImages>##########################
+[Add Image Field]
+
+[...]
+#<ListViewCustomClickArea>##################
+-<ListItemCustomClickArea>------------------
+Points of CustomClickArea Item:
+|---------------------------------------|
+| <point1>    {x}    {y}    {z}         |
+| <point2>    {x}    {y}    {z}         |
+| <point_n>  {x}    {y}    {z}          |
+|---------------------------------------|
+[Add] [Add by Click] [Remove]
+
+Conditions:
+show and use if:       true / false
+|------------------------------------------|
+|<nameOfCondition1>    [x]     [ ]         |
+|<nameOfCondition2>    [x]     [ ]         |
+|<nameOfCondition_n>   [ ]     [x]         |
+|------------------------------------------|
+[Add] [Remove]
+
+Hover Text: 
+{<String with Hover Text>}
+-</ListItemCustomClickArea>----------------
+#</ListViewCustomClickArea>################
+[Add Custom Click Area Field]
+
+[...]
+#<ListViewMovingRange>#####################
+-<ListItemMovingRange>---------------------
+Points of CustomClickArea Item:
+|---------------------------------------|
+| <nameOfKeyArea>                       |
+|---------------------------------------|
+
+Conditions:
+ use if:       true / false
+|------------------------------------------|
+|<nameOfCondition1>    [x]     [ ]         |
+|<nameOfCondition2>    [x]     [ ]         |
+|<nameOfCondition_n>   [ ]     [x]         |
+|------------------------------------------|
+[Add] [Remove]
+
+[Delete]
+-</ListItemMovingRange>---------------------
+#</ListViewMovingRange>#####################
+[Add Moving Range Field]
+
+[Open Action Editor]
+[Manage Conditions] [Open Resource] [Delete] [Save] [Cancel]
+
+############################################
+
+[...] = Collapse ListView.
+
+###########################################
+ItemEditorDialog
+|   ├── Name Field
+|   ├── === SECTION 1: ListViewImages ===
+|   │   └── Multiple ConditionalImagePanels
+|   │       ├── Drop Zone & Preview -> When drop. Copy Image to /resources/images/items/... -> Create reference in <nameOfResource>.file -> Immediate UI/Cache/Ram update. 
+|   │       ├── Conditions
+|   │       ├── Size (↔/↕)
+| a │       └── Flip Buttons
+| l ├── === SECTION 2: ListViewCustomClickArea ===
+| l │   └── Multiple CustomClickAreaPanels
+|   │       ├── Points Table (X, Y, Z)
+| i │       ├── Conditions
+| t │       └── Hover Text
+| e ├── === SECTION 3: ListViewMovingRange ===
+| m │   └── Multiple MovingRangePanels
+| s │       ├── KeyArea Name
+|   │       └── Conditions
+|   └── Bottom Buttons
+
+Item Porperties:
+
+-Name:
+-Images
+--Item Editor Image: Default →  Splittpane 
+--Conditions →  Splittpane 
+
+-Custom Click Areas →  Splittpane 
+--Custom Click Area →  Splittpane 
+---Points of CustomClickArea →  Splittpane 
+---Conditions →  Splittpane 
+
+- Moving Ranges →  Splittpane 
+--Moving Rang
+---KeyArea Name
+---Conditions →  Splittpane 
+

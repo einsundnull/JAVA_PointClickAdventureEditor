@@ -1,0 +1,123 @@
+#Name:
+-cup
+
+#ImagePath:
+-resources\images\itemsOrientation\Copilot_20251104_120340.png
+
+#ImagePathTopLeft:
+-resources\images\itemsOrientation\Copilot_20251104_142939.png
+
+#ImagePathTop:
+-resources\images\itemsOrientation\Copilot_20251104_143116.png
+
+#ImagePathTopRight:
+-resources\images\itemsOrientation\Copilot_20251104_120340 - Kopie.png
+
+#ImagePathLeft:
+-resources\images\itemsOrientation\Copilot_20251104_120340.png
+
+#ImagePathMiddle:
+-resources\images\itemsOrientation\Copilot_20251104_120340.png
+
+#ImagePathRight:
+-resources\images\itemsOrientation\Copilot_20251104_120340 - Kopie.png
+
+#ImagePathBottomLeft:
+-resources\images\itemsOrientation\Copilot_20251104_143116.png
+
+#ImagePathBottom:
+-
+
+#ImagePathBottomRight:
+-
+
+#Position:
+-x = 485;
+-y = 512;
+-z = 1;
+
+#Size:
+-width = 191;
+-height = 185;
+
+#IsInInventory:
+-false
+
+#IsFollowingMouse:
+-false
+
+#IsFollowingOnMouseClick:
+-true
+
+#MouseHover:
+-"cup"
+
+#CustomClickArea:
+-point1: x=464, y=561, z=1
+-point2: x=414, y=537, z=1
+-point3: x=411, y=511, z=1
+-point4: x=422, y=491, z=1
+-point5: x=436, y=483, z=1
+-point6: x=443, y=480, z=1
+-point7: x=472, y=481, z=1
+-point8: x=490, y=478, z=1
+-point9: x=497, y=476, z=1
+-point10: x=539, y=476, z=1
+-point11: x=562, y=503, z=1
+-point12: x=551, y=536, z=1
+-point13: x=560, y=559, z=1
+-point14: x=519, y=560, z=1
+-point15: x=486, y=559, z=1
+-point16: x=486, y=568, z=1
+-point17: x=472, y=566, z=1
+
+#Actions:
+-LookAt
+--Conditions IF
+---lookedAtCupAtBeach = true
+--Conditions THEN
+---none
+--Processes:
+---processLookAt (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet)
+-Anschauen
+--Conditions IF
+---none
+--Conditions THEN
+---none
+--Processes:
+---dialog-cup-anschauen (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet)
+-Nehmen
+--Conditions IF
+---isInInventory_cup = true
+--Conditions THEN
+---none
+--Processes:
+---processNehmen (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet) (Processes need to be implemented yet)
+
+#MovingRange:
+-point1: x=771, y=446, z=1
+-point2: x=683, y=445, z=1
+-point3: x=427, y=474, z=1
+-point4: x=185, y=480, z=1
+-point5: x=33, y=520, z=1
+-point6: x=46, y=549, z=1
+-point7: x=69, y=556, z=1
+-point8: x=80, y=580, z=1
+-point9: x=102, y=580, z=1
+-point10: x=240, y=577, z=1
+-point11: x=356, y=567, z=1
+-point12: x=471, y=558, z=1
+-point13: x=621, y=577, z=1
+-point14: x=674, y=581, z=1
+-point15: x=715, y=575, z=1
+-point16: x=770, y=571, z=1
+-point17: x=1247, y=559, z=1
+-point18: x=1415, y=475, z=1
+-point19: x=1229, y=376, z=1
+
+#Path:
+-point1: x=758, y=302, z=1
+-point2: x=561, y=300, z=1
+-point3: x=558, y=147, z=1
+-point4: x=768, y=109, z=1
+-point5: x=677, y=214, z=1

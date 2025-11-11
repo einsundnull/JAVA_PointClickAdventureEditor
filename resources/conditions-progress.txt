@@ -1,0 +1,9 @@
+# Conditions Current State File
+# Format: conditionName = currentValue
+# This file stores the current game state
+
+pathToWoodIsClear = false
+lookedAtCupAtBeach = false
+isInInventory_beachCup = false
+isInInventory_book = false
+isInInventory_cup = false

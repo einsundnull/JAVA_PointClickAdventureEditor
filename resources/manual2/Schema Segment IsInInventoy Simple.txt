@@ -1,0 +1,6 @@
+"Schema Segment IsInInventoy Simple"
+
+[ ] isInInventory
+-<SplitPane----------------------
+
+If the Value "isInInventory is set to true, none of the properties of the item will show up on the gameview. No rendering no HoverText.

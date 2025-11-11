@@ -1,0 +1,15 @@
+# Scene and SubScene display order
+# This file controls the order of scenes in the editor tree view
+
+Scene:Beach
+  -MainBeach
+  -BeachBar
+
+Scene:Town
+  -MainTown
+  -TownSquare
+
+Scene:Wood
+  -ForestPath
+  -MainWood
+

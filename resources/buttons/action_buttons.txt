@@ -1,0 +1,111 @@
+// Action Buttons Configuration
+// This file defines the action buttons in the game menu
+//
+// Available CursorTypes: HAND, CROSSHAIR, DEFAULT, TEXT, MOVE, WAIT, CUSTOM
+// If CUSTOM is used, set CustomCursorPath to the image path
+//
+// HoverFormat placeholders:
+//   {action} - The action name (button text)
+//   {target} - The target object name
+//   {item}   - The selected item (for item-as-cursor mode)
+//
+
+#Button:
+Text: Nimm
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: HAND
+CustomCursorPath: 
+Order: 0
+
+#Button:
+Text: Gib
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: HAND
+CustomCursorPath: 
+Order: 1
+
+#Button:
+Text: Ziehe
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: MOVE
+CustomCursorPath: 
+Order: 2
+
+#Button:
+Text: Drücke
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: HAND
+CustomCursorPath: 
+Order: 3
+
+#Button:
+Text: Hebe
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: HAND
+CustomCursorPath: 
+Order: 4
+
+#Button:
+Text: Anschauen
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: DEFAULT
+CustomCursorPath: 
+Order: 5
+
+#Button:
+Text: Sprich
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: TEXT
+CustomCursorPath: 
+Order: 6
+
+#Button:
+Text: Benutze
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: HAND
+CustomCursorPath: 
+Order: 7
+
+#Button:
+Text: Gehe zu
+HoverText: 
+ShowHoverText: false
+ImagePath: 
+UseImage: false
+HoverFormat: {action}
+CursorType: CROSSHAIR
+CustomCursorPath: 
+Order: 8
+

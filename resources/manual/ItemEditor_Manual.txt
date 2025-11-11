@@ -1,0 +1,271 @@
+######################################################
+ITEM EDITOR MANUAL
+######################################################
+
+Die Struktur der Item-Dateien folgt exakt dem UI-Layout des Item Editors.
+Alle Werte und Änderungen werden in /resources/items/<nameOfItem>.txt gespeichert.
+
+======================================================
+HAUPTSTRUKTUR
+======================================================
+
+Editor Item: <nameOfItem>
+├── Name
+├── #<ListViewImages>
+│   └── -<ListItemImages> (mehrere möglich)
+├── #<ListViewCustomClickArea>
+│   └── -<ListItemCustomClickArea> (mehrere möglich)
+├── #<ListViewMovingRange>
+│   └── -<ListItemMovingRange> (mehrere möglich)
+├── #<IsInInventory>
+└── #<Actions>
+
+======================================================
+1. NAME SECTION
+======================================================
+
+Name:
+{<nameOfItem>}
+
+→ Input Field für den Namen des Items
+→ Umbenennen aktualisiert die <nameOfItem>.txt Datei
+→ Referenzen in allen /resources/<category>/<name>.txt werden geprüft und aktualisiert
+
+======================================================
+2. LISTVIEW IMAGES
+======================================================
+
+#<ListViewImages>########################################
+-<ListItemImages>-------------------------------------------------------------
+Image:
+{inputFieldWithNameOfImage}
+{inputFieldWithImagePath} [Browse]
+|---------------------------|
+| {ImageOfItem}            |
+|---------------------------|
+[Remove] [Delete]
+
+Flip Image: [horizontally] [vertically]
+
+Size:
+↔:{horizontal}dp ↕:{vertical}dp
+
+Position:
+x:{x-coordinate} y:{y-coordinate}
+
+Conditions:
+show and use if: true / false
+|-----------------------------------------------|
+|<nameOfCondition1>         [x] [ ]           |
+|<nameOfCondition2>         [x] [ ]           |
+|<nameOfCondition_n>        [ ] [x]           |
+|-----------------------------------------------|
+[Add] [Remove]
+
+-</ListItemImages>-------------------------------------------------------------
+#</ListViewImages>########################################
+[Add] [Remove]
+
+FUNKTIONEN:
+-----------
+• Drop Image → Kopiert Bild nach /resources/images/ und schreibt Referenz
+• {inputFieldWithNameOfImage} → Benennt Bilddatei um und aktualisiert Referenzen
+• {inputFieldWithImagePath} → Manuelle Pfadeingabe (Enter zum Übernehmen)
+• [Browse] → Bildauswahl-Dialog
+• [Remove] → Entfernt Bild-Referenz aus .txt Datei
+• [Delete] → Löscht Bild aus /resources/images/ (mit Referenzprüfung)
+• Flip Image → Spiegelt Bild horizontal/vertikal
+• Size → Größe in dp (device-independent pixels)
+• Position → x/y-Koordinaten im Scene
+• Conditions → Bedingungen für Sichtbarkeit/Verwendung
+  - [x] = true, [ ] = false
+  - [Add] öffnet DropDown mit allen verfügbaren Conditions
+  - [Remove] löscht ausgewählte Condition
+
+MEHRERE BILDER:
+→ [Add] fügt neuen <ListItemImages> Block hinzu
+→ Jedes Bild kann eigene Conditions haben
+→ Ermöglicht zustandsabhängige Darstellung
+
+======================================================
+3. LISTVIEW CUSTOM CLICK AREA
+======================================================
+
+#<ListViewCustomClickArea>################################
+-<ListItemCustomClickArea>--------------------------------------------------
+Points of CustomClickArea Item:
+|---------------------------------------|
+| point1:  x:{x}  y:{y}  z:{z}         |
+| point2:  x:{x}  y:{y}  z:{z}         |
+| point_n: x:{x}  y:{y}  z:{z}         |
+|---------------------------------------|
+[Add] [Add by Click] [Remove]
+
+Conditions:
+show and use if: true / false
+|-----------------------------------------------|
+|<nameOfCondition1>         [x] [ ]           |
+|<nameOfCondition2>         [x] [ ]           |
+|<nameOfCondition_n>        [ ] [x]           |
+|-----------------------------------------------|
+[Add] [Remove]
+
+Hover Text:
+{<String with Hover Text>}
+
+-</ListItemCustomClickArea>---------------------------------------------------
+#</ListViewCustomClickArea>#################################
+[Add]
+
+FUNKTIONEN:
+-----------
+• Points → Definiert polygonale Klickfläche
+  - {x}, {y}, {z} Input Fields (Enter → refresh)
+  - [Add] → Fügt Punkt zur Liste hinzu
+  - [Add by Click] → Fügt Punkt durch Klick im Main Window hinzu
+  - [Remove] → Entfernt ausgewählten Punkt
+• Conditions → Wann die ClickArea aktiv ist
+• Hover Text → Text beim Mouseover über der ClickArea
+
+MEHRERE CLICK AREAS:
+→ [Add] fügt neuen <ListItemCustomClickArea> Block hinzu
+→ Verschiedene ClickAreas für verschiedene Zustände
+→ Ermöglicht kontextabhängige Interaktionen
+
+======================================================
+4. LISTVIEW MOVING RANGE
+======================================================
+
+#<ListViewMovingRange>####################################
+-<ListItemMovingRange>--------------------------------------------------------
+Points of MovingRange Item:
+|---------------------------------------|
+| <nameOfKeyArea>                       |
+|---------------------------------------|
+
+Conditions:
+show and use if: true / false
+|-----------------------------------------------|
+|<nameOfCondition1>         [x] [ ]           |
+|<nameOfCondition2>         [x] [ ]           |
+|<nameOfCondition_n>        [ ] [x]           |
+|-----------------------------------------------|
+[Add] [Remove]
+
+[Delete]
+-</ListItemMovingRange>--------------------------------------------------------
+#</ListViewMovingRange>####################################
+[Add]
+
+FUNKTIONEN:
+-----------
+• nameOfKeyArea → Referenz zu definiertem Bewegungsbereich
+• Conditions → Wann der MovingRange aktiv ist
+• [Delete] → Löscht diesen MovingRange-Eintrag
+• [Add] → Fügt neuen <ListItemMovingRange> Block hinzu
+
+======================================================
+5. IS IN INVENTORY
+======================================================
+
+#<IsInInventory>##########################################
+isInInventory_<nameOfItem>: true / false
+#</IsInInventory>##########################################
+
+→ Boolean-Wert für Inventar-Status
+→ Wird automatisch als Condition verfügbar
+→ Kann von Actions gesetzt werden
+
+======================================================
+6. ACTIONS
+======================================================
+
+#<Actions>################################################
+Action: <actionName>
+-Conditions:
+--<nameOfCondition1>: true / false
+--<nameOfCondition2>: true / false
+-Execute:
+--<command1>
+--<command2>
+
+Action: <actionName2>
+-Conditions:
+--<nameOfCondition>: true / false
+-Execute:
+--<command>
+#</Actions>################################################
+
+STRUKTUR:
+---------
+• Action → Name der Aktion (z.B. "Nimm", "Anschauen", "Gehe zu")
+• Conditions → Bedingungen für Verfügbarkeit
+  - Format: <conditionName>: true/false
+  - Alle Conditions müssen erfüllt sein (AND-Verknüpfung)
+• Execute → Auszuführende Befehle
+  - SetBoolean:<conditionName>=true/false
+  - loadscene<SceneName>
+  - Weitere Commands je nach System
+
+======================================================
+EDITOR BUTTONS
+======================================================
+
+[Open Action Editor] → Öffnet Action Editor für dieses Item
+[Manage Conditions] → Öffnet Conditions Editor
+[Open Resource] → Öffnet /resources/items/<nameOfItem>.txt
+[Delete] → Löscht Item (mit Bestätigungsdialog)
+[Save] → Speichert Werte in /resources/items/<nameOfItem>.txt
+[Cancel] → Verwirft Änderungen
+
+======================================================
+WICHTIGE PRINZIPIEN
+======================================================
+
+1. UI BESTIMMT STRUKTUR
+   → Dateiformat folgt exakt dem Editor-Layout
+   → ListView-Ordnung = Datei-Ordnung
+   → Jeder ListView-Block entspricht einem Section-Block
+
+2. HIERARCHIE
+   → # kennzeichnet Hauptsektionen
+   → - kennzeichnet ListView-Items
+   → Einrückung zeigt Zugehörigkeit
+
+3. MEHRFACHE EINTRÄGE
+   → ListViewImages kann mehrere <ListItemImages> enthalten
+   → ListViewCustomClickArea kann mehrere <ListItemCustomClickArea> enthalten
+   → ListViewMovingRange kann mehrere <ListItemMovingRange> enthalten
+   → Ermöglicht zustandsabhängige Konfigurationen
+
+4. CONDITIONS
+   → [x] = true, [ ] = false in Datei dargestellt
+   → Zentrale Verwaltung über Conditions Editor
+   → isInInventory_<itemName> automatisch verfügbar
+   → Referenzprüfung bei Änderungen
+
+5. REFERENZMANAGEMENT
+   → Beim Umbenennen: Automatische Suche und Update aller Referenzen
+   → Beim Löschen: Warnung bei gefundenen Referenzen
+   → Betrifft: Namen, Bilder, Conditions
+
+======================================================
+BEISPIEL: beachCup
+======================================================
+
+Editor Item: beachCup
+├── Name: beachCup
+├── Images (1 Eintrag)
+│   └── Bild mit Conditions: none=true
+├── CustomClickArea (1 Eintrag)
+│   └── 6 Punkte, Conditions: none=true, HoverText: "white cup"
+├── MovingRange (leer)
+├── IsInInventory: false
+└── Actions (3 Einträge)
+    ├── Gehe zu (Conditions: none=true)
+    ├── Anschauen (Conditions: lookedAtCupAtBeach=false, isInInventory_beachCup=true)
+    └── Nimm (Conditions: lookedAtCupAtBeach=true)
+
+======================================================
+ENDE MANUAL
+======================================================

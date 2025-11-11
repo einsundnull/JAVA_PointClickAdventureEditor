@@ -1,0 +1,19 @@
+Button Manager
+
+Image                      | Text on button       | Hover Text on Button  | Use Text	| Use Hover Text  | Use Image |
+----------------------------------------------------------------------------------------------------------------------|
+{Thumbnail of Image1}      | {<textOnButton1>}    | {<hover Text2>}       | [x]        	|  [x]	          | [x]	      | 
+{Thumbnail of Image2}      | {<textOnButton1>}    | {<hover Text2>}       | [x]        	|  [x]	          | [x]	      | 
+{Thumbnail of Image_n}     | {<textOnButton1>}    | {<hover Text_n>}      | [x]        	|  [x]	          | [x]	      | 
+----------------------------------------------------------------------------------------------------------------------|
+[↑][↓][New][Delete][Save][Cancel]  
+
+
+Size:
+With: {editable text} px
+Height: {editable text} px
+
+[Open Resources][Open Image Resources][Open Button Resources][Manage Conditions] [Save][Cancel]
+
+Uses the "Schema Editor Guidlines"
+

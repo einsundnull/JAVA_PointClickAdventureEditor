@@ -1,0 +1,60 @@
+scenes.txt
+
+#Backgrounds
+-Background
+--Name: <nameOfBackground1>
+--Image: <pathToImageFile>
+---FlipHorizontally = true
+---FlipVertically = false
+---Conditions
+----<nameOfCondition1> = true
+----<nameOfCondition2> = false
+----<nameOfCondition_n> = true/false
+
+--Name: <nameOfBackground_n>
+--Image: <pathToImageFile>
+---FlipHorizontally = false
+---FlipVertically = true
+---Conditions
+----<nameOfCondition1> = true
+----<nameOfCondition2> = false
+----<nameOfCondition_n> = true/false
+
+#Items:
+-<nameOfItem1>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false
+
+-<nameOfItem_n>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false
+
+#KeyAreas:
+-<nameOfKeyArea1>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false
+
+-<nameOfKeyArea_n>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false
+
+#Dialoge:
+-<nameOfDialog1>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false
+
+-<nameOfDialog_n>
+--Conditions
+---<nameOfCondition1> = true
+---<nameOfCondition2> = false
+---<nameOfCondition_n> = true/false

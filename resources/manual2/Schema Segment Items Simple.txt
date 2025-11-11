@@ -1,0 +1,121 @@
+"resources/manual2/Schema Segment Items Simple.txt"
+
+###########################################
+Item List - SubScene Item CRUD
+
+Purpose:
+--------
+The Item Manager provides local CRUD (Create, Read, Update, Delete, Copy) operations
+for ALL items that are referenced in the 
+It shows all items from /resources/items/ directory.
+
+Opens from: [Manage Items] button in Main Editor (Segment 9: Global Buttons)
+
+ [Collapse]
+|-----------------------------------------------------------------------|
+|  Items:                                           |   Show:		|
+|-----------------------------------------------------------------------|
+|                                                                       |
+|  ┌───────────────────────────────────────────────────────────────┐    |
+|  │{T}  cup                                            [x]        │    |
+|  │{T}  key                                            [x]        │    |
+|  │{T}  door [IN SCENE]                                [x]        │    |
+|  │{T}  stone                                          [x]        │    |
+|  │{T}  book [IN SCENE]                                [x]        │    |
+|  │ ...                                                           │    |
+|  └───────────────────────────────────────────────────────────────┘    |
+|-<SplitPane>-----------------------------------------------------------|
+|  [New][Add][Remove][Copy[Delete]					|
+|-----------------------------------------------------------------------|
+
+{T} -> Loads image from:
+resources/
+  │
+  ├─ images/
+  │   │
+  │   ├─items/
+  │   │  │
+  │   │  ├─whiteCup.jpg
+  │   │  ├─book.jpg
+
+
+Item List:
+----------
+- Shows ALL items from /resources/scenes/<nameOfScene>/<nameOfSubScene>.txt file under the "#Items:" tag 
+- Items are sorted alphabetically
+- List updates automatically the Editor and its Segments, as well as the "Point & Click Adventure" Window after any CRUD operation
+
+CheckBox: (Show)
+[x] -> Allowes to hide the Item if the CheckBox is checked to hide in the "Point & Click Adventure" Scene in editMode, 
+so it is not in the way if I need to access another Item.
+
+Buttons:
+--------
+
+[New]
+  → Prompts user for item name
+  → Creates new item file: resources/items/<itemName>.txt
+  → Creates new reference in file: /resources/scenes/<nameOfScene>/<nameOfSelectedSubScene>.txt file under the "#Items:" tag 
+  → Default values:
+     - ImagePath: "default.png"
+     - Position: (100, 100, 1)
+     - Size: 100x100
+     - InInventory: false
+
+     -#CustomClickArea:
+     -point1: x=90, y=90, z=1
+     -point2: x=110, y=110, z=1
+     -point3: x=110, y=220, z=1
+     -point4: x=90, y=220, z=1
+
+     #MovingRange:
+     -point1: x=80, y=80, z=1
+     -point2: x=120, y=120, z=1
+     -point3: x=120, y=240, z=1
+     -point4: x=80, y=240, z=1
+
+     #Path:
+     -point1: x=50, y=50, z=1
+     -point2: x=50, y=350, z=1
+
+[Collapse] -> Collapses/Expands the SplitPane of this segment.
+
+[Copy]
+  → Prompts user for new item name (default: <originalName>_copy)
+  → Loads source item from DEFAULT file
+  → Creates deep copy with new name:
+     - Copies all properties (image, position, size, inInventory)
+     - Copies all points (clickAreaPoints)
+     - Copies all conditional images
+     - Copies all hover display conditions
+  → Saves copy to new DEFAULT file
+  → Reloads list and selects the copied item
+  → Adds item to current SubScene from ComboBox that loads all items from "resources/items/.."
+  → Checks if item already exists in SubScene
+
+[Delete]
+  → Shows confirmation dialog: "Delete item '<name>'? This will delete the file and cannot be undone!"
+  → Deletes file: resources/items/<itemName>.txt
+  → Does NOT delete _progress.txt file (if exists)
+  → Reloads list after deletion
+
+[Add]
+  → Adds item to current SubScene from ComboBox that loads all items from "resources/items/.."
+  → Checks if item already exists in SubScene
+
+  → Saves SubScene to DEFAULT file: resources/scenes/<sceneName>/<subSceneName>.txt
+  → Triggers parent editor refresh: parent.loadItemsIntoEditor()
+  → Updates [IN SCENE] markers in list
+
+[Remove]
+  → Removes selected item from current SubScene
+  → Removes item from reference in file: /resources/scenes/<nameOfScene>/<nameOfSelectedSubScene>.txt file under the "#Items:" tag 
+  → Saves SubScene to DEFAULT file
+  → Triggers parent editor refresh
+  → Updates [IN SCENE] markers in list
+
+Uses:
+-----
+- "Schema File Structure Item Simple.txt" - Item file format
+- "Schema File Directory Structure Simple.txt" - Directory structure
+- "Schema Editor Guidlines.txt" - Editor guidelines

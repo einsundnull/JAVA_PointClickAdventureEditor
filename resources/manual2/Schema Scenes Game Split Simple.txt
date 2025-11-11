@@ -1,0 +1,135 @@
+„resources/manual2/Schema Scenes Game Split Simple.txt“
+
+
+#######################################################
+Gaming Scene:
+
+|-----------------------------------------------------|
+|        ┌--------┐                                   |
+|        |   {B}  |                                   |
+|        └--------┘                                   |
+|                                                     |
+|                                                     |
+|                                                     |
+|                                                     |
+|                                                     |
+|-----------------------------------------------------|
+| [button_1] [button_2] [button_n]     [Load][Save]   |
+|-----------------------------------------------------|
+
+Pipeline "Gaming Scene: User has to chose a "savedGame" 
+-> Loads buttons.txt: Look at: "Schema File buttons_txt.txt" in order to see the details on how to parse the buttons from the file.
+-> Loads saveGame_n.txt. 
+--> Loads all Conditions from the saveGame file and stores it to the currentGameConditions Array.
+---> From the <nameOfCurrentScene> value it parses what <nameOfScene/> directory it has to open.
+----> In the <nameOfScene/> it loads the Conditions to an Array and compares them against the currentGameConditions. 
+-----> When the conditions match it loads the SubScene.
+
+/resources/
+   │
+   ├─buttons/
+   │   ├─<buttons.txt/>
+   │   │     ├─<nameOfButton_1>.txt -> [b]
+   │   │     ├─<nameOfButton_n>.txt -> [b]
+   │           
+   ├─scenes/
+   │   ├─<nameOfScene_1/>
+   │   │     ├─<nameOfSubScene_1_1>.txt -> [s]
+   │   │     ├─<nameOfSubScene_1_n>.txt -> [s]
+   │   │
+   │   ├─<nameOfScene_n/>
+   │   │     ├─<nameOfSubScene_n_1>.txt -> [s]
+   │   │     ├─<nameOfSubScene_n_m>.txt -> [s]
+   │           
+   ├─conditions/
+   │   ├─conditions.txt
+   │   │     ├─<nameOfStartScene> (Determines what Scene in the very beginning of the game will be loaded.)
+   │   │     ├─nameOfCondition_n_1 = false
+   │   │     ├─nameOfCondition_n_2 = false
+   │   │     ├─nameOfCondition_n_3 = false
+   │   │     ├─nameOfCondition_n_m = true
+   │
+   ├─savegames/
+   │   ├─saveGame_1.txt (Holds all Conditions that are in "conditions.txt". Just with altered values throughout the game and the first entry what Scene to load.)
+   │   │     ├─<nameOfCurrentScene>
+   │   │     ├─nameOfCondition_n_1 = true
+   │   │     ├─nameOfCondition_n_2 = false
+   │   │     ├─nameOfCondition_n_3 = false
+   │   │     ├─nameOfCondition_n_m = true
+   │   │ 
+   │   ├─saveGame_n.txt (Holds all Conditions that are in "conditions.txt". Just with altered values throughout the game and the first entry what Scene to load.)
+   │   │     ├─<nameOfCurrentScene>
+   │   │     ├─nameOfCondition_n_1 = true
+   │   │     ├─nameOfCondition_n_2 = false
+   │   │     ├─nameOfCondition_n_3 = true
+   │   │     ├─nameOfCondition_n_m = true
+
+###################################################################################################
+
+Edit Scene:
+
+|-----------------------------------------------------|
+|        c--------c                                   |
+|        |  {A}   |         m--------m                |
+|        c--------c         |        |                |
+|                           m--------m                |
+|                                                     |
+|     p----p---p                                      |
+|                                                     |
+|                                                     |
+|-----------------------------------------------------|
+| [button_1] [button_2] [button_n]                    |
+|-----------------------------------------------------|
+
+„ALT + S“ opens a second Window with the "Edit Scene" parallel to the "Gaming Scene".
+Pipeline "Edit Scene:
+-> Loads buttons.txt: Look at: "Schema File buttons_txt.txt" in order to see the details on how to parse the buttons from the file.
+-> Loads conditions.txt.
+--> Loads all Conditions from the saveGame file and loads them to the  "Edit Scene" and the "Main Editor".
+
+[button_1] [button_2] [button_n] → Are Created and Loaded in „Button Manager“ and deteremine the actions. The Buttons are stored under "resources/buttons/buttons.txt
+For Details read: "Schema File buttons_txt"
+
+Autosave means immediately writes new Valus to the <resourceFile>.txt and updates every Editor.
+
+Part I:
+In the "Edit Scene"
+{A} → Item. Is Dragable (Autosave, Update UI/Editor). When an Item is dragged all Points in the "Scene Point Editor" must receive a live Update. The Values of the Points need to show the changes live.
+c → Represents a Point of "CustomClickArea" of the corresponding Item {A}. Is Dragable. Moves along with the Item when the Item is dragged. (Autosave, Update UI/Editor)  Rendered Orange
+m → Represents a Point of "MovingRange" of the corresponding Item {A}. Is Dragable (Autosave, Update UI/Editor) Rendered Green. Does not move along with item except a flag is set. Default = false
+p → Represents a Point of "Path" of the corresponding Item {A}. Is Dragable (Autosave, Update UI/Editor) Rendered Red. Does not move along with item except a flag is set. Default = false
+The points are loaded from the corresponding "resources/items/<nameOfCorrespondingItem>.txt and will be rendered to the Scene according to their Value 
+under the corresponding tag "#CustomClickArea:, #MovingRange:, #Path:". If any of the Checkboxes "Show" is not set, the corresponding Object will be hidden.
+Every DragAction will be stored immediately to the corresponding <item>.txt File. The Cache of the "Main Editor" will also updated immediatley.
+
+Uses „Schema Editor Guidelines.txt“
+
+CustomClickArea -> The "Hover Text" of an Item will displayed, and Actions take place only if the mouse hovers over the region that is definded by the "CustomClickArea".
+End Part I;
+
+Part II:
+{A} and {B} -> Loads its image from: 
+resources/
+  │
+  ├─ images/
+  │   │
+  │   ├─items/
+  │   │  │
+  │   │  ├─<nameOfImage_1>.jpg
+  │   │  ├─<nameOfImage_n>.jpg
+
+End Part II:
+
+
+Gamig Scene / Edit Scene
+[button_1] [button_2] [button_n] → Are Created and Loaded in „Button Manager“ and deteremine the actions
+{B} → Item. Reagiert auf „Actions“ A (not Dragable etc.)
+All Actions done here will be reflected stored and loaded from the  <savedGame_n>.txt files
+[Load] -> Load a saved game from <n>_progress.txt
+[Save] -> Saves to Progress
+
+This Class is closely tied to:  ../../mnt/c/Users/pc/eclipse-workspace/PointClick2/resources/manual2/Schema Scene Point Editor Advanced Simple.txt. When making changes here read this .txt in order to
+get the complete picture and not to compromise any functionallity when making changes in the code.
+
+
+

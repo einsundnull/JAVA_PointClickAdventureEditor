@@ -1,0 +1,165 @@
+ Analyse der PointClick2-Anwendung
+
+  1. Unterschiede: SOLL vs. IST Filestruktur
+
+  Im Schema definiert, aber NICHT vorhanden:
+  - conditions_progress.txt (im Schema) → tatsächlich conditions-progress.txt (mit Bindestrich statt Unterstrich)
+
+  Vorhanden, aber NICHT im Schema:
+  - ✅ items-progress/ - Extra-Verzeichnis (wahrscheinlich für Runtime-Progress)
+  - ✅ manual/ und manual2/ - Zusätzliche Verzeichnisse (vermutlich Entwickler-Notizen/Backups)
+  - ✅ editor_settings.txt - Editor-Konfiguration
+  - ✅ progress.txt - Spielfortschritt-Datei
+  - ✅ images/itemsOrientation/ - Zusätzliches Bildverzeichnis für Item-Orientierungen
+  - ✅ scenes/Beach/, scenes/Town/, scenes/Wood/ - SubScene-Unterverzeichnisse
+
+  Schema-konform:
+  - ✅ buttons/, conditions/, items/, dialogs/, processes/
+  - ✅ images/{items, scenes, cursors}/
+
+  2. Klassen und Methoden die .txt-Dateien lesen
+
+  ItemLoader.java (Zeile 17-838)
+
+  Liest: resources/items/<itemName>.txt
+
+  Wichtige Methoden:
+  - loadItem(String filename) - Hauptmethode, liest Item-Datei (Zeile 17)
+  - loadItemByName(String itemName) - Lädt resources/items/<itemName>.txt (Zeile 845)
+
+  Gelesene Sektionen:
+  - #Name:, #ImagePath:, #Position:, #Size:, #IsInInventory:
+  - #MouseHover:, #Actions:, #CustomClickArea:, #MovingRange:, #Path:
+  - #CustomClickAreas:, #MovingRanges:, #Paths: (Legacy plural-Format)
+  - #ImagePath[TopLeft|Top|TopRight|Left|Middle|Right|BottomLeft|Bottom|BottomRight]: (Orientierungsbilder)
+
+  SceneLoader.java (Zeile 11-541)
+
+  Liest: resources/scenes/<sceneName>.txt und lädt Items via ItemLoader
+
+  Wichtige Methoden:
+  - loadScene(String sceneName, GameProgress progress) - Hauptmethode (Zeile 11)
+  - loadSceneContent(Scene scene, BufferedReader reader, boolean loadFromProgress) - Parse-Logik (Zeile 103)
+
+  Gelesene Sektionen:
+  - #Conditions: (SubScene-Bedingungen)
+  - #Backgroundimage: / #BackgroundImages: (alt/neu)
+  - #KeyArea: (mit Type, Name, MouseHover, Image, Actions, Location)
+  - #Dialogs:
+  - #Items: (lädt Items via ItemLoader.loadItemFromDefault(itemName), Zeile 485)
+
+  ActionsLoader.java
+
+  Erwähnt in SceneLoader.java:66-73, lädt Aktionen aus resources/actions/<name>.txt
+
+  ProcessLoader.java
+
+  Erwähnt in mehreren Files, lädt Prozesse aus resources/processes/<name>.txt
+
+  3. Arrays und konkurrierende Strukturen in Item-Files
+
+  Arrays in Item.java die ALLE auf dieselben .txt-Files zugreifen:
+
+  A) LEGACY-SYSTEM (alt):
+  - List<Point> clickAreaPoints (Zeile 41) - Einfache Punktliste
+
+  B) NEUES SYSTEM (konkurrierend):
+  - List<CustomClickArea> customClickAreas (Zeile 46)
+  - List<MovingRange> movingRanges (Zeile 47)
+  - List<Path> paths (Zeile 48)
+
+  Alle drei Klassen (CustomClickArea, MovingRange, Path) enthalten:
+  - List<Point> points - Polygon-Punkte
+  - Map<String, Boolean> conditions - Bedingungen für Aktivierung
+
+  Konkurrierende Booleans und Flags:
+
+  1. IsInInventory - DOPPELTE Speicherung:
+  - boolean isInInventory (Item.java:20) - Field
+  - Condition "isInInventory_<itemName>" (Item.java:98-102, 256-263) - Runtime-Condition
+  - ⚠️ Konflikt: Beide Systeme versuchen denselben Zustand zu verwalten!
+
+  2. Click-Area-Systeme - DREIFACH:
+  - boolean hasCustomClickArea (Item.java:43) - Flag für Legacy-System
+  - List<Point> clickAreaPoints (Zeile 41) - Legacy Polygon
+  - List<CustomClickArea> customClickAreas (Zeile 46) - Neues System
+  - ⚠️ Konflikt: containsPoint() prüft BEIDE Systeme (Item.java:534-550)
+
+  3. Visibility Flags - MEHRFACH:
+  - boolean visible (Item.java:57) - Runtime-Sichtbarkeit
+  - boolean isInInventory - Versteckt Item wenn true
+  - Map<String, Boolean> conditions - Kann Sichtbarkeit steuern
+  - Editor-Flags (nicht gespeichert):
+    - visibleInEditor (Zeile 60)
+    - customClickAreaVisibleInEditor (Zeile 61)
+    - movingRangeVisibleInEditor (Zeile 62)
+    - pathVisibleInEditor (Zeile 63)
+
+  4. Image-Path-Systeme - MEHRFACH:
+  - String imageFilePath (Item.java:17) - Legacy
+  - List<ConditionalImage> conditionalImages (Zeile 18) - Neues System mit Bedingungen
+  - Map<String, String> imageConditions (Zeile 52) - Alt-System
+  - 9x Orientierungs-Pfade (TopLeft, Top, TopRight, Left, Middle, Right, BottomLeft, Bottom, BottomRight)
+
+  4. File-Format-Details aus ItemLoader
+
+  Das Programm unterstützt ZWEI Formate gleichzeitig:
+
+  NEUES Format (Schema Simple):
+  #CustomClickArea:
+  -point1: x=590, y=429, z=1
+  -point2: x=600, y=440, z=1
+
+  #MovingRange:
+  -point1: x=100, y=200, z=1
+
+  #Path:
+  -point1: x=50, y=50, z=1
+
+  ALTES Format (Legacy):
+  #CustomClickAreas:
+  -CustomClickArea:
+  --Points:
+  ---point1: x=100, y=200, z=0
+
+  #MovingRanges:
+  -MovingRange:
+  --KeyAreaName: someArea
+  --Conditions:
+  ---someCondition = true
+
+  #Paths:
+  -Path:
+  --KeyAreaName: someArea
+
+  Wichtig: ItemLoader.java konsolidiert Multiple Arrays in Ein Array pro Typ:
+  - consolidatePointContainers() (Item.java:696-723)
+  - Mergt alle CustomClickAreas → primary CustomClickArea
+  - Mergt alle MovingRanges → primary MovingRange
+  - Mergt alle Paths → primary Path
+
+  5. Verzeichniserstellung durch das Programm
+
+  Methoden die Verzeichnisse erstellen:
+  - ItemSaver.saveItem() - Zeile 16: file.getParentFile().mkdirs()
+  - SceneSaver.saveScene() - Zeile 26: parentDir.mkdirs()
+
+  Zusätzlich gefunden (via Grep):
+  32 Dateien verwenden mkdir oder File.*resources - wahrscheinlich für:
+  - ActionButtons
+  - Processes
+  - Editor Settings
+  - Progress Files
+
+  Zusammenfassung der Probleme
+
+  🔴 Kritische Konflikte:
+  1. 3 konkurrierende Click-Area-Systeme gleichzeitig aktiv
+  2. IsInInventory doppelt gespeichert (Field + Condition)
+  3. Legacy + New Format parallel unterstützt
+  4. Keine klare Trennung zwischen Schema-Struktur und Runtime-Struktur
+
+  🟡  Design-Inkonsistenzen:
+  - Schema zeigt singular (#CustomClickArea:) aber Code unterstützt auch plural (#CustomClickAreas:)
+  - Items können in mehreren Arrays gleichzeitig sein (clickAreaPoints + customClickAreas)
+  - MovingRange/Path erben von CustomClickArea (Code-Wiederverwendung vs. semantische Verwirrung)

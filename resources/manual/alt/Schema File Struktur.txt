@@ -1,0 +1,58 @@
+/resources
+  ├─ buttons
+  │   │
+  │   └─ buttons.txt
+  │
+  ├─ conditions
+  │   │
+  │   ├─conditions.txt
+  │   └─conditions_progress.txt
+  │
+  ├─ items
+  │   │
+  │   ├─whiteCup.txt
+  │   ├─whiteCup_progress.txt
+  │   │
+  │   ├─book.txt
+  │   └─book_progress.txt
+  │
+  ├─ images
+  │   │
+  │   ├─book.jpg
+  │   ├─whiteCup.jpg
+  │   ├─tv.jp
+  │   └─knife.jp
+  │
+  ├─ keyAreas
+  │   │
+  │   ├─woodenSign.txt
+  │   ├─pathToBeach.txt
+  │   └─pathToTown.txt
+  │
+  ├─ buttons
+  │   │
+  │   └─buttons.txt
+  │
+  ├─ scenes
+  │   │
+  │   ├─beach.txt
+  │   └─town.txt
+  │
+  ├─ dialogs
+  │   │
+  │   ├─dialogAtBeach.txt
+  │   ├─dialogAtBeach2.txt
+  │   ├─dialogInTown.txt
+  │   └─dialogInTown2.txt
+  │
+  ├─ actions
+  │   │
+  │   ├─foundKey.txt
+  │   ├─burnPaperBag.txt
+  │   └─enterSecretRoom.txt
+  │
+
+
+  - <name>.txt = DEFAULT (Editor-Version)
+  - <name>_progress.txt = Spielfortschritt (not loaded by Editor, no editing by Editor)
+

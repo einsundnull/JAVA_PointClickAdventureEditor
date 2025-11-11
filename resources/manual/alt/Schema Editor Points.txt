@@ -1,0 +1,59 @@
+-<SplitPane>------------------------------------------------------
+Point Editor
+
+#<ListViewPoints>########################
+-listItemPoint1>--------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]
+-</listItemPoint1>------------------------------------- 
+-<listItemPoint2>-------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]
+-</listItemPoint2>------------------------------------- 
+-<listItemPoint_n>-------------------------------------
+x:[    ]      y:[    ]        z:[    ]
+-</listItemPoint_n>------------------------------------
+#<ListViewPoints>#########################
+[New] [Remove] [↑] [↓]                          [Close]
+-------------------------------------------------------
+
+
+When this Editor opens all other Edit Windows minimize.
+Every change that is made in this Editor is autosaved.
+and updates the files / cache / ram and UI.
+[New] → Adds a new Point Manually.
+[Remove] → Remove selected Point from ListView and from references in file.
+[↑] → Move selected Point on up in ListView and references in file.
+[↓] → Move selected Point on down in ListView and references in file.
+x:[    ] y:[    ] z:[    ] → These are InputFields that hold the current value and allow to edit. 
+Enter confirms and updates the files / cache / ram and UI.
+[Close] → Closes Menu and ends Click by Add. Other Editor Windows reapear.
+
+  Point Editor: <itemName>
+  ┌────────────────────────────────────┐
+  │ Point 1:  x:[100] y:[200] z:[0]   │ ← Klickbar
+  ├────────────────────────────────────┤
+  │ Point 2:  x:[150] y:[250] z:[0]   │ ← Selektierbar
+  ├────────────────────────────────────┤
+  │ Point 3:  x:[200] y:[300] z:[0]   │
+  └────────────────────────────────────┘
+  [New] [Remove] [↑] [↓]        [Close]
+
+  Implementiert:
+  - PointPanel innere Klasse (PointEditorDialog.java:305-405)
+    - Jedes Panel ist individuell klickbar zur Selektion
+    - X, Y Felder sind editierbar
+    - Z Feld deaktiviert (noch nicht verwendet)
+    - Auto-Save bei Änderungen
+  - Scrollbare Liste (PointEditorDialog.java:82-90)
+    - BoxLayout für vertikale Anordnung
+    - JScrollPane für beliebig viele Points
+  - Vereinfachte Buttons (PointEditorDialog.java:96-124)
+    - [New] [Remove] [↑] [↓] links
+    - [Close] rechts mit Glue-Spacer
+
+  Features:
+  - Klick auf Panel selektiert Point (blauer Hintergrund)
+  - Textfelder aktualisieren Werte sofort
+  - ↑/↓ Buttons bewegen selektierten Point
+  - Alle Änderungen werden auto-gespeichert
+
+Uses the "Schema Editor Guidelines.txt"

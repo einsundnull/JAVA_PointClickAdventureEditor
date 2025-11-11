@@ -1,0 +1,12 @@
+References to delete value "<nameOfValue>" found in:
+
+References 
+|---------------------------------------------------|
+|<nameOfFileWithReference1>    [Open Resource File] |
+|<nameOfFileWithReference2>    [Open Resource File] |
+|<nameOfFileWithReference_n>   [Open Resource File] |
+|---------------------------------------------------|
+
+                             [Delete Anyway] [Cancel]
+
+Uses the "Schema Editor Guidelines.txt"

@@ -1,0 +1,57 @@
+"Schema File Structure Simple.txt"
+
+/resources/
+  ├─ buttons/
+  │   │
+  │   └─ buttons.txt
+  │        ├─ take.txt
+  │        ├─ give.txt
+  │ 
+  ├─ condition/
+  │   │
+  │   ├─conditions.txt      (Default Files)
+  │   └─conditions_progress.txt
+  │
+  ├─ items/
+  │   │
+  │   ├─whiteCup.txt 
+  │   ├─book.txt
+  │
+  ├─ images/
+  │   │
+  │   ├─items/
+  │   │  │
+  │   │  ├─whiteCup.jpg
+  │   │  ├─book.jpg
+  │   │  
+  │   ├─scenes/
+  │   │  │
+  │   │  ├─beach.jpg
+  │   │  ├─town.jpg
+  │   │  
+  │   ├─cursors/
+  │   │  ├─give.jpg
+  │   │  ├─take.jpg
+  │
+  ├─ buttons/
+  │   │
+  │   └─buttons.txt
+  │
+  ├─ dialogs/
+  │   │
+  │   ├─dialogAtBeach.txt
+  │   ├─dialogAtBeach2.txt
+  │   ├─dialogInTown.txt
+  │   ├─dialogInTown2.txt
+  │
+  ├─ processes/
+  │   │
+  │   ├─foundKey.txt
+  │   ├─burnPaperBag.txt
+  │   ├─enterSecretRoom.txt
+
+
+
+  - <name>.txt = DEFAULT (Editor-Version)
+  - <name>_progress.txt = Spielfortschritt (not loaded by Editor except "Condition Manager", no editing by Editor except "Condition Manager" -> "Save to Progress Files"
+

@@ -1,0 +1,5 @@
+Get-ChildItem -Path "C:\Users\pc\eclipse-workspace\PointClick2" -Recurse -Filter nul | ForEach-Object {
+    $p = "\\?\$($_.FullName)"
+    cmd /c "rd /s /q $p" 2>$null
+    cmd /c "del /f /q $p" 2>$null
+}

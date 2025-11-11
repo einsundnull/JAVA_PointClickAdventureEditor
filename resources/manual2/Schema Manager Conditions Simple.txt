@@ -1,0 +1,26 @@
+"Schema Editor Conditions Simple.txt"    
+
+Conditions:            Progress    Default
+|-------------------------------------------|
+|<nameOfCondition1>    [x]         [x]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|<nameOfCondition2>    [ ]         [ ]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|<nameOfCondition_n>   [ ]         [x]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|-------------------------------------------|
+-<SplitPane>-----------------------------------------
+[Add][Delete][Save to Progress][Save as Default] [Close]
+
+Defaults:
+Loads all Condition boolean Values from /resources/conditions/conditions.txt
+
+Progress:
+Loads all Condition boolean Values from /resources/conditions/conditions_progress.txt
+
+[Save to Progress] -> Changes only Progress files.
+[Save as Default] -> Changes only Default files.
+[x] -> CheckBox. If checked condition boolean = true;
+
+
+Uses the "Schema Editor Guidelines.txt"
+
+
+

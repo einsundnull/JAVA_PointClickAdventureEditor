@@ -1,0 +1,9 @@
+#BackgroundImages:
+-Image:
+--Name: Default
+--Path: sceneWood.png
+--ShowIfTrue: true
+--Conditions:
+---FlipHorizontally = false
+---FlipVertically = false
+

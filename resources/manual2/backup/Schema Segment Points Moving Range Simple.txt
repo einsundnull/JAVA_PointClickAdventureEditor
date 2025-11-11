@@ -1,0 +1,33 @@
+"Schema Segment Points Moving Range Simple.txt"
+
+MovingRange Points
+
+[Collapse]
+#<ListViewPoints>########################
+-listItemPoint1>--------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint1>------------------------------------- 
+-<listItemPoint2>-------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint2>------------------------------------- 
+-<listItemPoint_n>-------------------------------------
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint_n>------------------------------------
+#<ListViewPoints>#########################
+-<SplitPane>-------------------------------------------
+[Add][Add by Click][Remove]                      [↑][↓]
+-<SplitPane>-------------------------------------------
+
+Every change that is made in this Editor is autosaved.
+[Collapse] -> Collapses/Expands the SplitPane of this segment.
+[Add] → Adds a new Point Manually. (100; 100; 1). Points will be add under the selected Point. If no Point is selected append new Point. 
+[Add by Click] -> Opens "Point Editor" When this "Point Editor" opens all other Edit Windows minimize. (Read "Schema Editor Points Simple.txt")
+and updates the files / cache / ram and UI as well as the MainScene.
+[Remove] → Remove selected Point from ListView and from references in file.
+[↑] → Move selected Point on up in ListView and references in file.
+[↓] → Move selected Point on down in ListView and references in file.
+x:[    ] y:[    ] z:[    ] → These are InputFields that hold the current value and allow to edit. Z is set 1 by default.
+Enter confirms and updates the files / cache / ram and UI.
+New Points and/or changes of Values schould be rendered immediately on the UI of the Scene.
+
+Uses the "Schema Editor Guidelines.txt" <- Read this file.

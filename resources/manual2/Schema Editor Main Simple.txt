@@ -1,0 +1,119 @@
+"resources/manual2/Schema Editor Main Simple.txt"
+
+###########################################
+Main Editor
+
+|-------------------------------
+|=== Segment 1: Scenes === Read: "Schema Segment Scenes Simple.txt"
+|-------------------------------
+|   │
+| a │     
+| l ├── === Segment 2: Image ===  Read: "Schema Segment Image Simple.txt"
+| l ├── === Segment 3: Hover Text ===  Read: "Schema Segment Hover Text Simple.txt"
+|   ├── === Segment 4: CheckBox === isInInventory [ ] "  Read: "Schema Segment IsInInventoy Simple.txt"
+|   ├── === Segment 5: Conditions ===  Read: "Schema Segment Conditions Simple.txt"  
+|   ├── === Segment 6: CustomClickArea ===  Read: "Schema Segment Points Simple.txt"    
+| i ├── === Segment 7: MovingRagne ===  Read: "Schema Segment Points Simple.txt"   
+| t ├── === Segment 8: Path ===  Read: "Schema Segment Points Simple.txt"  
+| e │
+| m │  
+| s │  
+----------------------------------------------------------------------------
+Segment 9: Sticky Gloabal Value Buttons
+----------------------------------------------------------------------------
+
+###################################################################################################################################################
+
+all items -> Shows only the items of the selected "SubScene"
+- Item List Layout:
+  ┌─────────────────────────┐
+  │{T}        [x] Show      │  {T} = Thumbnail (50x50px) showing item image
+  │           [x] Follow    │  Three checkboxes stacked vertically to the right
+  │           [x] Click     │  Item name displayed below the thumbnail
+  │<nameOfItem>             │
+  └─────────────────────────┘
+
+  Checkbox Functions:
+  - [Show]   = Item visible in editor (true by default, not persisted to file)
+             = Unchecked = Item hidden in editor (useful for overlapping items)
+  - [Follow] = Item follows mouse cursor continuously (for positioning/testing)
+             = Saves immediately when toggled via ItemSaver
+  - [Click]  = Item follows mouse only when clicked (drag mode)
+             = Saves immediately when toggled via ItemSaver
+
+All Values are loaded from the default files. Read the "Schema File <...>.txt" und "Schema Directory <...>.txt" files.
+
+The Values in the x;y;z fields for "CustomClickArea, MovingRange, Path" are loaded through this pipeline:
+ Item File → ItemLoader → Item Object → UI ListView (displays points)
+     ↑                                           ↓
+     └─────── Auto-save ← User clicks "Add" ←────┘
+
+/resources/scenes/
+   │          ├─<directoryWithNameOfScene_1>
+   │          │     │
+   │          │     ├─<nameOfSubScene_1_1>.txt
+   │          │     ├─<nameOfSubScene_1_m>.txt
+   │          │
+   │          ├─<directoryWithNameOfScene_n>
+   │          │     │
+   │                ├─<nameOfSubScene_n_1>.txt
+   │                ├─<nameOfSubScene_n_m>.txt -> "Schema File Structure Scene Simple.txt"
+   │
+   ├─ /items/
+   │     │
+   │     ├─<nameOfItem_1>.txt
+   │     ├─<nameOfItem_n>.txt -> "Schema File Structure Item Simple.txt"
+
+###################################################################################################################################################
+
+"Schema File Structure Scene Simple.txt"
+
+├─<nameOfSubScene_n_1>.txt 
+├─<nameOfSubScene_n_m>.txt
+     │   
+    (show and use if)
+     │
+     ├─ #Conditions:
+     │   ├─ <nameOfCondition_1> = true/false -> Condition will be set via "Main Editor - Segment 5"; Read: "Schema Segment Conditions Simple.txt" 
+     │   ├─ <nameOfCondition_n> = true/false -> Condition will be set via "Main Editor - Segment 5"  Read: "Schema Segment Conditions Simple.txt" 
+     │  
+     ├─ #Image:
+     │   ├── </resources/images/scenes/...>  -> Image will be set via "Main Editor - Segment 2"; Read: "Schema Segment Images Simple.txt" 
+     │   ├── <nameOfImageFile>
+     │   ├── flipped horizontally = false
+     │   ├── flipped vertically = false
+     │ 
+     ├─ #Items:
+         ├─ <nameOfItem_1>  -> Item is stored at and loaded from: </resources/items/<nameOfItem_1>.txt; Look up"Schema File Structure Item Simple.txt" 
+         └─ <nameOfItem_n>  -> Item is stored at and loaded from: </resources/items/<nameOfItem_n>.txt; Look up"Schema File Structure Item Simple.txt" 
+
+###################################################################################################################################################
+
+"Schema File Structure Item Simple.txt" -> Loads the points under the reference "#CustomClickArea:", "#MovingRange:" and "#Path:"
+
+#Name:
+#ImagePath:
+#Position:
+#Size:
+#IsInInventory:
+#MouseHover:
+
+#CustomClickArea:
+-point1: x=90, y=90, z=1
+-point2: x=110, y=110, z=1
+-point3: x=110, y=220, z=1
+-point4: x=90, y=220, z=1
+
+#MovingRange:
+-point1: x=80, y=80, z=1
+-point2: x=120, y=120, z=1
+-point3: x=120, y=240, z=1
+-point4: x=80, y=240, z=1
+
+#Path:
+-point1: x=50, y=50, z=1
+-point2: x=50, y=350, z=1
+
+#Actions:
+
+Condition is stored at and loaded from: </resources/conditions/conditions.txt; <nameOfCondition_n> Look up "Schema File Structure Conditions Simple.txt" 

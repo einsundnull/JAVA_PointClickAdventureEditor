@@ -1,0 +1,16 @@
+    
+Conditions:            Progress    Default
+|-------------------------------------------|
+|<nameOfCondition1>    [x]         [x]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|<nameOfCondition2>    [ ]         [ ]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|<nameOfCondition_n>   [ ]         [x]	    | (selectable/reanameable: Enter Confirms -> Guidelines)
+|-------------------------------------------|
+[Add] [Rename] [Delete] [Save to Progress] [Save as Default] [Close]
+[Save to Progress] -> Changes only Progress files.
+[Save as Default] -> Changes only Default files.
+[x] -> CheckBox. If checked condition boolean = true;
+
+Uses the "Schema Editor Guidelines.txt"
+
+
+

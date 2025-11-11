@@ -1,0 +1,17 @@
+Conditions: 
+
+Condition:            true        
+|----------------------------------|
+|<nameOfCondition1>    [x]         | (selectable)
+|<nameOfCondition2>    [ ]         | (selectable)
+|<nameOfCondition_n>   [ ]         | (selectable)
+|----------------------------------|
+[Add] [Rename] [Delete] [Save to Progress] [Save as Default] [Close]
+[Save to Progress] -> Changes only Progress files.
+[Save as Default] -> Changes only Default files.
+[x] -> CheckBox. If checked condition boolean = true;
+
+Uses the "Schema Editor Guidelines.txt"
+
+
+

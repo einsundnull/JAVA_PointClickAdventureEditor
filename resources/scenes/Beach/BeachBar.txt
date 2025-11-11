@@ -1,0 +1,9 @@
+#BackgroundImages:
+-Image:
+--Name: Default
+--Path: sceneBeach2.png
+--ShowIfTrue: true
+--Conditions:
+---FlipHorizontally = false
+---FlipVertically = false
+

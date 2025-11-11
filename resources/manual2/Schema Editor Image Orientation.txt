@@ -1,0 +1,80 @@
+"resources/manual2/Schema Editor Image Orientation.txt"
+
+┌──────────────────────────────────────────────┐      
+│ ▼ <nameOfItem>
+│ ┌────┐
+│ │    │
+│ │ z  │
+│ └────┘
+│ ┌────┐┌────┐┌────┐
+│ │    ││    ││    │
+│ │ a  ││ b  ││ c  │
+│ └────┘└────┘└────┘
+│ ┌────┐┌────┐┌────┐
+│ │    ││    ││    │
+│ │ d  ││ e  ││ f  │
+│ └────┘└────┘└────┘
+│ ┌────┐┌────┐┌────┐
+│ │    ││    ││    │
+│ │ g  ││ h  ││ i  │
+│ └────┘└────┘└────┘
+│ 
+│ [Remove] [Delete]     [Open Resources] [Manage Images] [Save]
+
+▼ ComboBox with items <name> <thumbnail of default Image>
+z →  dropField and Thumbnail of default and fallback Image.
+a → dropField and Thumbnail of Image TopLeft.
+b → dropField and Thumbnail of Image Top.
+c → dropField and Thumbnail of Image TopRight.
+d → dropField and Thumbnail of Image Left.
+e → dropField and Thumbnail of Image Middle.
+f → dropField and Thumbnail of Image Right.
+g → dropField and Thumbnail of Image BottomLeft.
+h → dropField and Thumbnail of Image Bottom.
+i → dropField and Thumbnail of Image BottomRight.
+
+Images are stored under itemsOrientation/:
+
+/resources/
+  │
+  ├─ images/
+  │   │
+  │   ├─items/
+  │   │  │
+  │   │  ├─whiteCup.jpg
+  │   │  ├─book.jpg
+  │   │
+  │   ├─itemsOrientation/
+  │   │  │
+  │   │  ├─whiteCup_topLeft.jpg
+  │   │  ├─whiteCup_top.jpg
+  │   │  ├─....jpg
+  │   │  ├─
+  │   │  
+  │   ├─scenes/
+  │   │  │
+  │   │  ├─beach.jpg
+  │   │  ├─town.jpg
+  │   │  
+  │   ├─cursors/
+  │   │  ├─give.jpg
+  │   │  ├─take.jpg
+
+At the same time in the <item>.txt file a reference will be created under:
+
+#ImagePath:                    default and fallback
+-white_cup.png
+
+#ImagePathTopLeft:
+
+#ImagePathTop:
+
+#ImagePathRight:
+
+#ImagePathBottomRight:
+
+#ImagePathBottom:
+
+#ImagePathBottomLeft:
+
+#ImagePathLeft:

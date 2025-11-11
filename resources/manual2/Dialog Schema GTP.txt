@@ -1,0 +1,29 @@
+[A]
+text=Hallo Fremder! Was suchst du hier?
+option1=Ich suche Arbeit. -> [A1]
+option2=Nur neugierig. -> [A2]
+
+[A1]
+if=hatBrief==true
+text=Ah, du hast den Brief! Dann bist du eingestellt.
+then=set job=true
+goto=[B]
+else
+text=Ohne Brief kann ich dich nicht einstellen.
+goto=[A_end]
+
+[A2]
+text=Dann sieh dich ruhig um.
+then=set curiosity=true
+goto=[A_end]
+
+[B]
+text=Willkommen im Team! Du kannst jetzt die Werkstatt betreten.
+then=unlock werkstatt
+goto=[END]
+
+[A_end]
+text=Vielleicht später.
+
+[END]
+text=Dialog beendet.

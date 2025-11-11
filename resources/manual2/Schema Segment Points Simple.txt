@@ -1,0 +1,125 @@
+"Schema Segment Points Simple.txt"
+Uses the "Schema Editor Guidelines.txt" <- Read this file.
+<NameOfSegment> can be "CustomClickArea, MovingRange, Path".
+
+#############################################################################
+
+<NameOfSegment> Points
+
+[Collapse]                           Show: [x]
+#<ListViewPoints>########################
+-listItemPoint1>--------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint1>------------------------------------- 
+-<listItemPoint2>-------------------------------------- 
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint2>------------------------------------- 
+-<listItemPoint_n>-------------------------------------
+x:[    ]      y:[    ]        z:[    ]			(selectable/editable)
+-</listItemPoint_n>------------------------------------
+#<ListViewPoints>#########################
+-<SplitPane>-------------------------------------------
+[Add][Add by Click][Remove]                      [↑][↓]
+-<SplitPane>-------------------------------------------
+
+#############################################################################
+
+Every change that is made in this Editor is autosaved.
+[Collapse] -> Collapses/Expands the SplitPane of this segment.
+CheckBox: (Show)
+[x] -> Allowes to hide the Object if CheckBox is checked in the "Point & Click Adventure" Scene in editMode, so it is not in the way if I need to access another SceneElement (Item/Points/etc.)
+[Add] → Adds a new Point Manually. (100; 100; 1). Points will be add under the selected Point. If no Point is selected append new Point. 
+[Add by Click] -> Opens "Point Editor" When this "Point Editor" opens all other Edit Windows minimize. (Read "Schema Editor Points Simple.txt")
+and updates the files / cache / ram and UI as well as the MainScene.
+[Remove] → Remove selected Point from ListView and from references in file.
+[↑] → Move selected Point on up in ListView and references in file.
+[↓] → Move selected Point on down in ListView and references in file.
+x:[    ] y:[    ] z:[    ] → These are InputFields that hold the current value and allow to edit. Z is set 1 by default.
+Enter confirms and updates the files / cache / ram and UI.
+New Points and/or changes of Values schould be rendered immediately on the UI of the Scene.
+
+The Values in the x;y;z fields are loaded through this pipeline:
+ Item File → ItemLoader → Item Object → UI ListView (displays points)
+     ↑                                           ↓
+     └─────── Auto-save ← User clicks "Add" ←────┘
+
+/resources/scenes/
+   │          ├─<directoryWithNameOfScene_1>
+   │          │     │
+   │          │     ├─<nameOfSubScene_1_1>.txt -> [s]
+   │          │     ├─<nameOfSubScene_1_m>.txt -> [s]
+   │          │
+   │          ├─<directoryWithNameOfScene_n>
+   │          │     │
+   │                ├─<nameOfSubScene_n_1>.txt -> [s]
+   │                ├─<nameOfSubScene_n_m>.txt -> [s]
+   │
+   ├─ /items/
+   │     │
+   │     ├─<nameOfItem_1>.txt -> [ia]
+   │     ├─<nameOfItem_n>.txt -> [ia]
+
+
+#############################################################################
+
+[ia]
+
+"Schema File Structure Scene Simple.txt"
+
+├─<nameOfSubScene_n_1>.txt 
+├─<nameOfSubScene_n_m>.txt
+     │   
+    (show and use if)
+     │
+     ├─ conditions
+     ├─ <nameOfCondition> = true/false
+     ├─ <nameOfCondition> = true/false
+     │  
+     ├─ image
+     │   ├── <pathOfImageFile>
+     │   ├── <nameOfImageFile>
+     │   ├── flipped horizontally = false
+     │   ├── flipped vertically = false
+     │ 
+     ├─ items
+         ├─ <pathOfItemFile_1> -> [i]
+         └─ <pathOfItemFile_n> -> [i]
+
+[s] -> For detailed information about the structure of the <nameOfSubScene>.txt file and how to compile/read/write look up: "Schema File Structure Scene Simple.txt"
+
+[i] -> Loads the points that are stored in the "resources/items/<nameOfItem>.txt under the reference "#CustomClickArea:", "#MovingRange:" and "#Path:"
+Below ist a reduced represantation that only shows the values for the Points of "#CustomClickArea:", "#MovingRange:" and "#Path:"
+For detailed information about the structure of the <nameOfItem>.txt file and how to compile/read/write look up: "Schema File Structure Item Simple.txt"
+
+#Name:
+#ImagePath:
+#Position:
+#Size:
+#IsInInventory:
+#MouseHover:
+#CustomClickArea:
+-point1: x=590, y=429, z=1
+-point2: x=559, y=206, z=1
+-point3: x=555, y=391, z=1
+-point4: x=711, y=386, z=1
+-point5: x=713, y=344, z=1
+
+#MovingRange:
+-point1: x=764, y=393, z=1
+-point2: x=672, y=336, z=1
+-point3: x=631, y=231, z=1
+-point4: x=758, y=436, z=1
+
+#Path:
+-point1: x=1533, y=0, z=1
+-point2: x=502, y=268, z=1
+-point3: x=502, y=354, z=1
+-point19: x=644, y=233, z=1
+
+#Actions:
+
+
+
+
+
+

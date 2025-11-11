@@ -1,0 +1,10 @@
+# Editor Settings
+# Auto-generated - do not edit manually while editor is running
+
+splitpane.main=929
+splitpane.items=161
+editor.main.x=571
+editor.main.y=91
+editor.main.width=954
+editor.main.height=876
+editor.alwaysOnTop=false

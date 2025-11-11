@@ -1,0 +1,14 @@
+Wenn ich Bilder Droppe, soll, sobald die Originalgröße des Bildes mehr als
+120x120 ist, das Bild automatisch auf 120x120 heruntergescaled werden und auch
+die customClickArea des Bildes wird auf die Werte 140x140 Gesetzt.
+
+CustomClickArea Punkte müssen simulaten mitverschoben werden, wenn ich das Bild dragge.
+
+
+> "Edit Actions" Im "Main Editor Simple"  soll die Button Actions managen. Im Moment kann ich Conditions hinzufügen,
+  die keiner Button Action zugeordnet sind. 2. Im Main Editor Simple fehlt der "Button Manager" Hier kann ich Buttons
+  erstellen, bearbeiten und löschen. 
+Ließ die "Schema Editor Guidelines.txt"
+
+
+

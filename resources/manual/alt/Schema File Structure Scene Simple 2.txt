@@ -1,0 +1,20 @@
+"Schema File Structure Scene Simple.txt"
+
+<nameOfScene_n directory>
+│
+├─ <nameOfSubScene_n_1>
+├─ <nameOfSubScene_n_n>.txt
+│    │   
+│   (show and use if)
+│    │
+│    ├─ conditions
+     ├─ <nameOfCondition> = true/false
+     ├─ <nameOfCondition> = true/false
+     │  │
+     │  ├─ image
+     │  │   ├─ <pathOfImageFile>
+     │  │   └─ <nameOfImageFile>
+     │  │
+     │  ├─ items
+     │  ├─ <pathOfItemFile>
+     │  └─ <pathOfItemFile>

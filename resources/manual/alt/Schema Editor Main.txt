@@ -1,0 +1,77 @@
+Main Editor
+
+Scenes
+[…]
+|<ListView>-----------------------------------------------------|
+|  {DefaultImageOfScene1} <nameOfScene1>	                |
+|  {DefaultImageOfScene2} <nameOfScene2>	                |
+|  {DefaultImageOfScene_n} <nameOfScene_n>	                |
+|---------------------------------------------------------------|
+[Load] [New] [Edit] [Copy] [Delete] 
+
+Items
+[…]
+|<ListView>-----------------------------------------------------|
+|  {DefaultImageOfItem1} <nameOfItem1>		                |
+|  {DefaultImageOfItem2} <nameOfItem2>		                |
+|  {DefaultImageOfItem_n} <nameOfItem_n>	                |
+|---------------------------------------------------------------|
+[New] [Edit] [Actions] [Copy] [Delete] 
+
+KeyAreas
+[…]
+|<ListView>-----------------------------------------------------|
+|   <nameOfKeyArea1>	                                        |
+|   <nameOfKeyArea2>	                                        |
+|   <nameOfKeyArea_n>	                                        |
+|---------------------------------------------------------------|
+[New] [Edit] [Copy] [Actions] [Delete] 
+
+Dialogs
+[…]
+|<ListView>-----------------------------------------------------|
+|  <nameOfCharacter1>                                        	|
+|  <nameOfCharacter2>                                          	|
+|  <nameOfCharacter_n>                                      	|
+|---------------------------------------------------------------|
+[New] [Edit] [Copy] [Delete]
+
+[Conditions Manager]
+[Button Manager]
+[Image Manager]
+[Open Resources]
+
+
+####################
+
+Every Change that is made in this Editor will be stored in the /resources/<category>/<nameOfDefaultFileForCategory>.txt files.
+
+Scenes
+[…] → Collapses ListView.
+[Load]→ Loads the default Values of the selected Scene from the /resources/scenes/<nameOfScene>.txt to the Editors and to the Main Window and opens the Scene for editing.
+[New] → Creates a new Scene file in the /resources/scenes/ directory and adds it to the ListView. (Promtp: {inputField <Name>})
+[Edit]→ Opens Scene Editor.
+[Copy] → Copies selected Scene file /charakters/<nameOfScene_copy>.txt and adds it to the Listview.
+[Delete] → Deletes the selected Scene <nameOfScene>.txt file in the /scenes/ directory and removes it from the Listview. (Alert Yes/No). Before deleting a check of all /resources/<category>/<name>.txt files must be run for references and references must be deleted if found. If references are found a warning with a ListView of all files that hold a reference will be show. „Found multiple references to this entry! Do you want to delete it anyway? [Yes] [No]“
+
+Items (Item inherits all functions of KeyArea)
+[…] → Collapses ListView.
+[New] → Creates new Item file /charakters/<nameOfItem>.txt and adds it to the Listview. At the same time it writes a reference to the scenes/<nameOfScene>.txt. (Promtp: {inputField <Name>})
+[Actions] → Opens Item Action Editor.
+[Edit]→ Opens Item Editor.
+[Copy] → Copies selected Item file /charakters/<nameOfScene_copy>.txt and adds it to the ListView.  At the same time it writes a <nameOfItem> reference to the scenes/<nameOfScene>.txt under the #Items tag.
+[Delete] → Deletes the selected Item file <nameOfItem>.txt in the /resources/items/ directory and Removes it from the ListView. (Alert Yes/No). Before deleting a check of all /resources/<category>/<name>.txt files must be run for references and references must be deleted if found. If references are found a warning with a ListView of all Categories that hold a reference will be show. „Found multiple references to this entry! Do you want to delete it anyway? [Yes] [No]“
+
+Dialogs
+[…] → Collapses ListView.
+[New] → Creates a new Dialog file /dialogs/<nameOfDialog>.txt and adds it to the Listview. (Prompt: Name: {inputNewName}  At the same time it writes a reference to the scenes/<nameOfScene>.txt
+[Actions] → Opens Dialog Action Editor.
+[Edit]→ Opens Dialog Editor.
+[Copy] → Copies Dialog Character. At the same time it writes a reference to the scenes/<nameOfScene>.txt
+[Delete] → Deletes selected Dialog file <nameOfDialog>.txt in the /resources/dialogs/ directory and Removes it from the ListView. (Alert Yes/No). Before deleting a check of all /resources/<category>/<name>.txt files must be run for references and references must be deleted if found. If references are found a warning with a ListView of all files that hold a reference will be show. „Found multiple references to this entry! Do you want to delete it anyway? [Yes] [No]“
+
+1. [New]  → Adds a new Object to the corresponding ListView and creates a new reference in <nameOfSceneFile>.txt as well as creating a new resource <nameOfNewFile>.txt file in the /resources/<n>/ directory.
+2. [Edit] → Opens the Editor for the selected ListViewItem or the corresponding category.
+3. [Copy] → Copies the selected ListViewItem and the resources/<n>/<nameOfFile>.txt of the corresponding category.
+3. [Delete] → Deletes the selected ListViewItem and the resources/<n>/<nameOfFile>.txt of the corresponding category.
+5. [Actions] → Opens the Action Editor Window for the corresponding category of the selected field in the Listview.

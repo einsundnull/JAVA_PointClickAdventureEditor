@@ -1,0 +1,7 @@
+Every delete or remove action triggers a scan of all <r>.txt files for references.
+Rename -> If reference is found rename accordingly.
+Delete -> If references found open Alert with ListView of all <r>.txt files that hold a reference.
+The ListView looks like that: "Schema Alert Dialog Reference.txt" 
+
+Every Actions Like "Add, New, Rename, Remove, Delete" and or any other changed Value like integers or floating point numbers 
+trigger an immediate response of: Refresh every Cache, Ram, ListView, Editor UI Component, MainScene renderding.

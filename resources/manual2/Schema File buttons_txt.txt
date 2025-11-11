@@ -1,0 +1,65 @@
+"resources/manual2/Schema File buttons_txt.txt"
+
+# Button Definitions
+# Each button has: Name, Image, Text, Hover Text, Flags, Size
+
+-Name: Anschauen
+--ImagePath: 
+--TextOnButton: Anschauen
+--HoverText: Objekt anschauen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+
+-Name: Nehmen
+--ImagePath: 
+--TextOnButton: Nehmen
+--HoverText: Objekt nehmen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+
+-Name: Benutzen
+--ImagePath: 
+--TextOnButton: Benutzen
+--HoverText: Objekt benutzen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+
+-Name: Sprechen
+--ImagePath: 
+--TextOnButton: Sprechen
+--HoverText: Mit Objekt sprechen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+
+-Name: Öffnen
+--ImagePath: 
+--TextOnButton: Öffnen
+--HoverText: Objekt öffnen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+
+-Name: Schließen
+--ImagePath: 
+--TextOnButton: Schließen
+--HoverText: Objekt schließen
+--UseText: true
+--UseHoverText: true
+--UseImage: false
+--Width: 100
+--Height: 30
+

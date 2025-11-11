@@ -1,0 +1,9 @@
+#BackgroundImages:
+-Image:
+--Name: Default
+--Path: sceneTown.png
+--ShowIfTrue: true
+--Conditions:
+---FlipHorizontally = false
+---FlipVertically = false
+

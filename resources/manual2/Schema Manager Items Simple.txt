@@ -1,0 +1,177 @@
+"Schema Manager Items Simple.txt"
+
+###########################################
+Item Manager - Global Item CRUD
+
+Purpose:
+--------
+The Item Manager provides global CRUD (Create, Read, Update, Delete, Copy) operations
+for ALL items in the game (not just items in the current SubScene).
+It shows all items from /resources/items/ directory.
+
+Opens from: [Manage Items] button in Main Editor (Segment 9: Global Buttons)
+
+Layout:
+-------
+
+|-----------------------------------------------------------------------|
+|  Item Manager - All Items                                             |
+|-----------------------------------------------------------------------|
+|                                                                       |
+|  All Items (from /resources/items/):                                  |
+|  ┌───────────────────────────────────────────────────────────────┐  |
+|  │ cup                                                             │  |
+|  │ key                                                             │  |
+|  │ door [IN SCENE]                                                 │  |
+|  │ stone                                                           │  |
+|  │ book [IN SCENE]                                                 │  |
+|  │ ...                                                             │  |
+|  └───────────────────────────────────────────────────────────────┘  |
+|                                                                       |
+|  [New Item] [Edit Item] [Copy Item] [Delete Item]                    |
+|                                                                       |
+|  [Add to Scene] [Remove from Scene]     [Refresh] [Close]            |
+|                                                                       |
+|-----------------------------------------------------------------------|
+
+
+Item List:
+----------
+- Shows ALL items from /resources/items/ directory
+- Items currently in the selected SubScene are marked with [IN SCENE]
+- Items are sorted alphabetically
+- List updates automatically after any CRUD operation
+
+
+Buttons:
+--------
+
+[New Item]
+  → Prompts user for item name
+  → Creates new item file: resources/items/<itemName>.txt
+  → Default values:
+     - ImagePath: "default.png"
+     - Position: (100, 100, 1)
+     - Size: 100x100
+     - InInventory: false
+
+     -#CustomClickArea:
+     -point1: x=90, y=90, z=1
+     -point2: x=110, y=110, z=1
+     -point3: x=110, y=220, z=1
+     -point4: x=90, y=220, z=1
+
+     #MovingRange:
+     -point1: x=80, y=80, z=1
+     -point2: x=120, y=120, z=1
+     -point3: x=120, y=240, z=1
+     -point4: x=80, y=240, z=1
+
+     #Path:
+     -point1: x=50, y=50, z=1
+     -point2: x=50, y=350, z=1
+
+[Edit Item]
+  → Opens item editor for selected item (TODO: Implementation pending)
+  → Loads item from DEFAULT file: resources/items/<itemName>.txt
+  → Uses ItemLoader.loadItemFromDefault()
+
+[Copy Item]
+  → Prompts user for new item name (default: <originalName>_copy)
+  → Loads source item from DEFAULT file
+  → Creates deep copy with new name:
+     - Copies all properties (image, position, size, inInventory)
+     - Copies all points (clickAreaPoints)
+     - Copies all conditional images
+     - Copies all hover display conditions
+  → Saves copy to new DEFAULT file
+  → Reloads list and selects the copied item
+
+[Delete Item]
+  → Shows confirmation dialog: "Delete item '<name>'? This will delete the file and cannot be undone!"
+  → Deletes file: resources/items/<itemName>.txt
+  → Does NOT delete _progress.txt file (if exists)
+  → Reloads list after deletion
+
+[Add to Scene]
+  → Adds selected item to current SubScene
+  → Checks if item already exists in SubScene
+  → Loads item from DEFAULT file
+  → Adds item to SubScene.items list
+  → Saves SubScene to DEFAULT file: resources/scenes/<sceneName>/<subSceneName>.txt
+  → Triggers parent editor refresh: parent.loadItemsIntoEditor()
+  → Updates [IN SCENE] markers in list
+
+[Remove from Scene]
+  → Removes selected item from current SubScene
+  → Checks if item exists in SubScene
+  → Removes item from SubScene.items list
+  → Saves SubScene to DEFAULT file
+  → Triggers parent editor refresh
+  → Updates [IN SCENE] markers in list
+
+[Refresh]
+  → Reloads all items from /resources/items/ directory
+  → Updates [IN SCENE] markers based on current SubScene
+
+[Close]
+  → Closes Item Manager dialog
+  → Non-modal dialog (can stay open while editing)
+
+
+File Operations:
+----------------
+
+Load Items:
+  - Scans directory: resources/items/
+  - Filter: *.txt files (excluding *_progress.txt)
+  - Uses File.listFiles() with filter
+
+Create Item:
+  - Uses: ItemSaver.saveItemToDefault(item)
+  - Saves to: resources/items/<itemName>.txt
+
+Copy Item:
+  - Uses: ItemLoader.loadItemFromDefault(sourceName)
+  - Creates new Item with new name
+  - Deep copies all properties
+  - Uses: ItemSaver.saveItemToDefault(copiedItem)
+
+Delete Item:
+  - Deletes file: resources/items/<itemName>.txt
+  - Uses: File.delete()
+
+Add to Scene:
+  - Uses: ItemLoader.loadItemFromDefault(itemName)
+  - Uses: SubScene.addItem(item)
+  - Uses: FileHandlingSimple.saveSubSceneToDefault(subScene, sceneName)
+
+Remove from Scene:
+  - Uses: SubScene.getItems().remove(item)
+  - Uses: FileHandlingSimple.saveSubSceneToDefault(subScene, sceneName)
+
+
+Requirements:
+-------------
+- SubScene must be selected before opening Item Manager
+- If no SubScene selected, shows warning dialog
+- Dialog is NON-MODAL (can stay open while editing)
+- All operations use DEFAULT files (.txt, not _progress.txt)
+- Editor mode uses DEFAULT files
+- Gaming mode uses PROGRESS files
+
+
+Integration:
+------------
+- Called from: EditorMainSimple.openItemManager()
+- Button location: createGlobalButtonsPanel() in EditorMainSimple
+- Position: After [Manage Buttons], before separator
+- Parent class: EditorMainSimple
+- Current SubScene: passed as constructor parameter
+
+
+Uses:
+-----
+- "Schema File Structure Item Simple.txt" - Item file format
+- "Schema File Directory Structure Simple.txt" - Directory structure
+- "Schema Editor Guidlines.txt" - Editor guidelines

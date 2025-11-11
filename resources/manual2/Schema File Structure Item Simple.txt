@@ -1,0 +1,74 @@
+"resoureces/manual2/Schema File Structure Item Simple.txt"
+
+#Name:
+-cup
+
+#ImagePath:
+-white_cup.png
+
+#ImagePathTopLeft:
+
+#ImagePathTop:
+
+#ImagePathRight:
+
+#ImagePathBottomRight:
+
+#ImagePathBottom:
+
+#ImagePathBottomLeft:
+
+#ImagePathLeft:
+
+#Position:
+-x = 587;
+-y = 307;
+-z = 1;
+
+#Size:
+-width = 93;
+-height = 97;
+
+#IsInInventory:
+-false
+
+#MouseHover:
+-"cup"
+
+
+#CustomClickArea:
+-point1: x=90, y=90, z=1
+-point2: x=110, y=110, z=1
+-point3: x=110, y=220, z=1
+-point4: x=90, y=220, z=1
+
+#MovingRange:
+-point1: x=80, y=80, z=1
+-point2: x=120, y=120, z=1
+-point3: x=120, y=240, z=1
+-point4: x=80, y=240, z=1
+
+#Path:
+-point1: x=50, y=50, z=1
+-point2: x=50, y=350, z=1
+
+#Actions:
+-LookAt
+--Conditions IF
+---lokedAtCup = false
+---isInInventory = false
+--Conditions THEN
+---lokedAtCup = true
+---isInInventory = false
+--Processes:
+---processLookAtCup (Processes need to be implemented yet)
+
+-Take
+--Conditions IF
+---isInInventory = false
+--Conditions THEN
+---lokedAtCup = true
+---isInInventory = true
+--Processes:
+---processLookAtCup (Processes need to be implemented yet)
+

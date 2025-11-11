@@ -1,0 +1,35 @@
+#ProcessName:
+-testItem_look
+
+#Description:
+-Test process that demonstrates basic functionality
+
+#Conditions:
+IF
+-hasKey: false
+
+#Actions:
+-Movement
+--type: GoTo
+--x: 300
+--y: 400
+--waitForCompletion: true
+
+-Wait
+--duration: 1000
+
+-Text
+--message: This is a test message!
+--duration: 2000
+--position: center
+--color: 255,255,255
+
+-Conditions
+--hasKey: true
+--testCondition: true
+
+-ItemVisibility
+--itemName: testItem
+--visible: false
+
+#End

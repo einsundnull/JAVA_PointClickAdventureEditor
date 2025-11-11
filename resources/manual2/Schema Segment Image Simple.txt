@@ -1,0 +1,29 @@
+"Schema Segment Image Simple.txt"
+
+Editor Item: <nameOfItem>
+############################################
+Name:
+{<nameOfItem>}
+
+[Collapse]
+[Browse] {inputFieldWithImagePath} 
+|------------------------------|
+| 	                       |
+|   [Drop Image] / Thumbnail   |
+|                              |
+|------------------------------|
+[Remove] Show: [x]
+Flip Image: [horizontally]  [vertically]
+Size:
+↔:{<horizontally>}dp ↕:{<vertically>}dp
+
+
+
+[Collapse] -> Collapse ListView.
+[Browse]   -> Browse File Explorer for Images.
+[Remove]   -> Remove Image from SubScene.
+Show: [x]  -> CheckBox: (Show) Allowes to hide the Image of the item if CheckBox is checked in the "Point & Click Adventure"
+ Scene in editMode, so it is not in the way if I need to access another Item.
+Uses: "Schema Editor Guidlines.txt" <- Read
+
+

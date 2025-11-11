@@ -1,0 +1,29 @@
+#Name:
+-book
+
+#ImagePath:
+-
+
+#Position:
+-x = 100;
+-y = 100;
+-z = 1;
+
+#Size:
+-width = 100;
+-height = 100;
+
+#IsInInventory:
+-false
+
+#MouseHover:
+-"book"
+
+#Actions:
+-LookAt
+--Conditions IF
+---none
+--Conditions THEN
+---none
+--Processes:
+---processLookAt (Processes need to be implemented yet)

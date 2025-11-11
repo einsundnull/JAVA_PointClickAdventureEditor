@@ -1,0 +1,649 @@
+ ../../mnt/c/Users/pc/eclipse-workspace/PointClick2/resources/manual2/Schema Editor Main Simple Advanced.txt                                                                                        │
+│                                                                                                                                                                                                   │
+│ "Schema Editor Main Simple Advanced.txt"                                                                                                                                                          │
+│ Uses the "Schema Editor Guidelines.txt" <- Read this file.                                                                                                                                        │
+│                                                                                                                                                                                                   │
+│ Main Editor - Unified Scene & Item Editor                                                                                                                                                         │
+│ ===================================================================                                                                                                                               │
+│                                                                                                                                                                                                   │
+│ ┌─────────────────────────────────────────────────────────────────────────────────┐                                                                                                               │
+│ │ Main Editor (EditorMainSimple)                                                  │                                                                                                               │
+│ ├──────────────────────────────┬──────────────────────────────────────────────────┤                                                                                                               │
+│ │ LEFT PANEL: Editors          │ RIGHT PANEL: Output & Rendering                  │                                                                                                               │
+│ │                              │                                                  │                                                                                                               │
+│ │ ┌──────────────────────────┐ │ ┌──────────────────────────────────────────────┐ │                                                                                                               │
+│ │ │ SCENES SECTION           │ │ │ Game Window (Adventure Game)                 │ │                                                                                                               │
+│ │ ├──────────────────────────┤ │ │                                              │ │                                                                                                               │
+│ │ │ Scenes:                  │ │ │   ┌────────────────────────────────────────┐ │ │                                                                                                               │
+│ │ │ ┌──────────────────────┐ │ │ │   │                                        │ │ │                                                                                                               │
+│ │ │ │ ▼ Scene1             │ │ │ │   │        {Background Image}              │ │ │                                                                                                               │
+│ │ │ │   ├─ SubScene1_1     │ │ │ │   │                                        │ │ │                                                                                                               │
+│ │ │ │   ├─ SubScene1_2     │ │ │ │   │  {A} {A}    {A}                        │ │ │                                                                                                               │
+│ │ │ │   └─ SubScene1_n     │ │ │ │   │                                        │ │ │                                                                                                               │
+│ │ │ │ ▼ Scene2             │ │ │ │   │  c─c  m─m   p───p───p                  │ │ │                                                                                                               │
+│ │ │ │   ├─ SubScene2_1     │ │ │ │   │  │ │  │ │                              │ │ │                                                                                                               │
+│ │ │ │   └─ SubScene2_n     │ │ │ │   │  c─c  m─m                              │ │ │                                                                                                               │
+│ │ │ │ ▶ Scene_n            │ │ │ │   │                                        │ │ │                                                                                                               │
+│ │ │ └──────────────────────┘ │ │ │   └────────────────────────────────────────┘ │ │                                                                                                               │
+│ │ │ [New Scene]              │ │ │                                              │ │                                                                                                               │
+│ │ │ [New SubScene]           │ │ │   {A} = Item (draggable in edit mode)        │ │                                                                                                               │
+│ │ │ [Copy]                   │ │ │                                              │ │                                                                                                               │
+│ │ │ [Delete]                 │ │ │   c = CustomClickArea point (magenta         │ │                                                                                                               │
+│ │ │ [Rename]                 │ │ │   m = MovingRange point (green)              │ │                                                                                                               │
+│ │ │ [Load Scene]             │ │ │   p = Path point (red)                       │ │                                                                                                               │
+│ │ │ [Collapse All]           │ │ │                                              │ │                                                                                                               │
+│ │ └──────────────────────────┘ │ ├──────────────────────────────────────────────┤ │                                                                                                               │
+│ │                              │ │ Output/Log Area:                             │ │                                                                                                               │
+│ │ ┌──────────────────────────┐ │ │ ┌──────────────────────────────────────────┐ │ │                                                                                                               │
+│ │ │ ITEMS SECTION            │ │ │ │ ✓ Loaded scene: kitchen                  │ │ │                                                                                                               │
+│ │ ├──────────────────────────┤ │ │ │ ✓ Added item 'cup' to SubScene           │ │ │                                                                                                               │
+│ │ │ Items in SubScene:       │ │ │ │ 🔵 Dragging CustomClickArea point 2...   │ │ │                                                                                                               │
+│ │ │ ┌──────────────────────┐ │ │ │ │ ✓ Auto-saved to resources/items/cup.txt  │ │ │                                                                                                               │
+│ │ │ │{T} [x]  Show         │ │ │ │ └──────────────────────────────────────────┘ │ │                                                                                                               │
+│ │ │ │    [x]  Follow       │ │ │ │                                              │ │     
+│ │ │ │    [x]  CLick        │ │ │ │                                              │ │    
+│ │ │ │<nameOfT>             │ │ │ │                                              │ │     
+│ │ │ │{T} [x]  Show         │ │ │ │ [Clear Log]                                  │ │   
+│ │ │ │    [x]  Follow       │ │ │ │                                              │ │     
+│ │ │ │    [x]  CLick        │ │ │ │                                              │ │     
+│ │ │ │<nameOfT>             │ │ │ │                                              │ │                                                                                                               │
+│ │ │ │{T} [x]  Show         │ │ │ └──────────────────────────────────────────────┘ │      
+│ │ │ │    [x]  Follow       │ │ │                                                  │     
+│ │ │ │    [x]  CLick        │ │ │                                                  │  
+│ │ │ │<nameOfT>             │ │ │                                                  │                                                                                                                  │                                                                                                               │
+│ │ │ └──────────────────────┘ │ │                                                  │                                                                                                               │
+│ │ │                          │ │                                                  │                                                                                                               │
+│ │ │ [Add Item to Scene]      │ │                                                  │                                                                                                               │
+│ │ │ [Remove Item]            │ │                                                  │                                                                                                               │
+│ │ │                          │ │                                                  │                                                                                                               │
+│ │ │ ┌────────────────────────────────────────────────────┐                        │                                                                                                               │
+│ │ │ │ ITEM PROPERTIES (Inline, no separate dialog)       │                        │                                                                                                               │
+│ │ │ ├────────────────────────────────────────────────────┤                        │                                                                                                               │
+│ │ │ │ Item: key                                          │                        │                                                                                                               │
+│ │ │ │                                                    │                        │                                                                                                               │
+│ │ │ │ Image:  [resources/images/items/key.png  ]         │                        │                                                                                                               │
+│ │ │ │ Hover:  ["key"                           ]         │                        │                                                                                                               │
+│ │ │ │                                                    │                        │                                                                                                               │
+│ │ │ │ Conditions:                                        │                        │                                                                                                               │
+│ │ │ │ ┌──────────────────────────────────────────────┐   │                        │                                                                                                               │
+│ │ │ │ │ Condition               | Value              │   │                        │                                                                                                               │
+│ │ │ │ │ has_key                 | true               │   │                        │                                                                                                               │
+│ │ │ │ │ door_unlocked           | false              │   │                        │                                                                                                               │
+│ │ │ │ └──────────────────────────────────────────────┘   │                        │                                                                                                               │
+│ │ │ │ [Add Condition]                                    │                        │                                                                                                               │
+│ │ │ │                                                    │                        │                                                                                                               │
+│ │ │ │ CustomClickArea:                                   │                        │                                                                                                               │
+│ │ │ │ ┌──────────────────────────────────────────────┐   │                        │                                                                                                               │
+│ │ │ │ │ Point 1: x=90, y=90, z=1                     │   │                        │                                                                                                               │
+│ │ │ │ │ Point 2: x=110, y=110, z=1                   │   │                        │                                                                                                               │
+│ │ │ │ │ Point 3: x=110, y=220, z=1                   │   │                        │                                                                                                               │
+│ │ │ │ │ Point 4: x=90, y=220, z=1                    │   │                        │                                                                                                               │
+│ │ │ │ └──────────────────────────────────────────────┘   │                        │                                                                                                               │
+│ │ │ │                                                    │                        │                                                                                                               │
+│ │ │ │ MovingRange:                                       │                        │                                                                                                               │
+│ │ │ │ ┌──────────────────────────────────────────────┐   │                        │                                                                                                               │
+│ │ │ │ │ Point 1: x=80, y=80, z=1                     │   │                        │                                                                                                               │
+│ │ │ │ │ Point 2: x=120, y=120, z=1                   │   │                        │                                                                                                               │
+│ │ │ │ └──────────────────────────────────────────────┘   │                        │                                                                                                               │
+│ │ │ │                                                    │                        │                                                                                                               │
+│ │ │ │ Path:                                              │                        │                                                                                                               │
+│ │ │ │ ┌──────────────────────────────────────────────┐   │                        │                                                                                                               │
+│ │ │ │ │ Point 1: x=50, y=50, z=1                     │   │                        │                                                                                                               │
+│ │ │ │ │ Point 2: x=50, y=350, z=1                    │   │                        │                                                                                                               │
+│ │ │ │ └──────────────────────────────────────────────┘   │                        │                                                                                                               │
+│ │ │ └────────────────────────────────────────────────────┘                        │                                                                                                               │
+│ │ └──────────────────────────┘                                                    │                                                                                                               │
+│ ├─────────────────────────────────────────────────────────────────────────────────┤                                                                                                               │
+│ │ GLOBAL BUTTONS (Always visible at bottom)                                       │                                                                                                               │
+│ │ [Manage Items] [Manage Buttons] [Manage Conditions] [Open Scene Point Editor]   │                                                                                                               │
+│ │ [Save All] [Test Scene] [Toggle Edit Mode (ALT+S)]                              │                                                                                                               │
+│ └─────────────────────────────────────────────────────────────────────────────────┘                                                                                                               │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ STRUCTURE DESCRIPTION                                                                                                                                                                             │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ LAYOUT:                                                                                                                                                                                           │
+│ -------                                                                                                                                                                                           │
+│ The Main Editor uses a split-pane layout:                                                                                                                                                         │
+│ - LEFT PANEL (60% width): Scene & Item editors with inline properties                                                                                                                             │
+│ - RIGHT PANEL (40% width): Game window + Output/Log area                                                                                                                                          │
+│ - BOTTOM: Global buttons (always visible)       
+│
+│  {T} -> Thumbnail of image of the item loaded from:
+│   resources/
+│   │
+│   ├─ images/
+│   │   │
+│   │   ├─items/
+│   │   │  │
+│   │   │  ├─whiteCup.jpg
+│   │   │  ├─book.jpg                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ Divider positions are saved/restored via EditorSettings.                                                                                                                                          │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ LEFT PANEL - TOP: SCENES SECTION                                                                                                                                                                  │
+│ ---------------------------------                                                                                                                                                                 │
+│ Shows hierarchical tree of Scenes and SubScenes:                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ Structure:                                                                                                                                                                                        │
+│   ▼ Scene1                                                                                                                                                                                        │
+│     ├─ SubScene1_1                                                                                                                                                                                │
+│     ├─ SubScene1_2                                                                                                                                                                                │
+│     └─ SubScene1_n                                                                                                                                                                                │
+│   ▼ Scene2                                                                                                                                                                                        │
+│     └─ SubScene2_1                                                                                                                                                                                │
+│   ▶ Scene_n (collapsed)                                                                                                                                                                           │
+│                                                                                                                                                                                                   │
+│ - Single-click on SubScene loads it into the game window                                                                                                                                          │
+│ - Double-click expands/collapses scene folders                                                                                                                                                    │
+│ - Selected SubScene is highlighted                                                                                                                                                                │
+│ - TreeView allows drag & drop reordering (future feature)                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ Buttons:                                                                                                                                                                                          │
+│   [New Scene]    - Creates new scene folder under resources/scenes/                                                                                                                               │
+│   [New SubScene] - Creates new SubScene.txt under selected Scene folder                                                                                                                           │
+│   [Copy]         - Copies selected Scene or SubScene file *needs to be implemented yet                                                                                                            │
+│   [Delete]       - Deletes selected Scene or SubScene file                                                                                                                                        │
+│   [Rename]       - Renames selected Scene folder or SubScene file                                                                                                                                 │
+│   [Load Scene]   - Loads selected SubScene into game window                                                                                                                                       │
+│   [Collapse All] - Collapses all scene folders in tree                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ LEFT PANEL - BOTTOM: ITEMS SECTION                                                                                                                                                                │
+│ -----------------------------------                                                                                                                                                               │
+│ Shows all items in the currently selected SubScene:                                                                                                                                               │
+│                                                                                                                                                                                                   │
+│ Item List:                                                                                                                                                                                        │
+│ - Lists item names from SubScene's #Items: section                                                                                                                                                │
+│ - Single-click selects item and loads properties panel                                                                                                                                            │
+│ - Selected item is highlighted with [SELECTED] marker                                                                                                                                             │
+│ - List updates automatically when items are added/removed                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ Buttons:                                                                                                                                                                                          │
+│   [Add Item to Scene] - Opens ItemManagerDialog to add items                                                                                                                                      │
+│   [Remove Item]       - Removes selected item from SubScene                                                                                                                                       │
+│                                                                                                                                                                                                   │
+│ ITEM PROPERTIES PANEL (Inline):                                                                                                                                                                   │
+│ All item properties are editable directly in the main window                                                                                                                                      │
+│ (no separate dialog windows needed):                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ 1. Image Section:                                                                                                                                                                                 │
+│    - Text field: Image path (editable)                                                                                                                                                            │
+│    - [x] Show checkbox: Hide/show image in edit mode 
+│    - [x] Follow checkbox: Sets the boolean in    
+│    - [x] Click checkbox: Hide/show image in edit mode                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│ 2. Hover Section:                                                                                                                                                                                 │
+│    - Text field: Mouse hover text (editable)                                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│ 3. Conditions Section:                                                                                                                                                                            │
+│    - Table: List of conditions with name & value                                                                                                                                                  │
+│    - [Add Condition] button: Adds new condition row                                                                                                                                               │
+│    - Double-click on value to edit inline                                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ 4. CustomClickArea Section:                                                                                                                                                                       │
+│    - List of points (read-only display)                                                                                                                                                           │
+│    - [x] Show checkbox: Hide/show points in edit mode                                                                                                                                             │
+│    - Use "Scene Point Editor" for editing points                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ 5. MovingRange Section:                                                                                                                                                                           │
+│    - List of points (read-only display)                                                                                                                                                           │
+│    - [x] Show checkbox: Hide/show points in edit mode                                                                                                                                             │
+│    - Use "Scene Point Editor" for editing points                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ 6. Path Section:                                                                                                                                                                                  │
+│    - List of points (read-only display)                                                                                                                                                           │
+│    - [x] Show checkbox: Hide/show points in edit mode                                                                                                                                             │
+│    - Use "Scene Point Editor" for editing points                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ Note: All property changes are auto-saved immediately to:                                                                                                                                         │
+│       resources/items/<itemName>.txt                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ RIGHT PANEL - TOP: GAME WINDOW                                                                                                                                                                    │
+│ -------------------------------                                                                                                                                                                   │
+│ Embedded AdventureGame instance:                                                                                                                                                                  │
+│ - Displays current SubScene with background image                                                                                                                                                 │
+│ - Shows all items with their images                                                                                                                                                               │
+│ - In EDIT MODE (ALT+S):                                                                                                                                                                           │
+│   - Items are draggable (move/resize)                                                                                                                                                             │
+│   - Points are visible and draggable                                                                                                                                                              │
+│   - Show checkboxes control visibility                                                                                                                                                            │
+│   - Crosshair cursor for "Add by Click" mode                                                                                                                                                      │
+│ - In GAME MODE:                                                                                                                                                                                   │
+│   - Normal gameplay (click, actions, inventory)                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ RIGHT PANEL - BOTTOM: OUTPUT/LOG AREA                                                                                                                                                             │
+│ --------------------------------------                                                                                                                                                            │
+│ Displays editor operations and debug messages:                                                                                                                                                    │
+│ - File loading/saving confirmations                                                                                                                                                               │
+│ - Point drag operations with file paths                                                                                                                                                           │
+│ - Error messages                                                                                                                                                                                  │
+│ - Auto-save confirmations                                                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ [Clear Log] - Clears the output area                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ GLOBAL BUTTONS (Bottom Bar)                                                                                                                                                                       │
+│ ----------------------------                                                                                                                                                                      │
+│ Always visible, regardless of which section is active:                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│ [Manage Items]                                                                                                                                                                                    │
+│   Opens ItemManagerDialog for global item CRUD:                                                                                                                                                   │
+│   - Create new items                                                                                                                                                                              │
+│   - Copy/delete items                                                                                                                                                                             │
+│   - Add items to current SubScene                                                                                                                                                                 │
+│   - Remove items from current SubScene                                                                                                                                                            │
+│   - [x] Show checkboxes to hide items in editor                                                                                                                                                   │
+│   See: "Schema Manager Items Simple.txt"                                                                                                                                                          │
+│                                                                                                                                                                                                   │
+│ [Manage Buttons]                                                                                                                                                                                  │
+│   Opens ButtonsManager for global button configuration                                                                                                                                            │
+│   See: "Schema Manager Buttons Simple.txt"                                                                                                                                                        │
+│                                                                                                                                                                                                   │
+│ [Manage Conditions]                                                                                                                                                                               │
+│   Opens ConditionsManager for global condition management                                                                                                                                         │
+│   See: "Schema Segment Conditions Simple.txt"                                                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ [Open Scene Point Editor]                                                                                                                                                                         │
+│   Opens ScenePointEditor - unified point editor for all items                                                                                                                                     │
+│   - Edit CustomClickArea, MovingRange, Path points                                                                                                                                                │
+│   - Bidirectional live-update with game scene                                                                                                                                                     │
+│   - Show/hide items to avoid overlaps                                                                                                                                                             │
+│   - Add by click mode                                                                                                                                                                             │
+│   - Drag points directly in scene                                                                                                                                                                 │
+│   See: "Schema Scene Point Editor Advanced Simple.txt"                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│ [Save All]                                                                                                                                                                                        │
+│   Saves all changes to disk (scenes + items)                                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│ [Test Scene]                                                                                                                                                                                      │
+│   Switches to Game Mode (disables edit features)                                                                                                                                                  │
+│   Allows testing the scene as end-user would experience it                                                                                                                                        │
+│                                                                                                                                                                                                   │
+│ [Toggle Edit Mode (ALT+S)]                                                                                                                                                                        │
+│   Keyboard shortcut: ALT+S                                                                                                                                                                        │
+│   Toggles between:                                                                                                                                                                                │
+│   - EDIT MODE: Items/points draggable, visible                                                                                                                                                    │
+│   - GAME MODE: Normal gameplay                                                                                                                                                                    │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ BEHAVIOR & FEATURES                                                                                                                                                                               │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ 1. AUTO-SAVE                                                                                                                                                                                      │
+│    Every change auto-saves immediately:                                                                                                                                                           │
+│    - Item property edits → resources/items/<item>.txt                                                                                                                                             │
+│    - Item position/size drag → resources/items/<item>.txt                                                                                                                                         │
+│    - Point drag → resources/items/<item>.txt                                                                                                                                                      │
+│    - Scene changes → resources/scenes/<scene>/<subscene>.txt                                                                                                                                      │
+│    - Condition changes → resources/conditions/conditions.txt                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│    Save pipeline:                                                                                                                                                                                 │
+│    UI Change → Object Update → Saver.save() → File → Log confirmation                                                                                                                             │
+│                                                                                                                                                                                                   │
+│ 2. LIVE UPDATE                                                                                                                                                                                    │
+│    All changes are immediately reflected:                                                                                                                                                         │
+│    - Edit item property → Repaint game window                                                                                                                                                     │
+│    - Drag item → Update position → Save → Repaint                                                                                                                                                 │
+│    - Toggle Show checkbox → Hide/show in game window                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ 3. EDIT MODE vs GAME MODE                                                                                                                                                                         │
+│    Toggle with ALT+S or [Toggle Edit Mode] button                                                                                                                                                 │
+│                                                                                                                                                                                                   │
+│    EDIT MODE (showPaths = true):                                                                                                                                                                  │
+│    - Items are draggable                                                                                                                                                                          │
+│    - Items have visible bounds (cyan rectangle)                                                                                                                                                   │
+│    - Corner handles for resizing (green squares)                                                                                                                                                  │
+│    - Points are visible (colored circles)                                                                                                                                                         │
+│    - Points are draggable                                                                                                                                                                         │
+│    - Show checkboxes control visibility                                                                                                                                                           │
+│    - Semi-transparent items (50% opacity)                                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│    GAME MODE (showPaths = false):                                                                                                                                                                 │
+│    - Items are NOT draggable                                                                                                                                                                      │
+│    - No visible bounds/handles                                                                                                                                                                    │
+│    - Points are hidden                                                                                                                                                                            │
+│    - Full opacity items                                                                                                                                                                           │
+│    - Normal click actions work                                                                                                                                                                    │
+│                                                                                                                                                                                                   │
+│ 4. SHOW CHECKBOXES                                                                                                                                                                                │
+│    Control visibility in EDIT MODE only:                                                                                                                                                          │
+│                                                                                                                                                                                                   │
+│    Item Properties Panel:                                                                                                                                                                         │
+│    - Image Show [x]: Hide/show item image                                                                                                                                                         │
+│    - CustomClickArea Show [x]: Hide/show orange points                                                                                                                                            │
+│    - MovingRange Show [x]: Hide/show green points                                                                                                                                                 │
+│    - Path Show [x]: Hide/show red points                                                                                                                                                          │
+│                                                                                                                                                                                                   │
+│    ItemManagerDialog:                                                                                                                                                                             │
+│    - Per-item Show   [x]: Hide entire item in editor        Purpose: Avoid clutter when editing overlapping items                                                                                                             │
+│    - Per-item Follow [x]: Sets the "isFollowingMouse" boolean Value in the "<nameOfSubScene>.txt resource file  
+     - Per-item Click  [x]: Sets the "isFollowingOnMouseClick" boolean Value in the "<nameOfSubScene>.txt resource file                                                                                                                                                                                       │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ 5. SPLIT PANE PERSISTENCE                                                                                                                                                                         │
+│    Divider positions are saved to EditorSettings:                                                                                                                                                 │
+│    - Main split (left editors vs right game window)                                                                                                                                               │
+│    - Items split (item list vs properties panel)                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│    Restored on next editor launch                                                                                                                                                                 │
+│                                                                                                                                                                                                   │
+│ 6. WINDOW MANAGEMENT                                                                                                                                                                              │
+│    When opening Scene Point Editor:                                                                                                                                                               │
+│    - Main Editor is minimized                                                                                                                                                                     │
+│    - Only Scene Point Editor + Game Window visible                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│    When closing Scene Point Editor:                                                                                                                                                               │
+│    - Main Editor is restored                                                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│ 7. SCENE LOADING                                                                                                                                                                                  │
+│    When clicking on SubScene in tree:                                                                                                                                                             │
+│    - Load SubScene file                                                                                                                                                                           │
+│    - Parse conditions, image, items                                                                                                                                                               │
+│    - Load all items from resources/items/                                                                                                                                                         │
+│    - Display background image                                                                                                                                                                     │
+│    - Render all items                                                                                                                                                                             │
+│    - Update Items list                                                                                                                                                                            │
+│    - Log: "✓ Loaded scene: <name>"                                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│ 8. ITEM SELECTION                                                                                                                                                                                 │
+│    When clicking on item in list:                                                                                                                                                                 │
+│    - Load item from resources/items/<name>.txt                                                                                                                                                    │
+│    - Populate all properties fields                                                                                                                                                               │
+│    - Display CustomClickArea points                                                                                                                                                               │
+│    - Display MovingRange points                                                                                                                                                                   │
+│    - Display Path points                                                                                                                                                                          │
+│    - Highlight item in game window (orange border)                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│ 9. KEYBOARD SHORTCUTS                                                                                                                                                                             │
+│    ALT+S - Toggle Edit Mode                                                                                                                                                                       │
+│    DELETE - (in Scene Point Editor) Delete selected point                                                                                                                                         │
+│    ENTER - (in text fields) Confirm edit and save                                                                                                                                                 │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ DATA FLOW                                                                                                                                                                                         │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ LOADING SCENES:                                                                                                                                                                                   │
+│ ---------------                                                                                                                                                                                   │
+│ User clicks SubScene in tree                                                                                                                                                                      │
+│   └→ FileHandlingSimple.loadSubScene(sceneName, subSceneName)                                                                                                                                     │
+│       └→ Parse .txt file (conditions, image, items)                                                                                                                                               │
+│           └→ For each item name:                                                                                                                                                                  │
+│               └→ ItemLoader.loadItemByName(itemName)                                                                                                                                              │
+│                   └→ Parse resources/items/<itemName>.txt                                                                                                                                         │
+│                       └→ Create Item object with all properties                                                                                                                                   │
+│                           └→ scene.addItem(item)                                                                                                                                                  │
+│                               └→ game.setCurrentScene(scene)                                                                                                                                      │
+│                                   └→ game.repaint()                                                                                                                                               │
+│                                                                                                                                                                                                   │
+│ SAVING ITEMS:                                                                                                                                                                                     │
+│ -------------                                                                                                                                                                                     │
+│ User edits property in UI                                                                                                                                                                         │
+│   └→ Event listener triggered                                                                                                                                                                     │
+│       └→ item.setProperty(newValue)                                                                                                                                                               │
+│           └→ ItemSaver.saveItemByName(item)                                                                                                                                                       │
+│               └→ Write to resources/items/<itemName>.txt                                                                                                                                          │
+│                   └→ Log: "✓ Auto-saved <itemName>"                                                                                                                                               │
+│                       └→ game.repaint()                                                                                                                                                           │
+│                                                                                                                                                                                                   │
+│ DRAGGING ITEMS:                                                                                                                                                                                   │
+│ ---------------                                                                                                                                                                                   │
+│ User drags item in game window                                                                                                                                                                    │
+│   └→ AdventureGame.handleItemDrag(dragPoint)                                                                                                                                                      │
+│       └→ draggedItem.setPosition(newX, newY)                                                                                                                                                      │
+│           └→ game.repaint() (live update)                                                                                                                                                         │
+│               └→ On mouse release:                                                                                                                                                                │
+│                   └→ AdventureGame.handleItemRelease()                                                                                                                                            │
+│                       └→ ItemSaver.saveItemByName(draggedItem)                                                                                                                                    │
+│                           └→ Log: "✓ Auto-saved item to resources/items/<item>.txt"                                                                                                               │
+│                               └→ SceneSaver.saveScene(currentScene)                                                                                                                               │
+│                                                                                                                                                                                                   │
+│ DRAGGING POINTS:                                                                                                                                                                                  │
+│ ----------------                                                                                                                                                                                  │
+│ User drags point in game window                                                                                                                                                                   │
+│   └→ AdventureGame.handlePathPointDrag(dragPoint)                                                                                                                                                 │
+│       └→ selectedPathPoint.x = dragPoint.x                                                                                                                                                        │
+│           └→ selectedPathPoint.y = dragPoint.y                                                                                                                                                    │
+│               └→ scenePointEditor.updatePointInList(index, x, y, type)                                                                                                                            │
+│                   └→ Update point panel fields (live update)                                                                                                                                      │
+│                       └→ game.repaint() (show new position)                                                                                                                                       │
+│                           └→ On mouse release:                                                                                                                                                    │
+│                               └→ AdventureGame.handlePathPointRelease()                                                                                                                           │
+│                                   └→ ItemSaver.saveItemByName(selectedItemForPointDrag)                                                                                                           │
+│                                       └→ Log: "✓ Auto-saved point to resources/items/<item>.txt"                                                                                                  │
+│                                                                                                                                                                                                   │
+│ ADDING ITEMS TO SUBSCENE:                                                                                                                                                                         │
+│ --------------------------                                                                                                                                                                        │
+│ User clicks [Add Item to Scene]                                                                                                                                                                   │
+│   └→ Open ItemManagerDialog                                                                                                                                                                       │
+│       └→ User selects item and clicks [Add to Scene]                                                                                                                                              │
+│           └→ ItemLoader.loadItemFromDefault(itemName)                                                                                                                                             │
+│               └→ currentSubScene.addItem(item)                                                                                                                                                    │
+│                   └→ FileHandlingSimple.saveSubSceneToDefault(subScene, sceneName)                                                                                                                │
+│                       └→ Log: "✓ Added item to SubScene"                                                                                                                                          │
+│                           └→ loadItemsIntoEditor() (refresh item list)                                                                                                                            │
+│                               └→ game.repaint()                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ FILE REFERENCES                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ Scenes are stored in:                                                                                                                                                                             │
+│ /resources/scenes/<sceneName>/<subSceneName>.txt                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ Structure:                                                                                                                                                                                        │
+│ #Conditions:                                                                                                                                                                                      │
+│ -has_key = false                                                                                                                                                                                  │
+│ -door_unlocked = false                                                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│ #Image:                                                                                                                                                                                           │
+│ -resources/images/scenes/kitchen.jpg                                                                                                                                                              │
+│ -flipped horizontally = false                                                                                                                                                                     │
+│ -flipped vertically = false                                                                                                                                                                       │
+│                                                                                                                                                                                                   │
+│ #Items:                                                                                                                                                                                           │
+│ -book                                                                                                                                                                                             │
+│ -cup                                                                                                                                                                                              │
+│ -key                                                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ See: "Schema File Structure Scene Simple.txt"                                                                                                                                                     │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ Items are stored in:                                                                                                                                                                              │
+│ /resources/items/<itemName>.txt                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ Structure:                                                                                                                                                                                        │
+│ #Name:                                                                                                                                                                                            │
+│ -key                                                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ #ImagePath:                                                                                                                                                                                       │
+│ -resources/images/items/key.png                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #Position:                                                                                                                                                                                        │
+│ -x = 392;                                                                                                                                                                                         │
+│ -y = 300;                                                                                                                                                                                         │
+│ -z = 1;                                                                                                                                                                                           │
+│                                                                                                                                                                                                   │
+│ #Size:                                                                                                                                                                                            │
+│ -width = 100;                                                                                                                                                                                     │
+│ -height = 100;                                                                                                                                                                                    │
+│                                                                                                                                                                                                   │
+│ #IsInInventory:                                                                                                                                                                                   │
+│ -false                                                                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│ #MouseHover:                                                                                                                                                                                      │
+│ -"key"                                                                                                                                                                                            │
+│                                                                                                                                                                                                   │
+│ #CustomClickArea:                                                                                                                                                                                 │
+│ -point1: x=90, y=90, z=1                                                                                                                                                                          │
+│ -point2: x=110, y=110, z=1                                                                                                                                                                        │
+│ -point3: x=110, y=220, z=1                                                                                                                                                                        │
+│ -point4: x=90, y=220, z=1                                                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ #MovingRange:                                                                                                                                                                                     │
+│ -point1: x=80, y=80, z=1                                                                                                                                                                          │
+│ -point2: x=120, y=120, z=1                                                                                                                                                                        │
+│                                                                                                                                                                                                   │
+│ #Path:                                                                                                                                                                                            │
+│ -point1: x=50, y=50, z=1                                                                                                                                                                          │
+│ -point2: x=50, y=350, z=1                                                                                                                                                                         │
+│                                                                                                                                                                                                   │
+│ #Actions:                                                                                                                                                                                         │
+│ -LOOK                                                                                                                                                                                             │
+│ --result                                                                                                                                                                                          │
+│ ---You see a key.                                                                                                                                                                                 │
+│ --changes                                                                                                                                                                                         │
+│ ---has_key = true                                                                                                                                                                                 │
+│                                                                                                                                                                                                   │
+│ See: "Schema File Structure Item Simple.txt"                                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ Conditions are stored in:                                                                                                                                                                         │
+│ /resources/conditions/conditions.txt                                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ Structure:                                                                                                                                                                                        │
+│ <nameOfStartScene>                                                                                                                                                                                │
+│ has_key = false                                                                                                                                                                                   │
+│ door_unlocked = false                                                                                                                                                                             │
+│                                                                                                                                                                                                   │
+│ See: "Schema File Structur Conditions_txt.txt"                                                                                                                                                    │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ IMPLEMENTATION DETAILS                                                                                                                                                                            │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ Main Classes:                                                                                                                                                                                     │
+│ - EditorMainSimple.java (main editor window)                                                                                                                                                      │
+│ - AdventureGame.java (embedded game window)                                                                                                                                                       │
+│ - ItemManagerDialog.java (global item CRUD)                                                                                                                                                       │
+│ - ScenePointEditor.java (unified point editor)                                                                                                                                                    │
+│ - FileHandlingSimple.java (scene loading/saving)                                                                                                                                                  │
+│ - ItemLoader.java (item loading)                                                                                                                                                                  │
+│ - ItemSaver.java (item saving)                                                                                                                                                                    │
+│ - SceneSaver.java (scene saving)                                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ Key Methods:                                                                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│ SCENES SECTION:                                                                                                                                                                                   │
+│ - initScenesPanel() - Creates tree view UI                                                                                                                                                        │
+│ - loadScenesTree() - Populates tree from resources/scenes/                                                                                                                                        │
+│ - onSceneTreeSelectionChanged() - Handles SubScene selection                                                                                                                                      │
+│ - createNewScene() - Creates new scene folder                                                                                                                                                     │
+│ - createNewSubScene() - Creates new SubScene.txt                                                                                                                                                  │
+│ - deleteSelectedSceneOrSubScene() - Deletes files                                                                                                                                                 │
+│                                                                                                                                                                                                   │
+│ ITEMS SECTION:                                                                                                                                                                                    │
+│ - initItemsPanel() - Creates item list + properties panel                                                                                                                                         │
+│ - loadItemsIntoEditor() - Populates item list from SubScene                                                                                                                                       │
+│ - onItemSelected() - Loads item properties into panel                                                                                                                                             │
+│ - addItemToScene() - Opens ItemManagerDialog                                                                                                                                                      │
+│ - removeItemFromScene() - Removes item from SubScene                                                                                                                                              │
+│                                                                                                                                                                                                   │
+│ ITEM PROPERTIES:                                                                                                                                                                                  │
+│ - updateItemPropertiesPanel() - Populates all fields for selected item                                                                                                                            │
+│ - onImagePathChanged() - Auto-saves when image path edited                                                                                                                                        │
+│ - onHoverTextChanged() - Auto-saves when hover text edited                                                                                                                                        │
+│ - toggleImageVisibility() - Show/hide item in editor                                                                                                                                              │
+│ - toggleCustomClickAreaVisibility() - Show/hide orange points                                                                                                                                     │
+│ - toggleMovingRangeVisibility() - Show/hide green points                                                                                                                                          │
+│ - togglePathVisibility() - Show/hide red points                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ GLOBAL BUTTONS:                                                                                                                                                                                   │
+│ - openItemManager() - Opens ItemManagerDialog                                                                                                                                                     │
+│ - openButtonsManager() - Opens ButtonsManager                                                                                                                                                     │
+│ - openConditionsManager() - Opens ConditionsManager                                                                                                                                               │
+│ - openScenePointEditor() - Opens ScenePointEditor                                                                                                                                                 │
+│ - saveAll() - Saves all changes                                                                                                                                                                   │
+│ - testScene() - Switches to Game Mode                                                                                                                                                             │
+│ - toggleEditMode() - ALT+S handler                                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│ AUTO-SAVE:                                                                                                                                                                                        │
+│ - autoSaveCurrentScene() - Saves SubScene to file                                                                                                                                                 │
+│ - All property change listeners call ItemSaver.saveItemByName()                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ WINDOW MANAGEMENT:                                                                                                                                                                                │
+│ - minimizeOtherWindows() - Minimizes main editor when opening dialogs                                                                                                                             │
+│ - restoreMinimizedWindows() - Restores main editor                                                                                                                                                │
+│                                                                                                                                                                                                   │
+│ SETTINGS PERSISTENCE:                                                                                                                                                                             │
+│ - EditorSettings.saveDividerPositions() - Saves split pane positions                                                                                                                              │
+│ - EditorSettings.loadDividerPositions() - Restores split pane positions                                                                                                                           │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ Integration with AdventureGame:                                                                                                                                                                   │
+│ - game.setEditorWindowSimple(this) - Registers editor                                                                                                                                             │
+│ - game.setCurrentScene(scene) - Loads scene into game                                                                                                                                             │
+│ - game.setShowPaths(true/false) - Toggles edit mode                                                                                                                                               │
+│ - game.hideItemInEditor(itemName) - Hides item via checkbox                                                                                                                                       │
+│ - game.showItemInEditor(itemName) - Shows item via checkbox                                                                                                                                       │
+│ - game.repaint() - Repaints game window                                                                                                                                                           │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ ADVANTAGES OVER OLD EDITOR                                                                                                                                                                        │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ ✓ Unified interface (no separate dialogs)                                                                                                                                                         │
+│ ✓ Inline property editing                                                                                                                                                                         │
+│ ✓ Live preview in embedded game window                                                                                                                                                            │
+│ ✓ Auto-save on every change                                                                                                                                                                       │
+│ ✓ Split pane persistence                                                                                                                                                                          │
+│ ✓ Scene hierarchy tree view                                                                                                                                                                       │
+│ ✓ Show checkboxes for visibility control                                                                                                                                                          │
+│ ✓ Global button bar always accessible                                                                                                                                                             │
+│ ✓ Keyboard shortcuts (ALT+S)                                                                                                                                                                      │
+│ ✓ Drag & drop items directly in game window                                                                                                                                                       │
+│ ✓ Drag & drop points directly in game window                                                                                                                                                      │
+│ ✓ Bidirectional live-update (editor ↔ game)                                                                                                                                                       │
+│ ✓ Comprehensive logging                                                                                                                                                                           │
+│ ✓ Clean separation: Display (main editor) vs. Edit (scene point editor)                                                                                                                           │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ USAGE WORKFLOW                                                                                                                                                                                    │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ Typical editing session:                                                                                                                                                                          │
+│                                                                                                                                                                                                   │
+│ 1. Launch Main Editor                                                                                                                                                                             │
+│ 2. Select SubScene from tree (or create new one)                                                                                                                                                  │
+│ 3. Scene loads in game window with background image                                                                                                                                               │
+│ 4. Toggle Edit Mode (ALT+S) if needed                                                                                                                                                             │
+│ 5. Add items via [Add Item to Scene] button                                                                                                                                                       │
+│ 6. Select item from list to edit properties                                                                                                                                                       │
+│ 7. Edit image path, hover text inline                                                                                                                                                             │
+│ 8. Use Show checkboxes to hide/show items/points                                                                                                                                                  │
+│ 9. Open Scene Point Editor to edit points                                                                                                                                                         │
+│ 10. Drag items/points directly in game window                                                                                                                                                     │
+│ 11. All changes auto-save immediately                                                                                                                                                             │
+│ 12. Test scene via [Test Scene] button                                                                                                                                                            │
+│ 13. Close editor                                                                                                                                                                                  │
+│                                                                                                                                                                                                   │
+│ All changes are auto-saved immediately - no manual save needed!                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│                                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│ RELATED SCHEMAS                                                                                                                                                                                   │
+│ #############################################################################                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ Read these schemas for detailed information about subsystems:                                                                                                                                     │
+│                                                                                                                                                                                                   │
+│ - "Schema Scene Point Editor Advanced Simple.txt" - Point editing                                                                                                                                 │
+│ - "Schema Manager Items Simple.txt" - Item CRUD operations                                                                                                                                        │
+│ - "Schema Manager Buttons Simple.txt" - Button configuration                                                                                                                                      │
+│ - "Schema Segment Conditions Simple.txt" - Condition management                                                                                                                                   │
+│ - "Schema File Structure Scene Simple.txt" - SubScene file format                                                                                                                                 │
+│ - "Schema File Structure Item Simple.txt" - Item file format                                                                                                                                      │
+│ - "Schema File Structur Conditions_txt.txt" - Conditions file format                                                                                                                              │
+│ - "Schema Editor Guidelines.txt" - General editor guidelines                                                                                                                                      │
+│                                                                                                                                                                                                   │
+│ #############################################################################

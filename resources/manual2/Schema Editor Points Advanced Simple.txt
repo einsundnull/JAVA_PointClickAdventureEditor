@@ -1,0 +1,342 @@
+│ ../../mnt/c/Users/pc/eclipse-workspace/PointClick2/resources/manual2/Schema Scene Point Editor Advanced Simple.txt   │
+│                                                                                                                      │
+│ "Schema Scene Point Editor Advanced Simple.txt"                                                                      │
+│ Uses the "Schema Editor Guidelines.txt" <- Read this file.                                                           │
+│                                                                                                                      │
+│ Scene Point Editor - Universal Point Editor for All Items in Scene                                                   │
+│ ===================================================================                                                  │
+│                                                                                                                      │
+│ ┌──────────────────────────────────────────────────────────────────────────────────┐                                 │
+│ │ Scene Point Editor                                                               │                                 │
+│ ├────────────────────────┬─┬───────────────────────────────────────────────────────┤                                 │
+│ │ Items in Scene:        │ │ ┌──────────────────────────────────────────────────┐  │                                 │
+│ │                        │ │ │[CustomClickArea] [MovingRange] [Path]            │  │                                 │
+│ │┌──────────────────────┐│ │ ├──────────────────────────────────────────────────┤  │                                 │
+│ ││{T}        [x] Show   ││ │ │#<ListViewPoints>##########################       │  │                                 │
+│ ││           [x] Follow ││ │ │ -<listItemPoint1>----------------------------    │  │                                 │
+│ ││           [x] Click  ││ │ │ Point 1:  x:[    ]  y:[    ]  z:[    ]           │  │                                 │
+│ ││<nameOfItem>          ││ │ │ -</listItemPoint1>---------------------------    │  │                                 │
+│ ││                      ││ │ │ -<listItemPoint2>----------------------------    │  │                                 │
+│ ││{T}        [x] Show   ││ │ │ Point 2:  x:[    ]  y:[    ]  z:[    ]           │  │                                 │
+│ ││           [x] Follow ││ │ │ -</listItemPoint_n>--------------------------    │  │                                 │
+│ ││           [x] Click  ││ │ │#<ListViewPoints>#########################        │  │                                 │
+│ ││<nameOfItem           ││ │ │                                                  │  │                                 │
+│ ││                      ││ │ │                                                  │  │                                 │
+│ ││{T}        [x] Show   ││ │ │                                                  │  │                                 │
+│ ││           [x] Follow ││ │ │                                                  │  │                                 │
+│ ││           [x] Click  ││ │ │                                                  │  │                                 │
+│ ││<nameOfItem           ││ │ │                                                  │  │                                 │
+│ │└──────────────────────┘│ │ │                                                  │  │                                 │
+│ │   (selectable)         │ │ │                                                  │  │                                 │
+│ │                        │ │ │                                                  │  │                                 │
+│ │                        │ │ │                                                  │  │                                 │
+│ │                        │ │ │                                                  │  │                                 │
+│ │                        │ │ └──────────────────────────────────────────────────┤  │                                 │
+│ │                        │ ├────────────────────────────────────────────────────┤  │                                 │
+│ │                        │ │                                                    │  │                                 │
+│ │                        │ │ [Add] [Add by Click] [Remove] [↑] [↓]              │  │                                 │
+│ │                        │ └────────────────────────────────────────────────────┘  │                                 │
+│ ├────────────────────────┘                                                         │                                 │
+│ │                                                                        [Close]   │                                 │
+│ └──────────────────────────────────────────────────────────────────────────────────┘                                 │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ STRUCTURE DESCRIPTION                                                                                                │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ LEFT PANEL: Item List with Visibility and Movement Control                                                           │
+│ -----------------------------------------------------------                                                          │
+│ - {T} -> Thumbnail that shows the image of the Item. Load from ->[i]   * needs to be implemented yet                 │
+│ - Shows ALL items from the currently loaded scene/subscene                                                           │
+│ - Each item has THREE checkboxes stacked vertically:                                                                 │
+│                                                                                                                      │
+│   [x] Show   = Item and its points are visible in the editor scene                                                   │
+│   [ ]        = Item is hidden (useful when editing overlapping items)                                                │
+│                                                                                                                      │
+│   [x] Follow = Item follows mouse cursor continuously (for positioning/testing)                                      │
+│   [ ]        = Normal behavior - item stays at its position                                                          │
+│                Saves immediately when toggled via ItemSaver                                                          │
+│                                                                                                                      │
+│   [x] Click  = Item follows mouse only when mouse is clicked (drag mode)                                             │
+│   [ ]        = Normal behavior - click interactions work normally                                                    │
+│                Saves immediately when toggled via ItemSaver                                                          │
+│                                                                                                                      │
+│ - Clicking on an item selects it and loads its points in the tabs                                                    │
+│ - Selected item is highlighted with selection color                                                                  │
+│ - Custom cell renderer with integrated checkboxes                                                                    │
+│                 
+│ [i]:
+│
+│/resources/
+│  │
+│  ├─ images/
+│  │   │
+│  │   ├─items/
+│  │   │  │
+│  │   │  ├─whiteCup.jpg
+│  │   │  ├─book.jpg
+│
+│                                                                                                                      │
+│ CENTER PANEL: Tabbed Point Editor                                                                                    │
+│ ----------------------------------                                                                                   │
+│ Three tabs, one for each point type:                                                                                 │
+│   1. [CustomClickArea] - Magenta colored points in scene                                                             │
+│   2. [MovingRange]     - Green colored points in scene                                                               │
+│   3. [Path]            - Red colored points in scene                                                                 │
+│                                                                                                                      │
+│ When switching tabs:                                                                                                 │
+│ - Visibility is automatically toggled (only current tab type visible)                                                │
+│ - Points for selected item are loaded                                                                                │
+│ - Scene is repainted immediately                                                                                     │
+│                                                                                                                      │
+│ POINT LIST (in each tab):                                                                                            │
+│ - Displays all points for the current type of the selected item                                                      │
+│ - Format: "Point 1:  x:[value]  y:[value]  z:[1]"                                                                    │
+│ - Points are selectable by clicking                                                                                  │
+│ - Selected point is highlighted in scene (yellow, larger size)                                                       │
+│ - X/Y fields are editable textfields                                                                                 │
+│ - Z field is read-only, always "1"                                                                                   │
+│ - Pressing ENTER in X/Y field saves immediately                                                                      │
+│                                                                                                                      │
+│ BUTTONS (in each tab):                                                                                               │
+│ ----------------------                                                                                               │
+│ [Add]          - Adds new point manually at (100, 100, 1)                                                            │
+│                  Inserts below selected point, or at end if none selected                                            │
+│ [Add by Click] - Enables canvas click mode to add points                                                             │
+│                  Click on scene to add point at clicked position                                                     │
+│                  Automatically creates object if it doesn't exist.
+		   Text Changes to [Stop Adding]                                                                       │
+  [Stop Adding]    When this button is clicked the text changes back to [Add by Click] and Point can't be added 
+                   by clicking on the Scene
+│ [Remove]       - Removes currently selected point                                                                    │
+│                  Also works with DELETE key                                                                          │
+│ [↑]            - Moves selected point up in list (and in file)                                                       │
+│ [↓]            - Moves selected point down in list (and in file)                                                     │
+│                                                                                                                      │
+│ BOTTOM PANEL:                                                                                                        │
+│ -------------                                                                                                        │
+│ [Close] - Closes the Scene Point Editor                                                                              │
+│           Disables Add by Click mode                                                                                 │
+│           Restores minimized windows                                                                                 │
+│           Disables path visualization                                                                                │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ BEHAVIOR & FEATURES                                                                                                  │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ 1. BIDIRECTIONAL LIVE-UPDATE                                                                                         │
+│    ┌─────────────────────┐         ┌──────────────────┐                                                              │
+│    │ Scene Point Editor  │ ←─────→ │  Game Scene      │                                                              │
+│    │ (Point coordinates) │  Live   │  (Point render)  │                                                              │
+│    └─────────────────────┘ Update  └──────────────────┘                                                              │
+│                                                                                                                      │
+│    Editor → Scene: Every change in editor immediately updates scene rendering                                        │
+│    Scene → Editor: Dragging points in scene updates coordinates in editor                                            │
+│                                                                                                                      │
+│ 2. ALWAYS ON TOP                                                                                                     │
+│    - Dialog stays on top of all windows                                                                              │
+│    - Allows simultaneous view of editor and scene                                                                    │
+│    - User can edit and see changes in real-time                                                                      │
+│                                                                                                                      │
+│ 3. AUTO-SAVE                                                                                                         │
+│    Every action auto-saves immediately:                                                                              │
+│    - Adding a point                                                                                                  │
+│    - Removing a point                                                                                                │
+│    - Editing coordinates                                                                                             │
+│    - Moving points up/down                                                                                           │
+│    - Dragging points in scene                                                                                        │
+│                                                                                                                      │
+│    Save pipeline:                                                                                                    │
+│    Point List → Item Object → ItemSaver.saveItemByName() → File                                                      │
+│                                                                                                                      │
+│ 4. WINDOW MANAGEMENT                                                                                                 │
+│    When opening:                                                                                                     │
+│    - All other editor windows are minimized                                                                          │
+│    - Only Scene Point Editor and Game window remain visible                                                          │
+│    - Path visualization is enabled (showPaths = true)                                                                │
+│                                                                                                                      │
+│    When closing:                                                                                                     │
+│    - Minimized windows are restored                                                                                  │
+│    - Add by click mode is disabled                                                                                   │
+│    - Highlighted points are cleared                                                                                  │
+│    - Path visualization is disabled (showPaths = false)                                                              │
+│                                                                                                                      │
+│ 5. ADD BY CLICK MODE                                                                                                 │
+│    - Activates crosshair cursor in game scene                                                                        │
+│    - Points are inserted BELOW currently selected point                                                              │
+│    - If no point selected, appends to end                                                                            │
+│    - Each click creates a new point                                                                                  │
+│    - Point is immediately visible in both scene and editor                                                           │
+│    - Automatically creates CustomClickArea/MovingRange/Path object if missing                                        │
+│                                                                                                                      │
+│ 6. POINT SELECTION & HIGHLIGHTING                                                                                    │
+│    - Selecting point in editor highlights it in scene (yellow, 18px)                                                 │
+│    - Selecting point in scene (by clicking) selects it in editor                                                     │
+│    - Highlight color: YELLOW                                                                                         │
+│    - Normal colors: Magenta (CustomClickArea), Green (MovingRange), Red (Path)                                       │
+│                                                                                                                      │
+│ 7. KEYBOARD SHORTCUTS                                                                                                │
+│    - DELETE key: Removes selected point (works on dialog and on point panels)                                        │
+│    - ENTER in X/Y field: Confirms edit and saves                                                                     │
+│    - Focus follows selection for keyboard navigation                                                                 │
+│                                                                                                                      │
+│ 8. POINT DRAGGING IN SCENE                                                                                           │
+│    - Click and drag any point in scene to move it                                                                    │
+│    - Coordinates update live in editor ListView                                                                      │
+│    - Auto-saves when mouse button released                                                                           │
+│    - Works for all three point types                                                                                 │
+│                                                                                                                      │
+│ 9. TAB SWITCHING BEHAVIOR                                                                                            │
+│    When switching between tabs:                                                                                      │
+│    - Previous tab type visibility is disabled                                                                        │
+│    - New tab type visibility is enabled                                                                              │
+│    - Scene is immediately repainted                                                                                  │
+│    - Only one type visible at a time (prevents clutter)                                                              │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ DATA FLOW                                                                                                            │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ LOADING (Scene → Editor):                                                                                            │
+│ --------------------------                                                                                           │
+│ Scene Object                                                                                                         │
+│   └─→ Scene.getItems()                                                                                               │
+│       └─→ Item List                                                                                                  │
+│           └─→ ItemWrapper (Item + Show checkbox)                                                                     │
+│               └─→ JList<ItemWrapper>                                                                                 │
+│                                                                                                                      │
+│ When item selected:                                                                                                  │
+│   Item.getCustomClickAreas().get(0).getPoints() → CustomClickArea Tab                                                │
+│   Item.getMovingRanges().get(0).getPoints()     → MovingRange Tab                                                    │
+│   Item.getPaths().get(0).getPoints()            → Path Tab                                                           │
+│                                                                                                                      │
+│ SAVING (Editor → File):                                                                                              │
+│ -----------------------                                                                                              │
+│ Point Panel                                                                                                          │
+│   └─→ updatePoint()                                                                                                  │
+│       └─→ point.x = newX; point.y = newY                                                                             │
+│           └─→ saveCurrentItem()                                                                                      │
+│               └─→ ItemSaver.saveItemByName(item)                                                                     │
+│                   └─→ File update                                                                                    │
+│                       └─→ game.repaint()                                                                             │
+│                                                                                                                      │
+│ CANVAS INTERACTION (Scene ↔ Editor):                                                                                 │
+│ -------------------------------------                                                                                │
+│ User drags point in scene:                                                                                           │
+│   handlePathPointDrag()                                                                                              │
+│     └─→ selectedPathPoint.x = dragPoint.x                                                                            │
+│         └─→ selectedPathPoint.y = dragPoint.y                                                                        │
+│             └─→ scenePointEditor.updatePointInList(index, x, y, type)                                                │
+│                 └─→ panel.point.x = newX                                                                             │
+│                     └─→ panel.updateFields()                                                                         │
+│                         └─→ xField.setText(newX)                                                                     │
+│                                                                                                                      │
+│ User clicks "Add by Click":                                                                                          │
+│   enableAddByClickForCurrentTab()                                                                                    │
+│     └─→ game.setAddPointModeSimple(true, pointType, item)                                                            │
+│         └─→ game.setScenePointEditor(this)                                                                           │
+│             └─→ User clicks on canvas                                                                                │
+│                 └─→ handleGamePanelClick()                                                                           │
+│                     └─→ scenePointEditor.addPointAtPosition(x, y, type)                                              │
+│                         └─→ item.getCustomClickAreas().get(0).addPoint(newPoint)                                     │
+│                             └─→ saveCurrentItem()                                                                    │
+│                                 └─→ refreshAllPoints()                                                               │
+│                                     └─→ game.repaint()                                                               │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ FILE REFERENCES                                                                                                      │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ Points are stored in item files:                                                                                     │
+│ /resources/items/<itemName>.txt                                                                                      │
+│                                                                                                                      │
+│ Structure:                                                                                                           │
+│ #CustomClickArea:                                                                                                    │
+│ -point1: x=590, y=429, z=1                                                                                           │
+│ -point2: x=559, y=206, z=1                                                                                           │
+│ -point_n: x=555, y=391, z=1                                                                                          │
+│                                                                                                                      │
+│ #MovingRange:                                                                                                        │
+│ -point1: x=764, y=393, z=1                                                                                           │
+│ -point2: x=672, y=336, z=1                                                                                           │
+│ -point_n: x=758, y=436, z=1                                                                                          │
+│                                                                                                                      │
+│ #Path:                                                                                                               │
+│ -point1: x=1533, y=0, z=1                                                                                            │
+│ -point2: x=502, y=268, z=1                                                                                           │
+│ -point_n: x=644, y=233, z=1                                                                                          │
+│                                                                                                                      │
+│ See "Schema File Structure Item Simple.txt" for full item file format.                                               │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ IMPLEMENTATION DETAILS                                                                                               │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ Main Classes:                                                                                                        │
+│ - ScenePointEditor.java (main dialog)                                                                                │
+│ - ItemWrapper (inner class: Item + visibility state)                                                                 │
+│ - PointPanelNew (inner class: single point panel with x/y fields)                                                    │
+│ - ItemCellRenderer (custom renderer for item list with checkboxes)                                                   │
+│                                                                                                                      │
+│ Key Methods:                                                                                                         │
+│ - onItemSelected()        - Handles item selection from list                                                         │
+│ - onTabChanged()          - Handles tab switching (toggles visibility)                                               │
+│ - refreshAllPoints()      - Reloads all points for all three tabs                                                    │
+│ - addPointInCurrentTab()  - Adds point manually                                                                      │
+│ - enableAddByClickForCurrentTab() - Activates canvas click mode                                                      │
+│ - removeSelectedPointInCurrentTab() - Removes selected point                                                         │
+│ - movePointUpInCurrentTab() / movePointDownInCurrentTab() - Reorders points                                          │
+│ - addPointAtPosition()    - Called when user clicks on canvas                                                        │
+│ - updatePointInList()     - Called when user drags point in scene                                                    │
+│ - saveCurrentItem()       - Auto-saves item + repaints scene                                                         │
+│                                                                                                                      │
+│ Integration with AdventureGame:                                                                                      │
+│ - game.setScenePointEditor(this)     - Registers editor                                                              │
+│ - game.setAddPointModeSimple()       - Enables/disables click mode                                                   │
+│ - game.setShowPaths()                - Enables/disables point rendering                                              │
+│ - game.setHighlightedPoint()         - Highlights selected point                                                     │
+│ - game.clearHighlightedPoint()       - Clears highlighting                                                           │
+│ - game.repaint()                     - Triggers scene repaint                                                        │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ ADVANTAGES OVER OLD POINT EDITOR                                                                                     │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ ✓ Single unified interface for ALL items                                                                             │
+│ ✓ No need to open separate editors for each item                                                                     │
+│ ✓ Quick item switching via list                                                                                      │
+│ ✓ Show/hide items to avoid overlaps                                                                                  │
+│ ✓ All three point types in one window (tabs)                                                                         │
+│ ✓ Bidirectional live-update (editor ↔ scene)                                                                         │
+│ ✓ Visual feedback (colors: Magenta/Green/Red)                                                                        │
+│ ✓ Point highlighting on selection                                                                                    │
+│ ✓ Keyboard shortcuts (DELETE)                                                                                        │
+│ ✓ Clean separation: Display (main editor) vs. Edit (scene point editor)                                              │
+│ ✓ No code duplication                                                                                                │
+│ ✓ Auto-save on every change                                                                                          │
+│ ✓ Add by click mode integrated                                                                                       │
+│ ✓ Drag points directly in scene                                                                                      │
+│                                                                                                                      │
+│ #############################################################################                                        │
+│ USAGE WORKFLOW                                                                                                       │
+│ #############################################################################                                        │
+│                                                                                                                      │
+│ Typical editing session:                                                                                             │
+│                                                                                                                      │
+│ 1. Open Scene Point Editor via button in main editor                                                                 │
+│ 2. Select item from list on the left                                                                                 │
+│ 3. Toggle "Show" checkboxes to hide/show items as needed                                                             │
+│ 4. Select tab for point type you want to edit                                                                        │
+│ 5. Either:                                                                                                           │
+│    a) Click [Add by Click] and click in scene, OR                                                                    │
+│    b) Select existing point and edit x/y values, OR                                                                  │
+│    c) Drag points directly in the scene                                                                              │
+│ 6. Points update live in both scene and editor                                                                       │
+│ 7. Use [↑] [↓] to reorder points if needed                                                                           │
+│ 8. Use [Remove] or DELETE key to delete points                                                                       │
+│ 9. Switch items/tabs as needed                                                                                       │
+│ 10. Click [Close] when done                                                                                          │
+│                                                                                                                      │
+│ All changes are auto-saved immediately!                                                                              │
+│                                                                                                                      │
+│ #############################################################################

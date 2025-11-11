@@ -1,0 +1,147 @@
+Every rename or delete action demands a full check of all <resource>.txt files in all directories. If one or muliple references to the renamed object is found, the reference must be renamed too.
+If one or muliple references to a deleted object is found, a Warning dialog pops up that says:
+„References found“
+It has a listview with all <nameOfResourceFile>.txt files and each item in this listView has an „Open Resource“ Button that opens the corresponding <nameOfResourceFile>.txt file.
+
+Main Editor:
+  │  │
+  │  └ Scenes:
+  │     ├  […] Collapse
+  │     └ <ListViewScenes>
+  │             │
+  │             ├─ <nameOfScene_1>
+  │             │       ├─ <nameOfSubScene_1>  (selectable)
+  │             │       ├─ <nameOfSubScene_n>  (selectable)
+  │             ├─ <nameOfScene_n>
+  │             │       ├─ <nameOfSubScene_n_1>  (selectable)
+  │             │       ├─ <nameOfSubScene_n_n>  (selectable)
+  │             │       │        ├─ conditions
+  │             │       │      (show and use if)
+  │             │       │        ├─ <nameOf(/resources/condions/<nameOfCondition>) = true/false
+  │             │       │        ├─  <nameOf(/resources/condions/<nameOfCondition>) = true/false
+  │             │       ├─ items
+  │             │       │        ├─ conditions
+  │             │       │        │     └─  <nameOf(/resources/condions/<nameOfCondition>) = true/false
+  │             │       │        ├─ image
+  │             │       │        │     └─  <nameOf(/resources/images/items/<nameOfItem>)
+  │             │       │        ├─ customClickArea
+  │             │       │        │     ├─  Point_1 x:<m>, y:<m>, z:<m>
+  │             │       │        │     ├─  Point_n x:<m>, y:<m>, z:<m>
+  │             │       │        ├─ movingRange
+  │             │       │        │     ├─  Point_1 x:<m>, y:<m>, z:<m>
+  │             │       │        │     ├─  Point_n x:<m>, y:<m>, z:<m>
+  │             │       │        ├─ path
+  │             │       │        │     ├─  Point_1 x:<m>, y:<m>, z:<m>
+  │             │       │        │     ├─  Point_n x:<m>, y:<m>, z:<m>
+  │             │       │        └─ actions
+  │             │       │                   ├─ <nameOfActionFromButton_1> 
+  │             │       │                   │              │ 
+  │             │       │                   │              (if contions:) 
+  │             │       │                   │              ├─ <nameOf(/resources/condions/<nameOfCondition_1>) = true/false     
+  │             │       │                   │              ├─  <nameOf(/resources/condions/<nameOfCondition_n>) = true/false     
+  │             │       │                   │                               │
+  │             │       │                   │                              (then condions:)
+  │             │       │                   │                               ├─  <nameOf(/resources/condions/<nameOfCondition_m>) = true/false     
+  │             │       │                   │                               ├─ <nameOf(/resources/condions/<nameOfCondition_mn>) = true/false     
+  │             │       │                   │   
+  │             │       │                   ├─ <nameOfActionFromButton_n> 
+  │             │       │                   │              │ 
+  │             │       │                   │              (if contions:) 
+  │             │       │                   │              ├─ <nameOf(/resources/condions/<nameOfCondition_1>) = true/false     
+  │             │       │                   │              ├─  <nameOf(/resources/condions/<nameOfCondition_n>) = true/false     
+  │             │       │                                                     │
+  │             │       │                                               (then condions:)
+  │             │       │                                                     ├─  <nameOf(/resources/condions/<nameOfCondition_m>) = true/false     
+  │             │       │                                                     ├─  <nameOf(/resources/condions/<nameOfCondition_mn>) = true/false    
+  │             │       │   
+
+  │             ├[New] [Copy] [Edit] [Delete]
+  │             │   │         │       │           └─ Delete selected SubScene from resources
+  │             │   │         │       ├─  Rename SubScene
+  │             │   │         │       ├─  ChangeBackroundImage of SubScene
+  │             │   │         │       ├─   Add / Remove / Delete : Item from SubScene
+  │             │   │         │       ├─   Add / Remove / Delete : KeyArea from SubScene
+  │             │   │         │       ├─  Delete : Item from resources
+  │             │   │         │       └─  Delete : KeyArea  from resources
+  │             │   │         └─ Copy SubScene
+  │             │   └ Create new SubScene
+  │             └[New] [Copy] [Edit] [Delete]
+  │                 │         │         │           └─ Delete selected Scene from resources
+  │                 │         │         ├─  Rename Scene
+  │                 │         │         └─  Add / Remove / Delete: SubScene
+  │                 │         └─ Copy Scene
+  │                 └ Create new Scene
+  │  
+  │
+  ├Items 
+  │  ├ […] Collapse
+  │  │
+  │  ├ <ListViewItems>
+  │  │    │        
+  │  │    └ <ListItemItems>
+  │  │             │
+  │  │             └ <nameOfItemInScene_n> (selectable)
+  │  │    
+  │  ├  [New] [Copy] [Edit] [Remove] [Save][Delete]
+  │  │   │        │          │         │            │          └─ Delete selected Item from resources
+  │  │   │        │          │         │            │      
+  │  │   │        │          │         │            └─ Saves the Item to the <scenes/scene>.txt file
+  │  │   │        │          │         │            
+  │  │   │        │          │         └─  Remove Item from <scenes/scene>.txt file
+  │  │   │        │          │      
+  │  │   │        │          ├─  Rename Item in resources
+  │  │   │        │          │      
+  │  │   │        │          ├─  Add/Change Image (image Drop or browser System explorer)
+  │  │   │        │          │      
+  │  │   │        │          ├─  Add/Change Hover Text via direct input (no Dialog)
+  │  │   │        │          │      
+  │  │   │        │          ├─  Add/Change Actions
+  │  │   │        │          │      └─ Opens „Action Editor“
+  │  │   │        │          │      
+  │  │   │        │          ├─  Change CustomClickArea
+  │  │   │        │          │      ├─ Point_n x:<m>, y:<m>, z:<m>
+  │  │   │        │          │      ├─ 
+  │  │   │        │          │      
+  │  │   │        │          ├─ [Add] [Add by Click] [Remove]
+  │  │   │        │          │      │       │                       └─ Removes Point from ListView, MainScene rendering and deletes the reference in the <n>.txt file
+  │  │   │        │          │      │       └─ Opens „Point Editor“
+  │  │   │        │          │      └─ Adds a new Point to the listView
+  │  │   │        │          │      
+  │  │   │        │          ├─  Change MovingRange
+  │  │   │        │          │      ├─ Point_n x:<m>, y:<m>, z:<m>
+  │  │   │        │          │      ├─ 
+  │  │   │        │          │      
+  │  │   │        │          ├─ [Add] [Add by Click] [Remove]
+  │  │   │        │          │      │       │                       └─ Removes Point from ListView, MainScene rendering and deletes the reference in the <n>.txt file
+  │  │   │        │          │      │       └─ Opens „Point Editor“
+  │  │   │        │          │      └─ Adds a new Point to the listView
+  │  │   │        │          ├─  Change Path
+  │  │   │        │          │      ├─ Point_n x:<m>, y:<m>, z:<m>
+  │  │   │        │          │      ├─ 
+  │  │   │        │          │      
+  │  │   │        │          ├─ [Add] [Add by Click] [Remove]
+  │  │   │        │          │      │       │                       └─ Removes Point from ListView, MainScene rendering and deletes the reference in the <n>.txt file
+  │  │   │        │          │      │       └─ Opens „Point Editor“
+  │  │   │        │          │      └─ Adds a new Point to the listView
+  │  │   │        │                
+  │  │   │        ├─ Copy Item
+  │  │   │                └─ Copies <n>.txt
+  │  │   │  
+  │  │   └ Create new Item
+  │  │        └─ Creates <n>.txt
+  │  │
+  │  ├ Open Resource: Opens Resource .txt file
+  │  ├ Open Resources: Opens Resources directory
+  │  ├ Open Item Image Resources: Opens Image Resources directory
+  │  ├ Manage Conditions: Opens Condition Manager
+  │ 
+  ├ Open Resource: Opens Resource .txt file
+  ├ Open Resources: Opens Resources directory
+  ├ Open Image Resources: Opens Resources directory
+  ├ Open Item Image Resources: Opens Image Resources directory
+  ├ Manage Conditions: Opens Condition Manager
+  ├ Manage Dialogs: Opens Dialogs Manager
+  ├ Manage Buttons: Opens Buttons Manager
+
+
+Uses the "Schema Editor Guidelines.txt"

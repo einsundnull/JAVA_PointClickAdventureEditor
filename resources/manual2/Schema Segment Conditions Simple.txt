@@ -1,0 +1,62 @@
+"Schema Segment Conditions Simple.txt"
+
+
+[Collapse]
+Conditions:            true  
+|----------------------------------|
+|<nameOfCondition_1>   [x]         | (selectable)
+|<nameOfCondition_2>   [ ]         | (selectable)
+|<nameOfCondition_n>   [ ]         | (selectable)
+|----------------------------------|
+[Add] [Rename]
+-<SplitPane>-------------------------------------------
+
+All Edits and Changes in this Segment are Autosaved.
+[Collapse] -> Collapses/Expands the SplitPane of this segment.
+[Add] -> Adds a new Condition from a JComboBox that loads all Condition booleans from the /resources/conditions/conditions.txt
+[x] -> CheckBox. If checked condition boolean = true;
+Uses the "Schema Editor Guidelines.txt"
+
+
+
+/resources/scenes/
+   │          ├─<directoryWithNameOfScene_1>
+   │          │     │
+   │          │     ├─<nameOfSubScene_1_1>.txt
+   │          │     ├─<nameOfSubScene_1_m>.txt
+   │          │
+   │          ├─<directoryWithNameOfScene_n>
+   │          │     │
+   │                ├─<nameOfSubScene_n_1>.txt
+   │                ├─<nameOfSubScene_n_m>.txt -> "Schema File Structure Scene Simple.txt"
+   │
+   ├─ /items/
+   │     │
+   │     ├─<nameOfItem_1>.txt
+   │     ├─<nameOfItem_n>.txt -> "Schema File Structure Item Simple.txt"
+
+###################################################################################################################################################
+
+"Schema File Structure Scene Simple.txt"
+
+├─<nameOfSubScene_n_1>.txt 
+├─<nameOfSubScene_n_m>.txt
+     │   
+    (show and use if)
+     │
+     ├─ #Conditions:
+     │   ├─ <nameOfCondition_1> = true/false -> Condition will be set via "Main Editor - Segment 5"; Read: "Schema Segment Conditions Simple.txt" 
+     │   ├─ <nameOfCondition_n> = true/false -> Condition will be set via "Main Editor - Segment 5"  Read: "Schema Segment Conditions Simple.txt" 
+     │  
+     ├─ #Image:
+     │   ├── </resources/images/scenes/...>  -> Image will be set via "Main Editor - Segment 2"; Read: "Schema Segment Images Simple.txt" 
+     │   ├── <nameOfImageFile>
+     │   ├── flipped horizontally = false
+     │   ├── flipped vertically = false
+     │ 
+     ├─ #Items:
+         ├─ <nameOfItem_1>  -> Item is stored at and loaded from: </resources/items/<nameOfItem_1>.txt; Look up"Schema File Structure Item Simple.txt" 
+         └─ <nameOfItem_n>  -> Item is stored at and loaded from: </resources/items/<nameOfItem_n>.txt; Look up"Schema File Structure Item Simple.txt" 
+
+
+
