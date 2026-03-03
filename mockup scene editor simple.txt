@@ -1,0 +1,80 @@
+                                                                                                                                                                                
+                                                                                                                                                                                
+            ┌────────────────────────────────────────────────────────────────────────┐     <SC◄>  Scenes                                                                        
+            │<A>                                                                     │     <DG►>  Debug                                                                         
+            ├────────────────────────────────────────────────────────────────────────┤     ►      Einklappen                                                                    
+            │┌──────────────────┐┌────┐┌────┐┌────┐┌────┐┌────┐           ┌─────────┐│     ◄      Einklappen                                                                    
+            ││■<SC1▼>           ││<IM>││<HT>││<CC>││<MR>││<PT>│           │         ││     ▼      Einklappen                                                                    
+            ││├■<SC1.2▼>        ││…………└──────────────────────────────────┐│         ││     □      Thumbnail (unselected)                                                        
+            │││├■<IT>1(SC1.2)>  ││                                       ││         ││     ■      Thumbnail (selected)                                                          
+            │││├□<IT>2(SC1.2)>  ││                                       ││         ││                                                                                          
+            ││└□<SC1.2▼>        ││                                       ││         ││                                                                                          
+            ││                  ││                                       ││         ││                                                                                          
+            ││□<SC2▼>          ◄││                                       ││►        ││                                                                                          
+            ││├□<SC2.2▼>        ││                                       ││         ││                                                                                          
+            ││└□<SC2.2▼>        ││                                       ││         ││                                                                                          
+            ││                  ││                                       ││         ││                                                                                          
+            ││                  ││                                       ││         ││                                                                                          
+            ││<SC◄>             ││<E>                                    ││<DG►>    ││                                                                                          
+            │└──────────────────┘└───────────────────────────────────────┘└─────────┘│                                                                                          
+            └────────────────────────────────────────────────────────────────────────┘                                                                                          
+                                                                                                                                                                                
+            <IT>  Items                                                                                                                                                         
+                   │                                                                                                                                                            
+            <IM>   ├Images▼                                                                                                                                                     
+                   │   ├□<NameOfImageCollection>                                                                                                                                
+                   │      ├□<NameOfImage▼>                                                                                                                                      
+                   │      │   ├<OrientationIndex>                                                                                                                               
+                   │      │   │   ├□<NameOfImage▼>                                                                                                                              
+                   │      │   │      ├mirror horizontally true/false                                                                                                            
+                   │      │   │      ├mirror vertically   true/false                                                                                                            
+                   │      │   │      └rotation Angle      n°                                                                                                                    
+                   │      │   │                                                                                                                                                 
+                   │      │   ├<OrientationIndex>                                                                                                                               
+                   │      │       ├                                                                                                                                             
+                   │      │                                                                                                                                                     
+                   │      └Conditions▼                                                                                                                                          
+                   │         ├<NameOfCondition> true/false                                                                                                                      
+                   │                                                                                                                                                            
+            <HT>   ├HoverTexts▼                                                                                                                                                 
+                   │   ├<NameOfHoverText▼>                                                                                                                                      
+                   │      ├<Text▼>                                                                                                                                              
+                   │      │                                                                                                                                                     
+                   │      └Conditions▼                                                                                                                                          
+                   │         ├<NameOfCondition> true/false                                                                                                                      
+                   │                                                                                                                                                            
+            <CC>   ├CustomClickAreas▼                                                                                                                                           
+                   │   ├<NameOfPointCollections▼>                                                                                                                               
+                   │        ├Points▼                                                                                                                                            
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │                                                                                                                                                   
+                   │        └Conditions▼                                                                                                                                        
+                   │           ├<NameOfCondition> true/false                                                                                                                    
+                   │                                                                                                                                                            
+            <MR>   ├MovingRanges▼                                                                                                                                               
+                   │   ├<NameOfPointCollections▼>                                                                                                                               
+                   │        ├Points▼                                                                                                                                            
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │                                                                                                                                                   
+                   │        └Conditions▼                                                                                                                                        
+                   │           ├<NameOfCondition> true/false                                                                                                                    
+                   │                                                                                                                                                            
+            <PT>   ├Paths▼                                                                                                                                                      
+                   │   ├<NameOfPointCollections▼>                                                                                                                               
+                   │        ├Points▼                                                                                                                                            
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │  ├[x,y,z]                                                                                                                                         
+                   │        │                                                                                                                                                   
+                   │        └Conditions▼                                                                                                                                        
+                   │           ├<NameOfCondition> true/false                                                                                                                    
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                
+                                                                                                                                                                                

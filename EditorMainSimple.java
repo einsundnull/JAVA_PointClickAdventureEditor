@@ -16,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,13 +32,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-// New UI imports
-import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
 import main.ui.components.button.AppButton;
 import main.ui.components.panel.CollapsiblePanel;
-import main.ui.components.panel.CardPanel;
-import main.ui.utils.ComponentFactory;
+import main.ui.theme.Spacing;
+// New UI imports
+import main.ui.theme.ThemeManager;
 
 /**
  * Simplified Editor Main Window - Based on "Schema Editor Simple.txt"

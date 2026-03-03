@@ -1983,140 +1983,147 @@ public class AdventureGame extends JFrame {
 
 	private void handlePathPointRelease() {
 		if (selectedPathPoint != null) {
-			// Determine which editor is active
-			boolean hasEditor = (editorWindow != null || editorWindowSimple != null);
+			// Debug output
+			System.out.println("RELEASE: pointWasDragged=" + pointWasDragged + ", point at (" + selectedPathPoint.x + "," + selectedPathPoint.y + ")");
 
-			if (hasEditor) {
-				String logMsg = "✓ Moved point to (" + selectedPathPoint.x + "," + selectedPathPoint.y + ")";
+			// Only save and log if point was actually dragged
+			if (pointWasDragged) {
+				// Determine which editor is active
+				boolean hasEditor = (editorWindow != null || editorWindowSimple != null);
 
-				// Log to active editor
-				if (editorWindow != null) {
-					editorWindow.log(logMsg);
-				} else if (editorWindowSimple != null) {
-					editorWindowSimple.log(logMsg);
-				}
+				if (hasEditor) {
+					String logMsg = "✓ Moved point to (" + selectedPathPoint.x + "," + selectedPathPoint.y + ")";
 
-				// Auto-save Item when releasing CustomClickArea point
-				if (selectedCustomClickAreaForPointDrag != null && selectedItemForPointDrag != null) {
-					try {
-						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved CustomClickArea point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
-
-						if (editorWindow != null) {
-							editorWindow.log(successMsg);
-							editorWindow.autoSaveCurrentScene();
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(successMsg);
-							SceneSaver.saveScene(currentScene);
-							editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
-						}
-					} catch (Exception e) {
-						String errorMsg = "ERROR saving CustomClickArea point: " + e.getMessage();
-						if (editorWindow != null) {
-							editorWindow.log(errorMsg);
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(errorMsg);
-						}
-					}
-				}
-				// Auto-save Item when releasing MovingRange point
-				else if (selectedMovingRangeForPointDrag != null && selectedItemForPointDrag != null) {
-					try {
-						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved MovingRange point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
-
-						if (editorWindow != null) {
-							editorWindow.log(successMsg);
-							editorWindow.autoSaveCurrentScene();
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(successMsg);
-							SceneSaver.saveScene(currentScene);
-							editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
-						}
-					} catch (Exception e) {
-						String errorMsg = "ERROR saving MovingRange point: " + e.getMessage();
-						if (editorWindow != null) {
-							editorWindow.log(errorMsg);
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(errorMsg);
-						}
-					}
-				}
-				// Auto-save Item when releasing Path point
-				else if (selectedPathForPointDrag != null && selectedItemForPointDrag != null) {
-					try {
-						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved Path point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
-
-						if (editorWindow != null) {
-							editorWindow.log(successMsg);
-							editorWindow.autoSaveCurrentScene();
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(successMsg);
-							SceneSaver.saveScene(currentScene);
-							editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
-						}
-					} catch (Exception e) {
-						String errorMsg = "ERROR saving Path point: " + e.getMessage();
-						if (editorWindow != null) {
-							editorWindow.log(errorMsg);
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(errorMsg);
-						}
-					}
-				}
-				// Auto-save Item when releasing Item point (old system)
-				else if (selectedItemForPointDrag != null) {
-					try {
-						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved Item point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
-
-						if (editorWindow != null) {
-							editorWindow.log(successMsg);
-							editorWindow.autoSaveCurrentScene();
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(successMsg);
-							SceneSaver.saveScene(currentScene);
-							editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
-						}
-					} catch (Exception e) {
-						String errorMsg = "ERROR saving Item point: " + e.getMessage();
-						if (editorWindow != null) {
-							editorWindow.log(errorMsg);
-						} else if (editorWindowSimple != null) {
-							editorWindowSimple.log(errorMsg);
-						}
-					}
-				}
-				// Auto-save scene when releasing KeyArea point
-				else {
+					// Log to active editor
 					if (editorWindow != null) {
-						editorWindow.autoSaveCurrentScene();
-					} else if (editorWindowSimple != null && currentScene != null) {
+						editorWindow.log(logMsg);
+					} else if (editorWindowSimple != null) {
+						editorWindowSimple.log(logMsg);
+					}
+
+					// Auto-save Item when releasing CustomClickArea point
+					if (selectedCustomClickAreaForPointDrag != null && selectedItemForPointDrag != null) {
 						try {
-							SceneSaver.saveScene(currentScene);
-							editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							ItemSaver.saveItemByName(selectedItemForPointDrag);
+							String successMsg = "✓ Auto-saved CustomClickArea point " + selectedPathPointIndex +
+							                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+
+							if (editorWindow != null) {
+								editorWindow.log(successMsg);
+								editorWindow.autoSaveCurrentScene();
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(successMsg);
+								SceneSaver.saveScene(currentScene);
+								editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							}
 						} catch (Exception e) {
-							editorWindowSimple.log("ERROR saving scene: " + e.getMessage());
+							String errorMsg = "ERROR saving CustomClickArea point: " + e.getMessage();
+							if (editorWindow != null) {
+								editorWindow.log(errorMsg);
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(errorMsg);
+							}
+						}
+					}
+					// Auto-save Item when releasing MovingRange point
+					else if (selectedMovingRangeForPointDrag != null && selectedItemForPointDrag != null) {
+						try {
+							ItemSaver.saveItemByName(selectedItemForPointDrag);
+							String successMsg = "✓ Auto-saved MovingRange point " + selectedPathPointIndex +
+							                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+
+							if (editorWindow != null) {
+								editorWindow.log(successMsg);
+								editorWindow.autoSaveCurrentScene();
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(successMsg);
+								SceneSaver.saveScene(currentScene);
+								editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							}
+						} catch (Exception e) {
+							String errorMsg = "ERROR saving MovingRange point: " + e.getMessage();
+							if (editorWindow != null) {
+								editorWindow.log(errorMsg);
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(errorMsg);
+							}
+						}
+					}
+					// Auto-save Item when releasing Path point
+					else if (selectedPathForPointDrag != null && selectedItemForPointDrag != null) {
+						try {
+							ItemSaver.saveItemByName(selectedItemForPointDrag);
+							String successMsg = "✓ Auto-saved Path point " + selectedPathPointIndex +
+							                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+
+							if (editorWindow != null) {
+								editorWindow.log(successMsg);
+								editorWindow.autoSaveCurrentScene();
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(successMsg);
+								SceneSaver.saveScene(currentScene);
+								editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							}
+						} catch (Exception e) {
+							String errorMsg = "ERROR saving Path point: " + e.getMessage();
+							if (editorWindow != null) {
+								editorWindow.log(errorMsg);
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(errorMsg);
+							}
+						}
+					}
+					// Auto-save Item when releasing Item point (old system)
+					else if (selectedItemForPointDrag != null) {
+						try {
+							ItemSaver.saveItemByName(selectedItemForPointDrag);
+							String successMsg = "✓ Auto-saved Item point " + selectedPathPointIndex +
+							                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+
+							if (editorWindow != null) {
+								editorWindow.log(successMsg);
+								editorWindow.autoSaveCurrentScene();
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(successMsg);
+								SceneSaver.saveScene(currentScene);
+								editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							}
+						} catch (Exception e) {
+							String errorMsg = "ERROR saving Item point: " + e.getMessage();
+							if (editorWindow != null) {
+								editorWindow.log(errorMsg);
+							} else if (editorWindowSimple != null) {
+								editorWindowSimple.log(errorMsg);
+							}
+						}
+					}
+					// Auto-save scene when releasing KeyArea point
+					else {
+						if (editorWindow != null) {
+							editorWindow.autoSaveCurrentScene();
+						} else if (editorWindowSimple != null && currentScene != null) {
+							try {
+								SceneSaver.saveScene(currentScene);
+								editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+							} catch (Exception e) {
+								editorWindowSimple.log("ERROR saving scene: " + e.getMessage());
+							}
 						}
 					}
 				}
-			}
-		}
 
-		// Only clear selection if point was actually dragged
-		// If it was just a click without movement, keep the point selected
-		if (pointWasDragged) {
-			selectedPathPoint = null;
-			selectedPathPointIndex = -1;
-			selectedItemForPointDrag = null;
-			selectedCustomClickAreaForPointDrag = null;
-			selectedMovingRangeForPointDrag = null;
-			selectedPathForPointDrag = null;
+				// Clear selection only after successful drag
+				System.out.println("RELEASE: Clearing selection after drag");
+				selectedPathPoint = null;
+				selectedPathPointIndex = -1;
+				selectedItemForPointDrag = null;
+				selectedCustomClickAreaForPointDrag = null;
+				selectedMovingRangeForPointDrag = null;
+				selectedPathForPointDrag = null;
+			} else {
+				// Point was clicked but not dragged - keep it selected
+				System.out.println("RELEASE: Point was NOT dragged - keeping selection for keyboard editing");
+			}
 		}
 	}
 

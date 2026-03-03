@@ -186,6 +186,16 @@ public class SceneLoader {
                 inMouseHover = false;
                 inSubSceneConditions = false;
                 continue;
+            } else if (trimmed.equals("#SelectedItem:")) {
+                System.out.println("=====> Found #SelectedItem: section! <=====");
+                currentMainSection = "SelectedItem";
+                inDialogs = false;
+                inLocation = false;
+                inImage = false;
+                inActions = false;
+                inMouseHover = false;
+                inSubSceneConditions = false;
+                continue;
             }
 
             // Parse SubScene Conditions (determines when this SubScene is loaded)
@@ -495,6 +505,23 @@ public class SceneLoader {
                     } catch (Exception e) {
                         System.err.println("WARNING: Could not load item: " + itemName + " - " + e.getMessage());
                         e.printStackTrace();
+                    }
+                }
+            }
+            // Parse SelectedItem (editor selection - persists across sessions)
+            else if ("SelectedItem".equals(currentMainSection)) {
+                if (trimmed.startsWith("-")) {
+                    String selectedItemName = trimmed.substring(1).trim();
+                    System.out.println("  Selected item: " + selectedItemName);
+                    // Find and select the item in the scene
+                    if (scene.getItems() != null) {
+                        for (Item item : scene.getItems()) {
+                            if (item != null && item.getName().equals(selectedItemName)) {
+                                scene.setSelectedItem(item);
+                                System.out.println("  ✓ Restored selected item: " + selectedItemName);
+                                break;
+                            }
+                        }
                     }
                 }
             }

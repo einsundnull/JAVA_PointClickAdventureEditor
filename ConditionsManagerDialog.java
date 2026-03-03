@@ -2,7 +2,6 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,10 +22,10 @@ import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
+import main.ui.components.button.AppButton;
+import main.ui.theme.Spacing;
 // New UI imports
 import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
-import main.ui.components.button.AppButton;
 
 /**
  * Dialog zum Verwalten aller Conditions

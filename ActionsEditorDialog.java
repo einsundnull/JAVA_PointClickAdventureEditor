@@ -16,10 +16,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import main.ui.components.button.AppButton;
+import main.ui.theme.Spacing;
 // New UI imports
 import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
-import main.ui.components.button.AppButton;
 
 /**
  * Dialog zum Editieren aller Actions einer KeyArea

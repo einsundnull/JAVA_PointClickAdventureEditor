@@ -101,6 +101,9 @@ public class AdventureGame extends JFrame {
 	private String highlightedPointType = ""; // "CustomClickArea", "MovingRange", "Path"
 	private int highlightedPointIndex = -1;
 
+	// Item selection in Editor mode (when clicking on items in GameView)
+	private Item selectedItemInEditor = null; // Currently selected item in editor
+
 	private Item draggedItem = null;
 	private ItemCorner draggedCorner = ItemCorner.NONE;
 	private Point initialDragPoint = null;
@@ -116,7 +119,8 @@ public class AdventureGame extends JFrame {
 	private boolean cursorVisible = true;
 	private KeyArea hoveredKeyArea = null;
 
-	// Menu actions - Loaded dynamically via ButtonsDataManager from resources/buttons/buttons.txt
+	// Menu actions - Loaded dynamically via ButtonsDataManager from
+	// resources/buttons/buttons.txt
 	// Old hardcoded array removed - replaced with configurable button system
 
 	public AdventureGame() {
@@ -133,8 +137,9 @@ public class AdventureGame extends JFrame {
 
 		playerPosition = new Point(400, 400);
 
-		// DON'T initialize editor here - it will be created on demand when ALT+E is pressed
-		// editorWindow = new EditorWindow(this);  // REMOVED!
+		// DON'T initialize editor here - it will be created on demand when ALT+E is
+		// pressed
+		// editorWindow = new EditorWindow(this); // REMOVED!
 
 		// Initialize debug window
 		debugWindow = new DebugWindow();
@@ -160,7 +165,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Sets up a listener to automatically update inventory and scene when isInInventory conditions change
+	 * Sets up a listener to automatically update inventory and scene when
+	 * isInInventory conditions change
 	 */
 	private void setupConditionListener() {
 		Conditions.setChangeListener((conditionName, oldValue, newValue) -> {
@@ -242,7 +248,7 @@ public class AdventureGame extends JFrame {
 
 	public void toggleEditor() {
 		try {
-			if(editorWindow == null || !editorWindow.isVisible()) {
+			if (editorWindow == null || !editorWindow.isVisible()) {
 				// Create NEW editor window each time (fresh data from .txt files)
 				if (editorWindow != null) {
 					editorWindow.dispose(); // Clean up old window
@@ -258,7 +264,8 @@ public class AdventureGame extends JFrame {
 						System.out.println("Making EditorWindow visible...");
 
 						// Debug: Check window properties
-						System.out.println("  Window size: " + editorWindow.getWidth() + "x" + editorWindow.getHeight());
+						System.out
+								.println("  Window size: " + editorWindow.getWidth() + "x" + editorWindow.getHeight());
 						System.out.println("  Window location: " + editorWindow.getLocation());
 						System.out.println("  Window state: " + editorWindow.getExtendedState());
 						System.out.println("  Is displayable: " + editorWindow.isDisplayable());
@@ -314,16 +321,14 @@ public class AdventureGame extends JFrame {
 		} catch (Exception e) {
 			System.err.println("ERROR opening editor: " + e.getMessage());
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(this,
-				"Error opening editor:\n" + e.getMessage(),
-				"Editor Error",
-				JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error opening editor:\n" + e.getMessage(), "Editor Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	public void toggleSimpleEditor() {
 		try {
-			if(editorWindowSimple == null || !editorWindowSimple.isVisible()) {
+			if (editorWindowSimple == null || !editorWindowSimple.isVisible()) {
 				// Create NEW simple editor window each time (fresh data from .txt files)
 				if (editorWindowSimple != null) {
 					editorWindowSimple.dispose(); // Clean up old window
@@ -379,10 +384,8 @@ public class AdventureGame extends JFrame {
 		} catch (Exception e) {
 			System.err.println("ERROR opening simple editor: " + e.getMessage());
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(this,
-				"Error opening simple editor:\n" + e.getMessage(),
-				"Editor Error",
-				JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error opening simple editor:\n" + e.getMessage(), "Editor Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -468,8 +471,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Helper method to check if item should be visible in current mode
-	 * When ScenePointEditor is active, respects the visibleInEditor flag
+	 * Helper method to check if item should be visible in current mode When
+	 * ScenePointEditor is active, respects the visibleInEditor flag
 	 */
 	private boolean isItemVisibleInCurrentMode(Item item) {
 		if (!item.isVisible()) {
@@ -606,25 +609,29 @@ public class AdventureGame extends JFrame {
 		}
 	}
 
-	// ==================== BIDIRECTIONAL CHECKBOX SYNCHRONIZATION ====================
+	// ==================== BIDIRECTIONAL CHECKBOX SYNCHRONIZATION
+	// ====================
 
 	/**
-	 * Synchronize isFollowingMouse checkbox state between EditorMainSimple and ScenePointEditor.
-	 * Called when checkbox changes in either editor.
+	 * Synchronize isFollowingMouse checkbox state between EditorMainSimple and
+	 * ScenePointEditor. Called when checkbox changes in either editor.
 	 *
-	 * @param item The item whose checkbox state changed
+	 * @param item      The item whose checkbox state changed
 	 * @param following The new checkbox state
 	 */
 	public void syncFollowingMouseCheckbox(Item item, boolean following) {
-		if (item == null) return;
+		if (item == null)
+			return;
 
-		System.out.println("🟢 DEBUG syncFollowingMouseCheckbox: Setting item '" + item.getName() + "' isFollowingMouse=" + following);
+		System.out.println("🟢 DEBUG syncFollowingMouseCheckbox: Setting item '" + item.getName()
+				+ "' isFollowingMouse=" + following);
 
 		// Update the item itself
 		item.setFollowingMouse(following);
 
 		// Verify it was set
-		System.out.println("🟢 DEBUG syncFollowingMouseCheckbox: Verified item.isFollowingMouse()=" + item.isFollowingMouse());
+		System.out.println(
+				"🟢 DEBUG syncFollowingMouseCheckbox: Verified item.isFollowingMouse()=" + item.isFollowingMouse());
 
 		// CRITICAL: Update the item in the current scene as well!
 		if (currentScene != null) {
@@ -659,22 +666,25 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Synchronize isFollowingOnMouseClick checkbox state between EditorMainSimple and ScenePointEditor.
-	 * Called when checkbox changes in either editor.
+	 * Synchronize isFollowingOnMouseClick checkbox state between EditorMainSimple
+	 * and ScenePointEditor. Called when checkbox changes in either editor.
 	 *
-	 * @param item The item whose checkbox state changed
+	 * @param item             The item whose checkbox state changed
 	 * @param followingOnClick The new checkbox state
 	 */
 	public void syncFollowingOnClickCheckbox(Item item, boolean followingOnClick) {
-		if (item == null) return;
+		if (item == null)
+			return;
 
-		System.out.println("🟡 DEBUG syncFollowingOnClickCheckbox: Setting item '" + item.getName() + "' isFollowingOnMouseClick=" + followingOnClick);
+		System.out.println("🟡 DEBUG syncFollowingOnClickCheckbox: Setting item '" + item.getName()
+				+ "' isFollowingOnMouseClick=" + followingOnClick);
 
 		// Update the item itself
 		item.setFollowingOnMouseClick(followingOnClick);
 
 		// Verify it was set
-		System.out.println("🟡 DEBUG syncFollowingOnClickCheckbox: Verified item.isFollowingOnMouseClick()=" + item.isFollowingOnMouseClick());
+		System.out.println("🟡 DEBUG syncFollowingOnClickCheckbox: Verified item.isFollowingOnMouseClick()="
+				+ item.isFollowingOnMouseClick());
 
 		// CRITICAL: Update the item in the current scene as well!
 		if (currentScene != null) {
@@ -709,16 +719,18 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Synchronize visibleInEditor checkbox state between EditorMainSimple and ScenePointEditor.
-	 * Called when "Show" checkbox changes in either editor.
+	 * Synchronize visibleInEditor checkbox state between EditorMainSimple and
+	 * ScenePointEditor. Called when "Show" checkbox changes in either editor.
 	 *
-	 * @param item The item whose checkbox state changed
+	 * @param item    The item whose checkbox state changed
 	 * @param visible The new checkbox state
 	 */
 	public void syncVisibleInEditorCheckbox(Item item, boolean visible) {
-		if (item == null) return;
+		if (item == null)
+			return;
 
-		System.out.println("🔵 DEBUG syncVisibleInEditorCheckbox: Setting item '" + item.getName() + "' visibleInEditor=" + visible);
+		System.out.println("🔵 DEBUG syncVisibleInEditorCheckbox: Setting item '" + item.getName()
+				+ "' visibleInEditor=" + visible);
 
 		// Update the item itself
 		item.setVisibleInEditor(visible);
@@ -759,19 +771,19 @@ public class AdventureGame extends JFrame {
 
 		KeyArea.Type areaType;
 		switch (type) {
-			case "Transition":
-				areaType = KeyArea.Type.TRANSITION;
-				break;
-			case "Movement_Bounds":
-				areaType = KeyArea.Type.MOVEMENT_BOUNDS;
-				break;
-			case "Character_Range":
-				areaType = KeyArea.Type.CHARACTER_RANGE;
-				break;
-			case "Interaction":
-			default:
-				areaType = KeyArea.Type.INTERACTION;
-				break;
+		case "Transition":
+			areaType = KeyArea.Type.TRANSITION;
+			break;
+		case "Movement_Bounds":
+			areaType = KeyArea.Type.MOVEMENT_BOUNDS;
+			break;
+		case "Character_Range":
+			areaType = KeyArea.Type.CHARACTER_RANGE;
+			break;
+		case "Interaction":
+		default:
+			areaType = KeyArea.Type.INTERACTION;
+			break;
 		}
 
 		KeyArea newArea = new KeyArea(areaType, name, x, y, x + width, y + height);
@@ -797,7 +809,8 @@ public class AdventureGame extends JFrame {
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				System.out.println("🎨🎨 paintComponent() CALLED - showPaths=" + showPaths + ", scenePointEditor=" + (scenePointEditor != null ? "REGISTERED" : "NULL"));
+				System.out.println("🎨🎨 paintComponent() CALLED - showPaths=" + showPaths + ", scenePointEditor="
+						+ (scenePointEditor != null ? "REGISTERED" : "NULL"));
 
 				Graphics2D g2d = (Graphics2D) g;
 				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -822,7 +835,8 @@ public class AdventureGame extends JFrame {
 								imagePath = item.getCurrentImagePath();
 							}
 
-							// Use ResourcePathHelper to resolve path (handles both full paths and filenames)
+							// Use ResourcePathHelper to resolve path (handles both full paths and
+							// filenames)
 							File imageFile = ResourcePathHelper.findImageFile(imagePath);
 							if (imageFile == null) {
 								// Fallback: try direct path
@@ -836,47 +850,51 @@ public class AdventureGame extends JFrame {
 									Image img = buffered;
 									Point pos = item.getPosition();
 
-								// Use stored width/height from item
-								int imgWidth = item.getWidth();
-								int imgHeight = item.getHeight();
+									// Use stored width/height from item
+									int imgWidth = item.getWidth();
+									int imgHeight = item.getHeight();
 
-								// Calculate top-left corner
-								int x = pos.x - imgWidth / 2;
-								int y = pos.y - imgHeight / 2;
+									// Calculate top-left corner
+									int x = pos.x - imgWidth / 2;
+									int y = pos.y - imgHeight / 2;
 
-								// Draw image scaled to item size
-								// In editor mode, draw with transparency so polygon points are visible
-								if (showPaths) {
-									Composite originalComposite = g2d.getComposite();
-									g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
-									g2d.setComposite(originalComposite);
-								} else {
-									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
-								}
+									// Draw image scaled to item size
+									// In editor mode, draw with transparency so polygon points are visible
+									if (showPaths) {
+										Composite originalComposite = g2d.getComposite();
+										g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+										g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+										g2d.setComposite(originalComposite);
+									} else {
+										g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
+									}
 
-								// Draw item boundary and drag points in editor mode
-								if (showPaths) {
-									g2d.setColor(Color.CYAN);
-									g2d.setStroke(new BasicStroke(2));
-									g2d.drawRect(x, y, imgWidth, imgHeight);
-									g2d.drawString(item.getName(), x, y - 5);
+									// Draw item boundary and drag points in editor mode
+									if (showPaths) {
+										g2d.setColor(Color.CYAN);
+										g2d.setStroke(new BasicStroke(2));
+										g2d.drawRect(x, y, imgWidth, imgHeight);
+										g2d.drawString(item.getName(), x, y - 5);
 
-									// Draw 4 corner drag points in GREEN
-									int handleSize = 12;
-									g2d.setColor(Color.GREEN);
-									// Top-left
-									g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
-									// Top-right
-									g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
-									// Bottom-left
-									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
-									// Bottom-right
-									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
-								}
+										// Draw 4 corner drag points in GREEN
+										int handleSize = 12;
+										g2d.setColor(Color.GREEN);
+										// Top-left
+										g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+										// Top-right
+										g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize,
+												handleSize);
+										// Bottom-left
+										g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize,
+												handleSize);
+										// Bottom-right
+										g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2,
+												handleSize, handleSize);
+									}
 								} catch (Exception e) {
 									// Failed to load image
-									System.err.println("Failed to load item image: " + imagePath + " - " + e.getMessage());
+									System.err.println(
+											"Failed to load item image: " + imagePath + " - " + e.getMessage());
 								}
 							} else {
 								// Draw placeholder if image not found
@@ -920,7 +938,8 @@ public class AdventureGame extends JFrame {
 							imagePath = selectedSceneItem.getCurrentImagePath();
 						}
 
-						// Use ResourcePathHelper to resolve path (handles both full paths and filenames)
+						// Use ResourcePathHelper to resolve path (handles both full paths and
+						// filenames)
 						File imageFile = ResourcePathHelper.findImageFile(imagePath);
 						if (imageFile == null) {
 							// Fallback: try direct path
@@ -953,7 +972,8 @@ public class AdventureGame extends JFrame {
 									g2d.drawImage(img, x, y, imgWidth, imgHeight, null);
 								}
 
-								// Draw item boundary and drag points in editor mode with ORANGE color for selected
+								// Draw item boundary and drag points in editor mode with ORANGE color for
+								// selected
 								if (showPaths) {
 									g2d.setColor(new Color(255, 165, 0)); // Orange for selected
 									g2d.setStroke(new BasicStroke(3)); // Thicker border
@@ -967,15 +987,19 @@ public class AdventureGame extends JFrame {
 									// Top-left
 									g2d.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
 									// Top-right
-									g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+									g2d.fillRect(x + imgWidth - handleSize / 2, y - handleSize / 2, handleSize,
+											handleSize);
 									// Bottom-left
-									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+									g2d.fillRect(x - handleSize / 2, y + imgHeight - handleSize / 2, handleSize,
+											handleSize);
 									// Bottom-right
-									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2, handleSize, handleSize);
+									g2d.fillRect(x + imgWidth - handleSize / 2, y + imgHeight - handleSize / 2,
+											handleSize, handleSize);
 								}
 							} catch (Exception e) {
 								// Failed to load image
-								System.err.println("Failed to load selected item image: " + imagePath + " - " + e.getMessage());
+								System.err.println(
+										"Failed to load selected item image: " + imagePath + " - " + e.getMessage());
 							}
 						} else {
 							// Draw placeholder if image not found
@@ -1008,7 +1032,8 @@ public class AdventureGame extends JFrame {
 				if (showPaths && currentScene != null) {
 					// DEBUG: Log rendering start
 					if (scenePointEditor != null) {
-						System.out.println("🎨 RENDERING: showPaths=" + showPaths + ", currentScene=" + currentScene.getName());
+						System.out.println(
+								"🎨 RENDERING: showPaths=" + showPaths + ", currentScene=" + currentScene.getName());
 					}
 					// Draw Item click area polygons OVER images
 					// This allows dragging polygon points without moving the item
@@ -1061,22 +1086,25 @@ public class AdventureGame extends JFrame {
 									Point p = points.get(i);
 
 									// Check if this is the highlighted point
-									boolean isHighlighted = (item == highlightedPointItem &&
-									                         "CustomClickArea".equals(highlightedPointType) &&
-									                         i == highlightedPointIndex);
+									boolean isHighlighted = (item == highlightedPointItem
+											&& "CustomClickArea".equals(highlightedPointType)
+											&& i == highlightedPointIndex);
 
 									if (isHighlighted) {
 										// Draw highlighted point larger and in bright red
 										g2d.setColor(Color.RED);
 										int highlightSize = 12;
-										g2d.fillRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+										g2d.fillRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize,
+												highlightSize);
 										// Draw white border around highlighted point
 										g2d.setColor(Color.WHITE);
 										g2d.setStroke(new BasicStroke(2));
-										g2d.drawRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+										g2d.drawRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize,
+												highlightSize);
 										g2d.setStroke(new BasicStroke(2));
 									} else {
-										g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+										g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize,
+												handleSize);
 									}
 
 									// Draw point index
@@ -1102,7 +1130,9 @@ public class AdventureGame extends JFrame {
 							List<CustomClickArea> customAreas = item.getCustomClickAreas();
 
 							if (scenePointEditor != null && !customAreas.isEmpty()) {
-								System.out.println("🟣 Rendering CustomClickArea for item: " + item.getName() + " - " + customAreas.size() + " areas, " + customAreas.get(0).getPoints().size() + " points");
+								System.out.println("🟣 Rendering CustomClickArea for item: " + item.getName() + " - "
+										+ customAreas.size() + " areas, " + customAreas.get(0).getPoints().size()
+										+ " points");
 							}
 
 							for (CustomClickArea area : customAreas) {
@@ -1147,23 +1177,26 @@ public class AdventureGame extends JFrame {
 										Point p = points.get(i);
 
 										// Check if this is the highlighted point
-										boolean isHighlighted = (item == highlightedPointItem &&
-										                         "CustomClickArea".equals(highlightedPointType) &&
-										                         i == highlightedPointIndex);
+										boolean isHighlighted = (item == highlightedPointItem
+												&& "CustomClickArea".equals(highlightedPointType)
+												&& i == highlightedPointIndex);
 
 										if (isHighlighted) {
 											// Draw highlighted point larger and in bright yellow
 											g2d.setColor(Color.YELLOW);
 											int highlightSize = 18;
-											g2d.fillOval(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+											g2d.fillOval(p.x - highlightSize / 2, p.y - highlightSize / 2,
+													highlightSize, highlightSize);
 											// Draw white border around highlighted point
 											g2d.setColor(Color.WHITE);
 											g2d.setStroke(new BasicStroke(2));
-											g2d.drawOval(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+											g2d.drawOval(p.x - highlightSize / 2, p.y - highlightSize / 2,
+													highlightSize, highlightSize);
 											g2d.setStroke(new BasicStroke(2));
 											g2d.setColor(new Color(255, 0, 255));
 										} else {
-											g2d.fillOval(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+											g2d.fillOval(p.x - handleSize / 2, p.y - handleSize / 2, handleSize,
+													handleSize);
 										}
 
 										// Draw point index
@@ -1184,7 +1217,9 @@ public class AdventureGame extends JFrame {
 							List<MovingRange> movingRanges = item.getMovingRanges();
 
 							if (movingRanges != null && !movingRanges.isEmpty() && scenePointEditor != null) {
-								System.out.println("🟢 Rendering MovingRange for item: " + item.getName() + " - " + movingRanges.size() + " ranges, " + movingRanges.get(0).getPoints().size() + " points");
+								System.out.println("🟢 Rendering MovingRange for item: " + item.getName() + " - "
+										+ movingRanges.size() + " ranges, " + movingRanges.get(0).getPoints().size()
+										+ " points");
 							}
 
 							if (movingRanges != null) {
@@ -1227,23 +1262,26 @@ public class AdventureGame extends JFrame {
 											Point p = points.get(i);
 
 											// Check if this is the highlighted point
-											boolean isHighlighted = (item == highlightedPointItem &&
-											                         "MovingRange".equals(highlightedPointType) &&
-											                         i == highlightedPointIndex);
+											boolean isHighlighted = (item == highlightedPointItem
+													&& "MovingRange".equals(highlightedPointType)
+													&& i == highlightedPointIndex);
 
 											if (isHighlighted) {
 												// Draw highlighted point larger and in bright yellow
 												g2d.setColor(Color.YELLOW);
 												int highlightSize = 18;
-												g2d.fillRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+												g2d.fillRect(p.x - highlightSize / 2, p.y - highlightSize / 2,
+														highlightSize, highlightSize);
 												// Draw white border around highlighted point
 												g2d.setColor(Color.WHITE);
 												g2d.setStroke(new BasicStroke(2));
-												g2d.drawRect(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+												g2d.drawRect(p.x - highlightSize / 2, p.y - highlightSize / 2,
+														highlightSize, highlightSize);
 												g2d.setStroke(new BasicStroke(2));
 												g2d.setColor(new Color(0, 255, 0));
 											} else {
-												g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+												g2d.fillRect(p.x - handleSize / 2, p.y - handleSize / 2, handleSize,
+														handleSize);
 											}
 
 											// Draw point index
@@ -1265,7 +1303,8 @@ public class AdventureGame extends JFrame {
 							List<Path> paths = item.getPaths();
 
 							if (paths != null && !paths.isEmpty() && scenePointEditor != null) {
-								System.out.println("🔴 Rendering Path for item: " + item.getName() + " - " + paths.size() + " paths, " + paths.get(0).getPoints().size() + " points");
+								System.out.println("🔴 Rendering Path for item: " + item.getName() + " - "
+										+ paths.size() + " paths, " + paths.get(0).getPoints().size() + " points");
 							}
 
 							if (paths != null) {
@@ -1308,23 +1347,26 @@ public class AdventureGame extends JFrame {
 											Point p = points.get(i);
 
 											// Check if this is the highlighted point
-											boolean isHighlighted = (item == highlightedPointItem &&
-											                         "Path".equals(highlightedPointType) &&
-											                         i == highlightedPointIndex);
+											boolean isHighlighted = (item == highlightedPointItem
+													&& "Path".equals(highlightedPointType)
+													&& i == highlightedPointIndex);
 
 											if (isHighlighted) {
 												// Draw highlighted point larger and in bright yellow
 												g2d.setColor(Color.YELLOW);
 												int highlightSize = 18;
-												g2d.fillOval(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+												g2d.fillOval(p.x - highlightSize / 2, p.y - highlightSize / 2,
+														highlightSize, highlightSize);
 												// Draw white border around highlighted point
 												g2d.setColor(Color.WHITE);
 												g2d.setStroke(new BasicStroke(2));
-												g2d.drawOval(p.x - highlightSize / 2, p.y - highlightSize / 2, highlightSize, highlightSize);
+												g2d.drawOval(p.x - highlightSize / 2, p.y - highlightSize / 2,
+														highlightSize, highlightSize);
 												g2d.setStroke(new BasicStroke(2));
 												g2d.setColor(new Color(255, 0, 0));
 											} else {
-												g2d.fillOval(p.x - handleSize / 2, p.y - handleSize / 2, handleSize, handleSize);
+												g2d.fillOval(p.x - handleSize / 2, p.y - handleSize / 2, handleSize,
+														handleSize);
 											}
 
 											// Draw point index
@@ -1370,7 +1412,6 @@ public class AdventureGame extends JFrame {
 							g2d.setColor(new Color(0, 255, 0, 100));
 						}
 					}
-
 
 					// Draw paths
 					g2d.setColor(new Color(255, 0, 255, 150));
@@ -1456,15 +1497,16 @@ public class AdventureGame extends JFrame {
 
 				// Update orientation images for items following mouse or following on click
 				// IMPORTANT: isFollowingMouse only changes orientation images, NOT position!
-				// Position changes only happen with isFollowingOnMouseClick via handleCharacterMovement
+				// Position changes only happen with isFollowingOnMouseClick via
+				// handleCharacterMovement
 				if (currentScene != null) {
 					boolean foundFollowingItem = false;
 					for (Item item : currentScene.getItems()) {
 						// DEBUG: Check if any item has following flags set
 						if (item.isFollowingMouse() || item.isFollowingOnMouseClick()) {
-							System.out.println("🔵 DEBUG mouseMoved: Item '" + item.getName() +
-								"' isFollowingMouse=" + item.isFollowingMouse() +
-								", isFollowingOnMouseClick=" + item.isFollowingOnMouseClick());
+							System.out.println("🔵 DEBUG mouseMoved: Item '" + item.getName() + "' isFollowingMouse="
+									+ item.isFollowingMouse() + ", isFollowingOnMouseClick="
+									+ item.isFollowingOnMouseClick());
 							item.updateOrientationBasedOnCursor(e.getX(), e.getY());
 							foundFollowingItem = true;
 						}
@@ -1492,8 +1534,8 @@ public class AdventureGame extends JFrame {
 		gamePanel.addKeyListener(new java.awt.event.KeyAdapter() {
 			@Override
 			public void keyPressed(java.awt.event.KeyEvent e) {
-				System.out.println("KEY PRESSED: keyCode=" + e.getKeyCode() + ", char=" + e.getKeyChar() +
-					", focus=" + gamePanel.isFocusOwner());
+				System.out.println("KEY PRESSED: keyCode=" + e.getKeyCode() + ", char=" + e.getKeyChar() + ", focus="
+						+ gamePanel.isFocusOwner());
 
 				// Only handle when an editor is open and a point is selected
 				if (editorWindow == null && editorWindowSimple == null) {
@@ -1524,9 +1566,8 @@ public class AdventureGame extends JFrame {
 				System.out.println("  -> pointType=" + pointType);
 
 				// Handle + key (add point) - support both numpad + and regular +
-				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ADD ||
-				    e.getKeyCode() == java.awt.event.KeyEvent.VK_PLUS ||
-				    e.getKeyChar() == '+') {
+				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ADD
+						|| e.getKeyCode() == java.awt.event.KeyEvent.VK_PLUS || e.getKeyChar() == '+') {
 					System.out.println("  -> + key handled!");
 					e.consume();
 					handlePointInsertShortcut(pointType);
@@ -1544,8 +1585,10 @@ public class AdventureGame extends JFrame {
 		gamePanel.setTransferHandler(new TransferHandler() {
 			@Override
 			public boolean canImport(TransferSupport support) {
-				// Only accept file drops when editor is visible
-				if (!editorWindow.isVisible()) {
+				// Accept file drops when ANY editor is visible (EditorMain or EditorMainSimple)
+				boolean editorVisible = (editorWindow != null && editorWindow.isVisible())
+						|| (editorWindowSimple != null && editorWindowSimple.isVisible());
+				if (!editorVisible) {
 					return false;
 				}
 				return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
@@ -1570,9 +1613,8 @@ public class AdventureGame extends JFrame {
 					String fileName = imageFile.getName().toLowerCase();
 
 					// Check if it's an image file (including SVG)
-					if (fileName.endsWith(".png") || fileName.endsWith(".jpg") ||
-					    fileName.endsWith(".jpeg") || fileName.endsWith(".gif") ||
-					    fileName.endsWith(".svg")) {
+					if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")
+							|| fileName.endsWith(".gif") || fileName.endsWith(".svg")) {
 
 						// Get drop location
 						Point dropPoint = support.getDropLocation().getDropPoint();
@@ -1582,9 +1624,7 @@ public class AdventureGame extends JFrame {
 						return true;
 					}
 				} catch (Exception e) {
-					if (editorWindow != null) {
-						editorWindow.log("ERROR dropping file: " + e.getMessage());
-					}
+					logToActiveEditor("ERROR dropping file: " + e.getMessage());
 					e.printStackTrace();
 				}
 				return false;
@@ -1603,11 +1643,11 @@ public class AdventureGame extends JFrame {
 		menuPanel.setPreferredSize(new Dimension(1024, 80)); // Slightly reduced
 		menuPanel.setBackground(ThemeManager.colors().getBackgroundElevated());
 		menuPanel.setBorder(BorderFactory.createCompoundBorder(
-			BorderFactory.createMatteBorder(1, 0, 0, 0, ThemeManager.colors().getBorderDefault()),
-			BorderFactory.createEmptyBorder(Spacing.SM, Spacing.SM, Spacing.SM, Spacing.SM)
-		));
+				BorderFactory.createMatteBorder(1, 0, 0, 0, ThemeManager.colors().getBorderDefault()),
+				BorderFactory.createEmptyBorder(Spacing.SM, Spacing.SM, Spacing.SM, Spacing.SM)));
 
-		// Load buttons dynamically from resources/buttons/buttons.txt via ButtonsDataManager
+		// Load buttons dynamically from resources/buttons/buttons.txt via
+		// ButtonsDataManager
 		for (String action : ButtonsDataManager.getButtonNames()) {
 			AppButton btn = new AppButton(action, AppButton.Variant.SECONDARY, AppButton.Size.SMALL);
 			btn.addActionListener(e -> selectAction(action));
@@ -1644,12 +1684,9 @@ public class AdventureGame extends JFrame {
 		inventoryPanel.setPreferredSize(new Dimension(1024, 100)); // Compacted
 		inventoryPanel.setBackground(ThemeManager.colors().getBackgroundRoot());
 		inventoryPanel.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(ThemeManager.colors().getBorderDefault(), 1),
-				"Inventar",
-				javax.swing.border.TitledBorder.LEFT,
-				javax.swing.border.TitledBorder.TOP,
-				ThemeManager.typography().semiboldBase(),
-				ThemeManager.colors().getTextPrimary()));
+				BorderFactory.createLineBorder(ThemeManager.colors().getBorderDefault(), 1), "Inventar",
+				javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+				ThemeManager.typography().semiboldBase(), ThemeManager.colors().getTextPrimary()));
 
 		updateInventory();
 
@@ -1662,12 +1699,9 @@ public class AdventureGame extends JFrame {
 			// Re-apply inventory panel styling after theme change
 			inventoryPanel.setBackground(ThemeManager.colors().getBackgroundRoot());
 			inventoryPanel.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(ThemeManager.colors().getBorderDefault(), 1),
-				"Inventar",
-				javax.swing.border.TitledBorder.LEFT,
-				javax.swing.border.TitledBorder.TOP,
-				ThemeManager.typography().semiboldBase(),
-				ThemeManager.colors().getTextPrimary()));
+					BorderFactory.createLineBorder(ThemeManager.colors().getBorderDefault(), 1), "Inventar",
+					javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+					ThemeManager.typography().semiboldBase(), ThemeManager.colors().getTextPrimary()));
 			updateInventory(); // Refresh inventory to update colors
 		});
 		menuPanel.add(themeToggleBtn);
@@ -1685,7 +1719,7 @@ public class AdventureGame extends JFrame {
 
 		// Create split pane for game panel (center) + debug sidebar (right)
 		final javax.swing.JSplitPane mainSplitPane = new javax.swing.JSplitPane(
-			javax.swing.JSplitPane.HORIZONTAL_SPLIT);
+				javax.swing.JSplitPane.HORIZONTAL_SPLIT);
 		mainSplitPane.setResizeWeight(1.0); // Give all extra space to game panel
 		mainSplitPane.setDividerSize(Spacing.RADIUS_SM);
 
@@ -1702,7 +1736,8 @@ public class AdventureGame extends JFrame {
 		add(mainSplitPane, BorderLayout.CENTER);
 
 		// Add hotkey to toggle debug sidebar
-		javax.swing.KeyStroke altD = javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_D, java.awt.event.KeyEvent.ALT_DOWN_MASK);
+		javax.swing.KeyStroke altD = javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_D,
+				java.awt.event.KeyEvent.ALT_DOWN_MASK);
 		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(altD, "toggleDebugSidebar");
 		getRootPane().getActionMap().put("toggleDebugSidebar", new AbstractAction() {
 			@Override
@@ -1792,7 +1827,8 @@ public class AdventureGame extends JFrame {
 			// Check if item-as-cursor mode is active
 			if (selectedInventoryItem != null && selectedAction != null) {
 				// Dynamic hover: "{action} {item} mit {target}"
-				dynamicHoverText = selectedAction + " " + selectedInventoryItem.getName() + " mit " + hoveredItem.getName();
+				dynamicHoverText = selectedAction + " " + selectedInventoryItem.getName() + " mit "
+						+ hoveredItem.getName();
 			} else if (selectedAction != null) {
 				// Action selected but no item: "{action} {target}"
 				dynamicHoverText = selectedAction + " " + hoveredItem.getName();
@@ -1831,7 +1867,8 @@ public class AdventureGame extends JFrame {
 			// Check if item-as-cursor mode is active
 			if (selectedInventoryItem != null && selectedAction != null) {
 				// Dynamic hover: "{action} {item} mit {target}"
-				dynamicHoverText = selectedAction + " " + selectedInventoryItem.getName() + " mit " + hoveredArea.getName();
+				dynamicHoverText = selectedAction + " " + selectedInventoryItem.getName() + " mit "
+						+ hoveredArea.getName();
 			} else if (selectedAction != null) {
 				// Action selected but no item: "{action} {target}"
 				dynamicHoverText = selectedAction + " " + hoveredArea.getName();
@@ -1859,12 +1896,14 @@ public class AdventureGame extends JFrame {
 
 		// Check if clicking on CustomClickArea points first (highest priority)
 		for (Item item : currentScene.getItems()) {
-			if (!isItemVisibleInCurrentMode(item)) continue;
+			if (!isItemVisibleInCurrentMode(item))
+				continue;
 
 			List<CustomClickArea> customAreas = item.getCustomClickAreas();
 			for (CustomClickArea area : customAreas) {
 				// Only allow dragging if area is active
-				if (!area.shouldBeActive(null)) continue;
+				if (!area.shouldBeActive(null))
+					continue;
 
 				List<Point> points = area.getPoints();
 				for (int i = 0; i < points.size(); i++) {
@@ -1889,7 +1928,8 @@ public class AdventureGame extends JFrame {
 
 		// Check if clicking on Item click area points (old system)
 		for (Item item : currentScene.getItems()) {
-			if (!isItemVisibleInCurrentMode(item)) continue;
+			if (!isItemVisibleInCurrentMode(item))
+				continue;
 
 			List<Point> points = item.getClickAreaPoints();
 			for (int i = 0; i < points.size(); i++) {
@@ -1903,7 +1943,8 @@ public class AdventureGame extends JFrame {
 					// Auto-select in editor window
 					if (editorWindow != null) {
 						editorWindow.selectItem(item);
-						editorWindow.log("Selected Item point " + i + " from " + item.getName() + " at (" + p.x + "," + p.y + ")");
+						editorWindow.log("Selected Item point " + i + " from " + item.getName() + " at (" + p.x + ","
+								+ p.y + ")");
 					}
 					return;
 				}
@@ -1912,12 +1953,14 @@ public class AdventureGame extends JFrame {
 
 		// Check if clicking on MovingRange points from Items
 		for (Item item : currentScene.getItems()) {
-			if (!isItemVisibleInCurrentMode(item) || !item.isMovingRangeVisibleInEditor()) continue;
+			if (!isItemVisibleInCurrentMode(item) || !item.isMovingRangeVisibleInEditor())
+				continue;
 
 			List<MovingRange> movingRanges = item.getMovingRanges();
 			if (movingRanges != null) {
 				for (MovingRange range : movingRanges) {
-					if (!range.shouldBeActive(null)) continue;
+					if (!range.shouldBeActive(null))
+						continue;
 
 					List<Point> points = range.getPoints();
 					for (int i = 0; i < points.size(); i++) {
@@ -1944,12 +1987,14 @@ public class AdventureGame extends JFrame {
 
 		// Check if clicking on Path points from Items
 		for (Item item : currentScene.getItems()) {
-			if (!isItemVisibleInCurrentMode(item) || !item.isPathVisibleInEditor()) continue;
+			if (!isItemVisibleInCurrentMode(item) || !item.isPathVisibleInEditor())
+				continue;
 
 			List<Path> paths = item.getPaths();
 			if (paths != null) {
 				for (Path path : paths) {
-					if (!path.shouldBeActive(null)) continue;
+					if (!path.shouldBeActive(null))
+						continue;
 
 					List<Point> points = path.getPoints();
 					for (int i = 0; i < points.size(); i++) {
@@ -2022,7 +2067,8 @@ public class AdventureGame extends JFrame {
 
 	private void handlePathPointDrag(Point dragPoint) {
 		if (selectedPathPoint != null) {
-			System.out.println("DRAG: Before=(" + selectedPathPoint.x + "," + selectedPathPoint.y + ") To=(" + dragPoint.x + "," + dragPoint.y + ")");
+			System.out.println("DRAG: Before=(" + selectedPathPoint.x + "," + selectedPathPoint.y + ") To=("
+					+ dragPoint.x + "," + dragPoint.y + ")");
 
 			// Only mark as dragged if position actually changed
 			if (selectedPathPoint.x != dragPoint.x || selectedPathPoint.y != dragPoint.y) {
@@ -2038,9 +2084,9 @@ public class AdventureGame extends JFrame {
 			if (selectedCustomClickAreaForPointDrag != null) {
 				selectedCustomClickAreaForPointDrag.updatePolygon();
 
-				String logMsg = "🔵 Dragging CustomClickArea point " + selectedPathPointIndex +
-				                " of Item '" + (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") +
-				                "' to (" + dragPoint.x + "," + dragPoint.y + ")";
+				String logMsg = "🔵 Dragging CustomClickArea point " + selectedPathPointIndex + " of Item '"
+						+ (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") + "' to ("
+						+ dragPoint.x + "," + dragPoint.y + ")";
 				if (selectedItemForPointDrag != null) {
 					logMsg += " -> resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 				}
@@ -2055,9 +2101,9 @@ public class AdventureGame extends JFrame {
 			else if (selectedMovingRangeForPointDrag != null) {
 				selectedMovingRangeForPointDrag.updatePolygon();
 
-				String logMsg = "🟢 Dragging MovingRange point " + selectedPathPointIndex +
-				                " of Item '" + (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") +
-				                "' to (" + dragPoint.x + "," + dragPoint.y + ")";
+				String logMsg = "🟢 Dragging MovingRange point " + selectedPathPointIndex + " of Item '"
+						+ (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") + "' to ("
+						+ dragPoint.x + "," + dragPoint.y + ")";
 				if (selectedItemForPointDrag != null) {
 					logMsg += " -> resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 				}
@@ -2070,9 +2116,9 @@ public class AdventureGame extends JFrame {
 			}
 			// Update Path if dragging Path point (no polygon, just point list)
 			else if (selectedPathForPointDrag != null) {
-				String logMsg = "🔴 Dragging Path point " + selectedPathPointIndex +
-				                " of Item '" + (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") +
-				                "' to (" + dragPoint.x + "," + dragPoint.y + ")";
+				String logMsg = "🔴 Dragging Path point " + selectedPathPointIndex + " of Item '"
+						+ (selectedItemForPointDrag != null ? selectedItemForPointDrag.getName() : "?") + "' to ("
+						+ dragPoint.x + "," + dragPoint.y + ")";
 				if (selectedItemForPointDrag != null) {
 					logMsg += " -> resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 				}
@@ -2088,9 +2134,9 @@ public class AdventureGame extends JFrame {
 				selectedItemForPointDrag.updateClickAreaPolygon();
 				selectedItemForPointDrag.setHasCustomClickArea(true);
 
-				String logMsg = "⚫ Dragging Item point " + selectedPathPointIndex +
-				                " of Item '" + selectedItemForPointDrag.getName() +
-				                "' to (" + dragPoint.x + "," + dragPoint.y + ") -> resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+				String logMsg = "⚫ Dragging Item point " + selectedPathPointIndex + " of Item '"
+						+ selectedItemForPointDrag.getName() + "' to (" + dragPoint.x + "," + dragPoint.y
+						+ ") -> resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 
 				if (editorWindow != null) {
 					editorWindow.log(logMsg);
@@ -2117,7 +2163,8 @@ public class AdventureGame extends JFrame {
 
 			// Notify PointEditorDialog to update ListView
 			if (simplePointEditorDialog != null) {
-				simplePointEditorDialog.updatePointInList(selectedPathPointIndex, selectedPathPoint.x, selectedPathPoint.y);
+				simplePointEditorDialog.updatePointInList(selectedPathPointIndex, selectedPathPoint.x,
+						selectedPathPoint.y);
 			}
 
 			// Notify ScenePointEditor to update ListView
@@ -2131,7 +2178,8 @@ public class AdventureGame extends JFrame {
 					pointType = "Path";
 				}
 				if (!pointType.isEmpty()) {
-					scenePointEditor.updatePointInList(selectedPathPointIndex, selectedPathPoint.x, selectedPathPoint.y, pointType);
+					scenePointEditor.updatePointInList(selectedPathPointIndex, selectedPathPoint.x, selectedPathPoint.y,
+							pointType);
 				}
 			}
 
@@ -2140,7 +2188,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	private void handlePathPointRelease() {
-		System.out.println("RELEASE: pointWasDragged=" + pointWasDragged + ", selectedPathPoint=" + (selectedPathPoint != null ? "SET" : "NULL"));
+		System.out.println("RELEASE: pointWasDragged=" + pointWasDragged + ", selectedPathPoint="
+				+ (selectedPathPoint != null ? "SET" : "NULL"));
 
 		if (selectedPathPoint != null) {
 			// Determine which editor is active
@@ -2160,8 +2209,8 @@ public class AdventureGame extends JFrame {
 				if (selectedCustomClickAreaForPointDrag != null && selectedItemForPointDrag != null) {
 					try {
 						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved CustomClickArea point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+						String successMsg = "✓ Auto-saved CustomClickArea point " + selectedPathPointIndex
+								+ " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 
 						if (editorWindow != null) {
 							editorWindow.log(successMsg);
@@ -2184,8 +2233,8 @@ public class AdventureGame extends JFrame {
 				else if (selectedMovingRangeForPointDrag != null && selectedItemForPointDrag != null) {
 					try {
 						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved MovingRange point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+						String successMsg = "✓ Auto-saved MovingRange point " + selectedPathPointIndex
+								+ " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 
 						// Also save MovingRange to MovingRangeManager
 						MovingRange range = selectedItemForPointDrag.getPrimaryMovingRange();
@@ -2215,8 +2264,8 @@ public class AdventureGame extends JFrame {
 				else if (selectedPathForPointDrag != null && selectedItemForPointDrag != null) {
 					try {
 						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved Path point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+						String successMsg = "✓ Auto-saved Path point " + selectedPathPointIndex + " to resources/items/"
+								+ selectedItemForPointDrag.getName() + ".txt";
 
 						if (editorWindow != null) {
 							editorWindow.log(successMsg);
@@ -2239,8 +2288,8 @@ public class AdventureGame extends JFrame {
 				else if (selectedItemForPointDrag != null) {
 					try {
 						ItemSaver.saveItemByName(selectedItemForPointDrag);
-						String successMsg = "✓ Auto-saved Item point " + selectedPathPointIndex +
-						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
+						String successMsg = "✓ Auto-saved Item point " + selectedPathPointIndex + " to resources/items/"
+								+ selectedItemForPointDrag.getName() + ".txt";
 
 						if (editorWindow != null) {
 							editorWindow.log(successMsg);
@@ -2287,13 +2336,14 @@ public class AdventureGame extends JFrame {
 			pointWasDragged = false;
 			clearHighlightedPoint();
 		}
-		// If NOT dragged: Keep point selected (highlighting is already set in mousePressed)
+		// If NOT dragged: Keep point selected (highlighting is already set in
+		// mousePressed)
 		// Don't clear selection - point stays selected for keyboard shortcuts
 	}
 
 	/**
-	 * Handles the "+" keyboard shortcut to insert a new point.
-	 * Opens ScenePointEditor and inserts a point at the correct position.
+	 * Handles the "+" keyboard shortcut to insert a new point. Opens
+	 * ScenePointEditor and inserts a point at the correct position.
 	 */
 	private void handlePointInsertShortcut(String pointType) {
 		if (selectedItemForPointDrag == null) {
@@ -2326,7 +2376,8 @@ public class AdventureGame extends JFrame {
 				}
 			}
 
-			// Same logic as getInsertIndex(): insert after selected, or at 0 if last is selected
+			// Same logic as getInsertIndex(): insert after selected, or at 0 if last is
+			// selected
 			int insertIndex;
 			if (selectedPathPointIndex < 0 || pointCount == 0) {
 				insertIndex = pointCount; // Append at end
@@ -2377,8 +2428,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Handles the "DELETE" keyboard shortcut to remove the selected point.
-	 * Opens ScenePointEditor and removes the selected point.
+	 * Handles the "DELETE" keyboard shortcut to remove the selected point. Opens
+	 * ScenePointEditor and removes the selected point.
 	 */
 	private void handlePointDeleteShortcut(String pointType) {
 		if (selectedItemForPointDrag == null || selectedPathPointIndex < 0) {
@@ -2463,8 +2514,8 @@ public class AdventureGame extends JFrame {
 				// Check corners first (in editor mode)
 				if (showPaths) {
 					// Top-left
-					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance &&
-					    Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
+					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance
+							&& Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
 						draggedItem = item;
 						draggedCorner = ItemCorner.TOP_LEFT;
 						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
@@ -2474,8 +2525,8 @@ public class AdventureGame extends JFrame {
 						return;
 					}
 					// Top-right
-					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance &&
-					    Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
+					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance
+							&& Math.abs(clickPoint.y - y) <= handleSize / 2 + handleTolerance) {
 						draggedItem = item;
 						draggedCorner = ItemCorner.TOP_RIGHT;
 						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
@@ -2485,8 +2536,8 @@ public class AdventureGame extends JFrame {
 						return;
 					}
 					// Bottom-left
-					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance &&
-					    Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
+					if (Math.abs(clickPoint.x - x) <= handleSize / 2 + handleTolerance
+							&& Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
 						draggedItem = item;
 						draggedCorner = ItemCorner.BOTTOM_LEFT;
 						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
@@ -2496,8 +2547,8 @@ public class AdventureGame extends JFrame {
 						return;
 					}
 					// Bottom-right
-					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance &&
-					    Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
+					if (Math.abs(clickPoint.x - (x + imgWidth)) <= handleSize / 2 + handleTolerance
+							&& Math.abs(clickPoint.y - (y + imgHeight)) <= handleSize / 2 + handleTolerance) {
 						draggedItem = item;
 						draggedCorner = ItemCorner.BOTTOM_RIGHT;
 						initialDragPoint = new Point(clickPoint.x, clickPoint.y);
@@ -2509,8 +2560,8 @@ public class AdventureGame extends JFrame {
 				}
 
 				// Check if clicking inside item body (for move)
-				if (clickPoint.x >= x && clickPoint.x <= x + imgWidth &&
-				    clickPoint.y >= y && clickPoint.y <= y + imgHeight) {
+				if (clickPoint.x >= x && clickPoint.x <= x + imgWidth && clickPoint.y >= y
+						&& clickPoint.y <= y + imgHeight) {
 					draggedItem = item;
 					draggedCorner = ItemCorner.NONE;
 					if (editorWindow != null) {
@@ -2523,7 +2574,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	private void handleItemDrag(Point newPosition) {
-		if (draggedItem == null) return;
+		if (draggedItem == null)
+			return;
 
 		if (draggedCorner == ItemCorner.NONE) {
 			// Move entire item
@@ -2569,22 +2621,22 @@ public class AdventureGame extends JFrame {
 
 			// Adjust bounds based on which corner is being dragged
 			switch (draggedCorner) {
-				case TOP_LEFT:
-					left = newPosition.x;
-					top = newPosition.y;
-					break;
-				case TOP_RIGHT:
-					right = newPosition.x;
-					top = newPosition.y;
-					break;
-				case BOTTOM_LEFT:
-					left = newPosition.x;
-					bottom = newPosition.y;
-					break;
-				case BOTTOM_RIGHT:
-					right = newPosition.x;
-					bottom = newPosition.y;
-					break;
+			case TOP_LEFT:
+				left = newPosition.x;
+				top = newPosition.y;
+				break;
+			case TOP_RIGHT:
+				right = newPosition.x;
+				top = newPosition.y;
+				break;
+			case BOTTOM_LEFT:
+				left = newPosition.x;
+				bottom = newPosition.y;
+				break;
+			case BOTTOM_RIGHT:
+				right = newPosition.x;
+				bottom = newPosition.y;
+				break;
 			}
 
 			// Calculate new size and position
@@ -2600,7 +2652,8 @@ public class AdventureGame extends JFrame {
 
 		// CRITICAL: Live update ScenePointEditor during drag
 		if (scenePointEditor != null && draggedItem != null) {
-			System.out.println("🔵 DEBUG: Calling refreshPointFieldsForItem from handleItemDrag for item: " + draggedItem.getName());
+			System.out.println("🔵 DEBUG: Calling refreshPointFieldsForItem from handleItemDrag for item: "
+					+ draggedItem.getName());
 			scenePointEditor.refreshPointFieldsForItem(draggedItem);
 		} else {
 			if (scenePointEditor == null) {
@@ -2626,7 +2679,8 @@ public class AdventureGame extends JFrame {
 				if (draggedCorner == ItemCorner.NONE) {
 					logMessage = "Moved item " + draggedItem.getName() + " to (" + pos.x + ", " + pos.y + ")";
 				} else {
-					logMessage = "Resized item " + draggedItem.getName() + " to " + draggedItem.getWidth() + "x" + draggedItem.getHeight();
+					logMessage = "Resized item " + draggedItem.getName() + " to " + draggedItem.getWidth() + "x"
+							+ draggedItem.getHeight();
 				}
 
 				// Log to the active editor
@@ -2666,8 +2720,8 @@ public class AdventureGame extends JFrame {
 	// ==================== Character Movement ====================
 
 	/**
-	 * Handles character movement when user clicks on scene.
-	 * Only applies to items with isFollowingOnMouseClick = true.
+	 * Handles character movement when user clicks on scene. Only applies to items
+	 * with isFollowingOnMouseClick = true.
 	 */
 	private void handleCharacterMovement(Point clickPoint) {
 		// Find item with isFollowingOnMouseClick = true
@@ -2685,10 +2739,12 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Finds the first item with isFollowingOnMouseClick = true in the current scene.
+	 * Finds the first item with isFollowingOnMouseClick = true in the current
+	 * scene.
 	 */
 	private Item findCharacterItem() {
-		if (currentScene == null) return null;
+		if (currentScene == null)
+			return null;
 
 		for (Item item : currentScene.getItems()) {
 			if (item.isFollowingOnMouseClick()) {
@@ -2713,7 +2769,7 @@ public class AdventureGame extends JFrame {
 		// Create movement timer (~60 FPS)
 		characterMovementTimer = new javax.swing.Timer(16, e -> {
 			if (movingCharacter == null || characterTargetPosition == null) {
-				((javax.swing.Timer)e.getSource()).stop();
+				((javax.swing.Timer) e.getSource()).stop();
 				return;
 			}
 
@@ -2726,7 +2782,7 @@ public class AdventureGame extends JFrame {
 				// Target reached
 				// Move item and its CustomClickArea
 				moveItemWithCustomClickArea(movingCharacter, characterTargetPosition.x, characterTargetPosition.y);
-				((javax.swing.Timer)e.getSource()).stop();
+				((javax.swing.Timer) e.getSource()).stop();
 
 				// Auto-save final position (only in editor mode)
 				if (editorWindow != null || editorWindowSimple != null) {
@@ -2746,13 +2802,11 @@ public class AdventureGame extends JFrame {
 				characterTargetPosition = null;
 			} else {
 				// Move towards target
-				double angle = Math.atan2(
-					characterTargetPosition.y - currentPos.y,
-					characterTargetPosition.x - currentPos.x
-				);
+				double angle = Math.atan2(characterTargetPosition.y - currentPos.y,
+						characterTargetPosition.x - currentPos.x);
 
-				int newX = currentPos.x + (int)(Math.cos(angle) * CHARACTER_SPEED);
-				int newY = currentPos.y + (int)(Math.sin(angle) * CHARACTER_SPEED);
+				int newX = currentPos.x + (int) (Math.cos(angle) * CHARACTER_SPEED);
+				int newY = currentPos.y + (int) (Math.sin(angle) * CHARACTER_SPEED);
 
 				// Move item and its CustomClickArea
 				moveItemWithCustomClickArea(movingCharacter, newX, newY);
@@ -2776,8 +2830,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Starts character movement for processes (non-blocking from process perspective)
-	 * Called by Process.MovementAction
+	 * Starts character movement for processes (non-blocking from process
+	 * perspective) Called by Process.MovementAction
 	 */
 	public void startCharacterMovementProcess(Item characterItem, Point targetPosition) {
 		startCharacterMovement(characterItem, targetPosition);
@@ -2791,8 +2845,9 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Moves an item to a new position and updates all CustomClickAreas to move with it.
-	 * This ensures that click areas stay synchronized with the item's visual position.
+	 * Moves an item to a new position and updates all CustomClickAreas to move with
+	 * it. This ensures that click areas stay synchronized with the item's visual
+	 * position.
 	 *
 	 * @param item The item to move
 	 * @param newX New X position
@@ -2833,6 +2888,33 @@ public class AdventureGame extends JFrame {
 
 	// ==================== End Character Movement ====================
 
+	/**
+	 * Helper method to log to whichever editor is currently active
+	 */
+	private void logToActiveEditor(String message) {
+		if (editorWindow != null && editorWindow.isVisible()) {
+			editorWindow.log(message);
+		} else if (editorWindowSimple != null && editorWindowSimple.isVisible()) {
+			editorWindowSimple.log(message);
+		}
+	}
+
+	/**
+	 * Auto-save current scene to whichever editor is active
+	 */
+	private void autoSaveCurrentSceneToActiveEditor() {
+		if (editorWindow != null && editorWindow.isVisible()) {
+			editorWindow.autoSaveCurrentScene();
+		} else if (editorWindowSimple != null && editorWindowSimple.isVisible() && currentScene != null) {
+			try {
+				SceneSaver.saveScene(currentScene);
+				editorWindowSimple.log("✓ Auto-saved scene: " + currentScene.getName());
+			} catch (Exception e) {
+				editorWindowSimple.log("ERROR saving scene: " + e.getMessage());
+			}
+		}
+	}
+
 	private void handleImageDrop(File imageFile, Point dropPoint) {
 		if (currentScene == null) {
 			JOptionPane.showMessageDialog(this, "No scene loaded!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -2840,10 +2922,8 @@ public class AdventureGame extends JFrame {
 		}
 
 		// Ask for item name
-		String itemName = JOptionPane.showInputDialog(this,
-			"Enter item name for image:\n" + imageFile.getName(),
-			"Create Item from Image",
-			JOptionPane.PLAIN_MESSAGE);
+		String itemName = JOptionPane.showInputDialog(this, "Enter item name for image:\n" + imageFile.getName(),
+				"Create Item from Image", JOptionPane.PLAIN_MESSAGE);
 
 		if (itemName == null || itemName.trim().isEmpty()) {
 			return; // User cancelled
@@ -2854,11 +2934,8 @@ public class AdventureGame extends JFrame {
 		// Check if item already exists
 		File itemFile = new File("resources/items/" + itemName + ".txt");
 		if (itemFile.exists()) {
-			int overwrite = JOptionPane.showConfirmDialog(this,
-				"Item '" + itemName + "' already exists!\nOverwrite?",
-				"Item Exists",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.WARNING_MESSAGE);
+			int overwrite = JOptionPane.showConfirmDialog(this, "Item '" + itemName + "' already exists!\nOverwrite?",
+					"Item Exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (overwrite != JOptionPane.YES_OPTION) {
 				return;
 			}
@@ -2875,11 +2952,8 @@ public class AdventureGame extends JFrame {
 			File targetImageFile = new File(itemsImagesDir, imageFileName);
 
 			// Copy file
-			java.nio.file.Files.copy(
-				imageFile.toPath(),
-				targetImageFile.toPath(),
-				java.nio.file.StandardCopyOption.REPLACE_EXISTING
-			);
+			java.nio.file.Files.copy(imageFile.toPath(), targetImageFile.toPath(),
+					java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
 			// Create new item
 			Item newItem = new Item(itemName);
@@ -2906,8 +2980,8 @@ public class AdventureGame extends JFrame {
 				targetWidth = (int) (originalWidth * scale);
 				targetHeight = (int) (originalHeight * scale);
 
-				editorWindow.log("Auto-scaled image from " + originalWidth + "x" + originalHeight +
-				                " to " + targetWidth + "x" + targetHeight);
+				logToActiveEditor("Auto-scaled image from " + originalWidth + "x" + originalHeight + " to "
+						+ targetWidth + "x" + targetHeight);
 			}
 
 			// Set size (use scaled size or default if invalid)
@@ -2930,7 +3004,7 @@ public class AdventureGame extends JFrame {
 				newItem.addClickAreaPoint(centerX - halfSize, centerY + halfSize); // Bottom-left
 				newItem.setHasCustomClickArea(true);
 				newItem.updateClickAreaPolygon();
-				editorWindow.log("Set custom click area to 140x140");
+				logToActiveEditor("Set custom click area to 140x140");
 			}
 
 			// Save item
@@ -2938,33 +3012,39 @@ public class AdventureGame extends JFrame {
 
 			// Add to current scene
 			currentScene.addItem(newItem);
-			editorWindow.autoSaveCurrentScene();
+			autoSaveCurrentSceneToActiveEditor();
 
 			// Repaint to show the item
 			gamePanel.repaint();
 
-			editorWindow.log("Created item '" + itemName + "' from dropped image at (" + dropPoint.x + ", " + dropPoint.y + ")");
+			logToActiveEditor(
+					"Created item '" + itemName + "' from dropped image at (" + dropPoint.x + ", " + dropPoint.y + ")");
 
 			// Open ItemEditor with the new item selected
 			openItemEditorWithItem(itemName);
 
 		} catch (Exception e) {
-			editorWindow.log("ERROR creating item from image: " + e.getMessage());
-			JOptionPane.showMessageDialog(this,
-				"Error creating item:\n" + e.getMessage(),
-				"Error",
-				JOptionPane.ERROR_MESSAGE);
+			logToActiveEditor("ERROR creating item from image: " + e.getMessage());
+			JOptionPane.showMessageDialog(this, "Error creating item:\n" + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}
 
 	private void openItemEditorWithItem(String itemName) {
 		// Open ItemEditor (non-modal so it won't block)
+		// Note: ItemEditorDialog requires EditorMain, so only open when EditorMain is
+		// available
 		SwingUtilities.invokeLater(() -> {
-			ItemEditorDialog dialog = new ItemEditorDialog(editorWindow);
-			dialog.setVisible(true);
-			// Auto-select the newly created item
-			dialog.selectItemByName(itemName);
+			if (editorWindow != null && editorWindow.isVisible()) {
+				ItemEditorDialog dialog = new ItemEditorDialog(editorWindow);
+				dialog.setVisible(true);
+				// Auto-select the newly created item
+				dialog.selectItemByName(itemName);
+			} else {
+				// If only EditorMainSimple is open, log a message
+				logToActiveEditor("ItemEditor only available with EditorMain (ALT+E), not EditorMainSimple (ALT+S)");
+			}
 		});
 	}
 
@@ -2998,42 +3078,43 @@ public class AdventureGame extends JFrame {
 		}
 
 		switch (action) {
-			case "Nimm":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case "Gib":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case "Ziehe":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-				break;
-			case "Drücke":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case "Drehe":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case "Hebe":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			case "Anschauen":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				break;
-			case "Sprich":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-				break;
-			case "Benutze":
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				break;
-			default:
-				gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-				break;
+		case "Nimm":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		case "Gib":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		case "Ziehe":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			break;
+		case "Drücke":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		case "Drehe":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		case "Hebe":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		case "Anschauen":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			break;
+		case "Sprich":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+			break;
+		case "Benutze":
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			break;
+		default:
+			gamePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			break;
 		}
 	}
 
 	private void handleGamePanelClick(Point clickPoint) {
 		System.out.println("🖱️ handleGamePanelClick: Click at (" + clickPoint.x + ", " + clickPoint.y + ")");
-		System.out.println("   addPointModeSimple=" + addPointModeSimple + ", addPointModeTypeSimple=" + addPointModeTypeSimple);
+		System.out.println(
+				"   addPointModeSimple=" + addPointModeSimple + ", addPointModeTypeSimple=" + addPointModeTypeSimple);
 		System.out.println("   scenePointEditor=" + (scenePointEditor != null ? "REGISTERED" : "NULL"));
 
 		// IMPORTANT: If a point is currently selected, don't process sprite/item clicks
@@ -3076,8 +3157,8 @@ public class AdventureGame extends JFrame {
 		if (customClickAreaPanel != null && addPointMode) {
 			try {
 				// Use reflection to call addPointAtPosition method
-				java.lang.reflect.Method method = customClickAreaPanel.getClass()
-						.getMethod("addPointAtPosition", int.class, int.class);
+				java.lang.reflect.Method method = customClickAreaPanel.getClass().getMethod("addPointAtPosition",
+						int.class, int.class);
 				method.invoke(customClickAreaPanel, clickPoint.x, clickPoint.y);
 				return;
 			} catch (Exception e) {
@@ -3106,12 +3187,40 @@ public class AdventureGame extends JFrame {
 
 		// === CHARACTER MOVEMENT ===
 		// Handle character movement (for items with isFollowingOnMouseClick = true)
-		// This runs BEFORE action handling, so characters can move regardless of selected action
+		// This runs BEFORE action handling, so characters can move regardless of
+		// selected action
 		handleCharacterMovement(clickPoint);
 
 		// Check if clicked on an Item FIRST (Items should have priority over KeyAreas)
 		Item clickedItem = currentScene.getItemAt(clickPoint);
 
+		// === EDITOR MODE: Item selection ===
+		// When editor is open (showPaths), clicking on an item selects it for editing
+		if (showPaths && clickedItem != null && clickedItem.isVisible() && isItemVisibleInCurrentMode(clickedItem)) {
+			// Select or deselect the clicked item
+			Item currentlySelected = currentScene.getSelectedItem();
+			if (currentlySelected == clickedItem) {
+				// Deselect if clicking the same item again
+				currentScene.setSelectedItem(null);
+				selectedItemInEditor = null;
+				logToActiveEditor("Deselected item: " + clickedItem.getName());
+			} else {
+				// Select the clicked item
+				currentScene.setSelectedItem(clickedItem);
+				selectedItemInEditor = clickedItem;
+				logToActiveEditor("Selected item: " + clickedItem.getName() + " at (" + clickedItem.getPosition().x + "," + clickedItem.getPosition().y + ")");
+
+				// Also select in the editor window (only works with EditorMain)
+				if (editorWindow != null && editorWindow.isVisible()) {
+					editorWindow.selectItem(clickedItem);
+				}
+				// Note: EditorMainSimple doesn't have selectItem() - selection is still saved in scene
+			}
+			gamePanel.repaint();
+			return; // Don't process game actions when in editor mode
+		}
+
+		// === GAME MODE: Action handling ===
 		if (clickedItem != null && clickedItem.isVisible() && selectedAction != null) {
 			// Perform action on Item
 			String result = clickedItem.performAction(selectedAction, progress);
@@ -3145,14 +3254,15 @@ public class AdventureGame extends JFrame {
 						}
 						showDialog(dialogLine.trim());
 					} else if (singleResult.startsWith("#SetBoolean:")) {
-				System.out.println("DEBUG: #SetBoolean detected in ITEM action!");
+						System.out.println("DEBUG: #SetBoolean detected in ITEM action!");
 						// Set boolean variable in Conditions
 						String[] parts = singleResult.substring(12).split("=");
 						if (parts.length == 2) {
 							String condName = parts[0].trim();
 							boolean newValue = Boolean.parseBoolean(parts[1].trim());
 							boolean oldValue = Conditions.getCondition(condName);
-						System.out.println("DEBUG [ITEM]: ConditionName=" + condName + ", oldValue=" + oldValue + ", newValue=" + newValue);
+							System.out.println("DEBUG [ITEM]: ConditionName=" + condName + ", oldValue=" + oldValue
+									+ ", newValue=" + newValue);
 
 							Conditions.setCondition(condName, newValue);
 
@@ -3236,14 +3346,15 @@ public class AdventureGame extends JFrame {
 						}
 						showDialog(dialogLine.trim());
 					} else if (singleResult.startsWith("#SetBoolean:")) {
-				System.out.println("DEBUG: #SetBoolean detected in KEYAREA action!");
+						System.out.println("DEBUG: #SetBoolean detected in KEYAREA action!");
 						// Set boolean variable in Conditions
 						String[] parts = singleResult.substring(12).split("=");
 						if (parts.length == 2) {
 							String condName = parts[0].trim();
 							boolean newValue = Boolean.parseBoolean(parts[1].trim());
 							boolean oldValue = Conditions.getCondition(condName);
-						System.out.println("DEBUG [KEYAREA]: ConditionName=" + condName + ", oldValue=" + oldValue + ", newValue=" + newValue);
+							System.out.println("DEBUG [KEYAREA]: ConditionName=" + condName + ", oldValue=" + oldValue
+									+ ", newValue=" + newValue);
 
 							Conditions.setCondition(condName, newValue);
 
@@ -3309,7 +3420,8 @@ public class AdventureGame extends JFrame {
 			// Parse sceneName: "SceneName/SubSceneName"
 			String[] parts = sceneName.split("/");
 			if (parts.length != 2) {
-				throw new IllegalArgumentException("Invalid scene name format. Expected: SceneName/SubSceneName, got: " + sceneName);
+				throw new IllegalArgumentException(
+						"Invalid scene name format. Expected: SceneName/SubSceneName, got: " + sceneName);
 			}
 
 			String sceneDir = parts[0];
@@ -3380,7 +3492,8 @@ public class AdventureGame extends JFrame {
 			// Parse sceneName: "SceneName/SubSceneName"
 			String[] parts = sceneName.split("/");
 			if (parts.length != 2) {
-				throw new IllegalArgumentException("Invalid scene name format. Expected: SceneName/SubSceneName, got: " + sceneName);
+				throw new IllegalArgumentException(
+						"Invalid scene name format. Expected: SceneName/SubSceneName, got: " + sceneName);
 			}
 
 			String sceneDir = parts[0];
@@ -3455,9 +3568,7 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Switches to Gaming Mode:
-	 * - Enables auto-save
-	 * - Loads conditions from progress
+	 * Switches to Gaming Mode: - Enables auto-save - Loads conditions from progress
 	 * - Reloads current scene from progress files
 	 *
 	 * Called when editor window closes (via X button or Alt+E)
@@ -3496,7 +3607,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Reloads all scenes (actually just reloads the current scene since scenes are loaded on-demand)
+	 * Reloads all scenes (actually just reloads the current scene since scenes are
+	 * loaded on-demand)
 	 */
 	public void reloadAllScenes() {
 		if (currentScene != null) {
@@ -3588,8 +3700,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Adds an item to inventory by name
-	 * Sets isInInventory to true and makes item/clickArea invisible
+	 * Adds an item to inventory by name Sets isInInventory to true and makes
+	 * item/clickArea invisible
 	 */
 	private void addItemToInventoryByName(String itemName) {
 		if (currentScene != null) {
@@ -3597,12 +3709,12 @@ public class AdventureGame extends JFrame {
 				if (item.getName().equals(itemName)) {
 					// Set item to inventory
 					item.setInInventory(true);
-					
+
 					// Make item mouseInvisible (handled in Item.shouldShowInScene())
 					// The item is already hidden when isInInventory is true
-					
+
 					System.out.println("Added item to inventory: " + itemName);
-					
+
 					// Update inventory display
 					updateInventory();
 					gamePanel.repaint();
@@ -3613,10 +3725,9 @@ public class AdventureGame extends JFrame {
 		}
 	}
 
-
 	/**
-	 * Adds an item to the inventory display with tile image
-	 * UPDATED: Uses theme colors
+	 * Adds an item to the inventory display with tile image UPDATED: Uses theme
+	 * colors
 	 */
 	private void addItemToInventory(Item item) {
 		var c = ThemeManager.colors();
@@ -3631,7 +3742,8 @@ public class AdventureGame extends JFrame {
 		// Try to load and display item image as tile
 		if (item.getImageFilePath() != null && !item.getImageFilePath().isEmpty()) {
 			try {
-				// Use ResourcePathHelper to resolve path (handles both full paths and filenames)
+				// Use ResourcePathHelper to resolve path (handles both full paths and
+				// filenames)
 				java.io.File imageFile = ResourcePathHelper.findImageFile(item.getImageFilePath());
 				if (imageFile == null) {
 					// Fallback: try direct path
@@ -3659,7 +3771,8 @@ public class AdventureGame extends JFrame {
 		}
 
 		itemBtn.addActionListener(e -> {
-			// Check if "Benutze" or "Gib" action is selected -> activate item-as-cursor mode
+			// Check if "Benutze" or "Gib" action is selected -> activate item-as-cursor
+			// mode
 			if (selectedAction != null && (selectedAction.equals("Benutze") || selectedAction.equals("Gib"))) {
 				// Item-as-cursor mode
 				if (selectedInventoryItem != null && selectedInventoryItem.equals(item)) {
@@ -3777,8 +3890,8 @@ public class AdventureGame extends JFrame {
 			int newWidth = (int) Math.floor(buffered.getWidth() * cos + buffered.getHeight() * sin);
 			int newHeight = (int) Math.floor(buffered.getHeight() * cos + buffered.getWidth() * sin);
 
-			java.awt.image.BufferedImage rotated = new java.awt.image.BufferedImage(
-					newWidth, newHeight, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+			java.awt.image.BufferedImage rotated = new java.awt.image.BufferedImage(newWidth, newHeight,
+					java.awt.image.BufferedImage.TYPE_INT_ARGB);
 
 			Graphics2D g2d = rotated.createGraphics();
 			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -3837,8 +3950,8 @@ public class AdventureGame extends JFrame {
 			int width = buffered.getWidth();
 			int height = buffered.getHeight();
 
-			java.awt.image.BufferedImage flipped = new java.awt.image.BufferedImage(
-					width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+			java.awt.image.BufferedImage flipped = new java.awt.image.BufferedImage(width, height,
+					java.awt.image.BufferedImage.TYPE_INT_ARGB);
 
 			Graphics2D g2d = flipped.createGraphics();
 
@@ -3878,7 +3991,8 @@ public class AdventureGame extends JFrame {
 				gamePanel.repaint();
 				gamePanel.revalidate();
 
-				System.out.println("Image flipped " + (horizontal ? "horizontally" : "vertically") + " and display updated");
+				System.out.println(
+						"Image flipped " + (horizontal ? "horizontally" : "vertically") + " and display updated");
 			}
 		} catch (Exception e) {
 			System.err.println("ERROR flipping image: " + e.getMessage());
@@ -3895,8 +4009,8 @@ public class AdventureGame extends JFrame {
 		}
 
 		// Create buffered image with transparency
-		java.awt.image.BufferedImage buffered = new java.awt.image.BufferedImage(
-				img.getWidth(null), img.getHeight(null), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+		java.awt.image.BufferedImage buffered = new java.awt.image.BufferedImage(img.getWidth(null),
+				img.getHeight(null), java.awt.image.BufferedImage.TYPE_INT_ARGB);
 
 		Graphics2D g2d = buffered.createGraphics();
 		g2d.drawImage(img, 0, 0, null);
@@ -3906,7 +4020,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Reload background image if conditions have changed and a different image should be shown
+	 * Reload background image if conditions have changed and a different image
+	 * should be shown
 	 */
 	private void reloadBackgroundImageIfNeeded() {
 		if (currentScene == null) {
@@ -3944,13 +4059,14 @@ public class AdventureGame extends JFrame {
 	}
 
 	/**
-	 * Auto-save that respects Editor mode
-	 * - If EditorWindow is open and in "Load Defaults" mode → save to conditions.txt (default values)
-	 * - Otherwise → save to progress.txt (normal gaming mode)
+	 * Auto-save that respects Editor mode - If EditorWindow is open and in "Load
+	 * Defaults" mode → save to conditions.txt (default values) - Otherwise → save
+	 * to progress.txt (normal gaming mode)
 	 */
 	private void autoSave() {
-		if (editorWindow != null && editorWindow.isVisible() /*&& editorWindow.isEditorModeLoadDefaults()*/) {
-			// Editor is open in "Load Defaults" mode → save to conditions.txt (default values)
+		if (editorWindow != null && editorWindow.isVisible() /* && editorWindow.isEditorModeLoadDefaults() */) {
+			// Editor is open in "Load Defaults" mode → save to conditions.txt (default
+			// values)
 			Conditions.saveConditionsToFile();
 			System.out.println("✓ Auto-saved to conditions.txt (Edit Mode)");
 		} else {

@@ -2,34 +2,22 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
-import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
 import main.ui.components.button.AppButton;
+import main.ui.theme.Spacing;
+import main.ui.theme.ThemeManager;
 
 /**
  * Debug Sidebar Panel - Shows action executions and condition changes
@@ -138,17 +126,6 @@ public class DebugWindow extends JPanel {
             frame.setVisible(false);
         }
         visible = false;
-    }
-
-    /**
-     * Toggle visibility
-     */
-    public void toggle() {
-        if (visible) {
-            hide();
-        } else {
-            show();
-        }
     }
 
     /**

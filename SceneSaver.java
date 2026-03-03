@@ -253,6 +253,14 @@ public class SceneSaver {
             }
             writer.write("\n");
         }
+
+        // Selected Item (editor selection - persists across sessions)
+        Item selectedItem = scene.getSelectedItem();
+        if (selectedItem != null && selectedItem.getName() != null) {
+            writer.write("#SelectedItem:\n");
+            writer.write("-" + selectedItem.getName() + "\n");
+            writer.write("\n");
+        }
     }
 
     /**

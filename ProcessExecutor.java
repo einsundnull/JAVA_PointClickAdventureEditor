@@ -1,7 +1,8 @@
 package main;
 
-import javax.swing.Timer;
 import java.util.List;
+
+import javax.swing.Timer;
 
 /**
  * Executes processes sequentially, handling blocking and non-blocking actions

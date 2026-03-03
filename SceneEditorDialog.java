@@ -37,10 +37,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import main.ui.components.button.AppButton;
+import main.ui.theme.Spacing;
 // New UI imports
 import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
-import main.ui.components.button.AppButton;
 
 /**
  * Dialog zum Editieren einer Scene mit Unterstützung für mehrere bedingte Bilder

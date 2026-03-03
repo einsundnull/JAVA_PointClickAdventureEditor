@@ -36,12 +36,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
-// New UI imports
-import main.ui.theme.ThemeManager;
-import main.ui.theme.Spacing;
 import main.ui.components.button.AppButton;
 import main.ui.components.panel.CollapsiblePanel;
-import main.ui.components.panel.CardPanel;
+import main.ui.theme.Spacing;
+// New UI imports
+import main.ui.theme.ThemeManager;
 
 /**
  * Dialog zum Verwalten aller Items
