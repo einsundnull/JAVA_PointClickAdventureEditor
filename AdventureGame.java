@@ -1877,10 +1877,9 @@ public class AdventureGame extends JFrame {
 						selectedCustomClickAreaForPointDrag = area;
 						pointWasDragged = false;
 
-						// DON'T set highlighted yet - wait for mouse release
-						// DON'T return - allow event to continue to check for other items
-
-						break; // Stop checking this area, found the point
+						// IMPORTANT: Return to prevent sprite/item from reacting to the click
+						// The point will be visually selected in handlePathPointRelease
+						return;
 					}
 				}
 			}
@@ -1930,7 +1929,8 @@ public class AdventureGame extends JFrame {
 							selectedPathForPointDrag = null;
 							pointWasDragged = false;
 
-							break; // Stop checking this range, found the point
+							// IMPORTANT: Return to prevent sprite/item from reacting
+							return;
 						}
 					}
 				}
@@ -1958,7 +1958,8 @@ public class AdventureGame extends JFrame {
 							selectedPathForPointDrag = path;
 							pointWasDragged = false;
 
-							break; // Stop checking this path, found the point
+							// IMPORTANT: Return to prevent sprite/item from reacting
+							return;
 						}
 					}
 				}
