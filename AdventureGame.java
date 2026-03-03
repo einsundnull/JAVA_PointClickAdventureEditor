@@ -80,6 +80,7 @@ public class AdventureGame extends JFrame {
 	private CustomClickArea selectedCustomClickAreaForPointDrag = null; // CustomClickArea whose point is being dragged
 	private MovingRange selectedMovingRangeForPointDrag = null; // MovingRange whose point is being dragged
 	private Path selectedPathForPointDrag = null; // Path whose point is being dragged
+	private boolean pointWasDragged = false; // Track if point was actually dragged (moved)
 	private boolean addPointMode = false;
 	private EditorMain addPointModeEditor = null;
 	private UniversalPointEditorDialog pointEditorDialog = null;
@@ -1414,10 +1415,15 @@ public class AdventureGame extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				handleGamePanelClick(e.getPoint());
+				// Request focus so keyboard shortcuts work
+				gamePanel.requestFocusInWindow();
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				// Request focus so keyboard shortcuts work
+				gamePanel.requestFocusInWindow();
+
 				if (showPaths) {
 					// Check for path points FIRST (higher priority for precise clicking)
 					handlePathPointPress(e.getPoint());
@@ -1486,6 +1492,9 @@ public class AdventureGame extends JFrame {
 		gamePanel.addKeyListener(new java.awt.event.KeyAdapter() {
 			@Override
 			public void keyPressed(java.awt.event.KeyEvent e) {
+				System.out.println("KEY PRESSED: keyCode=" + e.getKeyCode() + ", char=" + e.getKeyChar() +
+					", focus=" + gamePanel.isFocusOwner());
+
 				// Only handle when an editor is open and a point is selected
 				if (editorWindow == null && editorWindowSimple == null) {
 					return;
@@ -1493,6 +1502,7 @@ public class AdventureGame extends JFrame {
 
 				// Check if a point is selected
 				if (selectedPathPoint == null || selectedItemForPointDrag == null) {
+					System.out.println("  -> No point selected");
 					return;
 				}
 
@@ -1507,17 +1517,23 @@ public class AdventureGame extends JFrame {
 				}
 
 				if (pointType == null) {
+					System.out.println("  -> No point type");
 					return;
 				}
 
-				// Handle + key (add point)
+				System.out.println("  -> pointType=" + pointType);
+
+				// Handle + key (add point) - support both numpad + and regular +
 				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ADD ||
-				    e.getKeyCode() == java.awt.event.KeyEvent.VK_PLUS) {
+				    e.getKeyCode() == java.awt.event.KeyEvent.VK_PLUS ||
+				    e.getKeyChar() == '+') {
+					System.out.println("  -> + key handled!");
 					e.consume();
 					handlePointInsertShortcut(pointType);
 				}
 				// Handle DELETE key (remove point)
 				else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
+					System.out.println("  -> DELETE key handled!");
 					e.consume();
 					handlePointDeleteShortcut(pointType);
 				}
@@ -1858,6 +1874,10 @@ public class AdventureGame extends JFrame {
 						selectedPathPointIndex = i;
 						selectedItemForPointDrag = item;
 						selectedCustomClickAreaForPointDrag = area;
+						pointWasDragged = false; // Reset drag flag when selecting a point
+
+						// Set highlighted point for visual feedback
+						setHighlightedPoint(item, "CustomClickArea", i);
 
 						// Auto-select in editor window
 						if (editorWindow != null) {
@@ -1918,6 +1938,10 @@ public class AdventureGame extends JFrame {
 							selectedCustomClickAreaForPointDrag = null;
 							selectedMovingRangeForPointDrag = range;
 							selectedPathForPointDrag = null;
+							pointWasDragged = false; // Reset drag flag when selecting a point
+
+							// Set highlighted point for visual feedback
+							setHighlightedPoint(item, "MovingRange", i);
 
 							// Auto-select in editor window
 							if (editorWindow != null) {
@@ -1956,6 +1980,10 @@ public class AdventureGame extends JFrame {
 							selectedCustomClickAreaForPointDrag = null;
 							selectedMovingRangeForPointDrag = null;
 							selectedPathForPointDrag = path;
+							pointWasDragged = false; // Reset drag flag when selecting a point
+
+							// Set highlighted point for visual feedback
+							setHighlightedPoint(item, "Path", i);
 
 							// Auto-select in editor window
 							if (editorWindow != null) {
@@ -2025,6 +2053,7 @@ public class AdventureGame extends JFrame {
 		if (selectedPathPoint != null) {
 			selectedPathPoint.x = dragPoint.x;
 			selectedPathPoint.y = dragPoint.y;
+			pointWasDragged = true; // Mark that point was actually dragged
 
 			// Update CustomClickArea polygon if dragging CustomClickArea point
 			if (selectedCustomClickAreaForPointDrag != null) {
@@ -2264,12 +2293,18 @@ public class AdventureGame extends JFrame {
 				}
 			}
 		}
-		selectedPathPoint = null;
-		selectedPathPointIndex = -1;
-		selectedItemForPointDrag = null;
-		selectedCustomClickAreaForPointDrag = null;
-		selectedMovingRangeForPointDrag = null;
-		selectedPathForPointDrag = null;
+
+		// Only clear selection if the point was actually dragged
+		// If it was just a click (no drag), keep it selected for keyboard shortcuts
+		if (pointWasDragged) {
+			selectedPathPoint = null;
+			selectedPathPointIndex = -1;
+			selectedItemForPointDrag = null;
+			selectedCustomClickAreaForPointDrag = null;
+			selectedMovingRangeForPointDrag = null;
+			selectedPathForPointDrag = null;
+			pointWasDragged = false;
+		}
 	}
 
 	/**
@@ -3016,6 +3051,18 @@ public class AdventureGame extends JFrame {
 		System.out.println("🖱️ handleGamePanelClick: Click at (" + clickPoint.x + ", " + clickPoint.y + ")");
 		System.out.println("   addPointModeSimple=" + addPointModeSimple + ", addPointModeTypeSimple=" + addPointModeTypeSimple);
 		System.out.println("   scenePointEditor=" + (scenePointEditor != null ? "REGISTERED" : "NULL"));
+
+		// IMPORTANT: If a point is currently selected, don't process sprite/item clicks
+		// This prevents the sprite from reacting when clicking on points
+		if (selectedPathPoint != null) {
+			System.out.println("   -> Point is selected, ignoring sprite/item click");
+			// Just deselect the point when clicking elsewhere
+			selectedPathPoint = null;
+			selectedPathPointIndex = -1;
+			clearHighlightedPoint();
+			gamePanel.repaint();
+			return;
+		}
 
 		// Check if Scene Point Editor is in add point mode
 		if (addPointModeSimple && scenePointEditor != null) {
