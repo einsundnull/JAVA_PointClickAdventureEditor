@@ -1870,27 +1870,17 @@ public class AdventureGame extends JFrame {
 				for (int i = 0; i < points.size(); i++) {
 					Point p = points.get(i);
 					if (p.distance(clickPoint) < 15) {
+						// Store point info for drag/release, but don't select yet
 						selectedPathPoint = p;
 						selectedPathPointIndex = i;
 						selectedItemForPointDrag = item;
 						selectedCustomClickAreaForPointDrag = area;
-						pointWasDragged = false; // Reset drag flag when selecting a point
+						pointWasDragged = false;
 
-						// Set highlighted point for visual feedback
-						setHighlightedPoint(item, "CustomClickArea", i);
+						// DON'T set highlighted yet - wait for mouse release
+						// DON'T return - allow event to continue to check for other items
 
-						// Auto-select in editor window
-						if (editorWindow != null) {
-							editorWindow.selectItem(item);
-							editorWindow.log("Selected CustomClickArea point " + i + " from " + item.getName() + " at (" + p.x + "," + p.y + ")");
-						}
-
-						// Auto-select in ScenePointEditor
-						if (scenePointEditor != null) {
-							scenePointEditor.selectPointFromScene(item, i, "CustomClickArea");
-						}
-
-						return;
+						break; // Stop checking this area, found the point
 					}
 				}
 			}
@@ -1938,23 +1928,9 @@ public class AdventureGame extends JFrame {
 							selectedCustomClickAreaForPointDrag = null;
 							selectedMovingRangeForPointDrag = range;
 							selectedPathForPointDrag = null;
-							pointWasDragged = false; // Reset drag flag when selecting a point
+							pointWasDragged = false;
 
-							// Set highlighted point for visual feedback
-							setHighlightedPoint(item, "MovingRange", i);
-
-							// Auto-select in editor window
-							if (editorWindow != null) {
-								editorWindow.selectItem(item);
-								editorWindow.log("Selected MovingRange point " + i + " from " + item.getName() + " at (" + p.x + "," + p.y + ")");
-							}
-
-							// Auto-select in ScenePointEditor
-							if (scenePointEditor != null) {
-								scenePointEditor.selectPointFromScene(item, i, "MovingRange");
-							}
-
-							return;
+							break; // Stop checking this range, found the point
 						}
 					}
 				}
@@ -1980,23 +1956,9 @@ public class AdventureGame extends JFrame {
 							selectedCustomClickAreaForPointDrag = null;
 							selectedMovingRangeForPointDrag = null;
 							selectedPathForPointDrag = path;
-							pointWasDragged = false; // Reset drag flag when selecting a point
+							pointWasDragged = false;
 
-							// Set highlighted point for visual feedback
-							setHighlightedPoint(item, "Path", i);
-
-							// Auto-select in editor window
-							if (editorWindow != null) {
-								editorWindow.selectItem(item);
-								editorWindow.log("Selected Path point " + i + " from " + item.getName() + " at (" + p.x + "," + p.y + ")");
-							}
-
-							// Auto-select in ScenePointEditor
-							if (scenePointEditor != null) {
-								scenePointEditor.selectPointFromScene(item, i, "Path");
-							}
-
-							return;
+							break; // Stop checking this path, found the point
 						}
 					}
 				}
@@ -2294,9 +2256,9 @@ public class AdventureGame extends JFrame {
 			}
 		}
 
-		// Only clear selection if the point was actually dragged
-		// If it was just a click (no drag), keep it selected for keyboard shortcuts
+		// After all saving, handle selection based on whether point was dragged
 		if (pointWasDragged) {
+			// Point was dragged - deselect it
 			selectedPathPoint = null;
 			selectedPathPointIndex = -1;
 			selectedItemForPointDrag = null;
@@ -2304,6 +2266,32 @@ public class AdventureGame extends JFrame {
 			selectedMovingRangeForPointDrag = null;
 			selectedPathForPointDrag = null;
 			pointWasDragged = false;
+		} else {
+			// Point was just clicked (not dragged) - NOW select it for keyboard shortcuts
+			// Determine point type and set highlighted
+			String pointType = null;
+			if (selectedCustomClickAreaForPointDrag != null) {
+				pointType = "CustomClickArea";
+			} else if (selectedMovingRangeForPointDrag != null) {
+				pointType = "MovingRange";
+			} else if (selectedPathForPointDrag != null) {
+				pointType = "Path";
+			}
+
+			if (pointType != null && selectedItemForPointDrag != null) {
+				setHighlightedPoint(selectedItemForPointDrag, pointType, selectedPathPointIndex);
+
+				// Log selection
+				if (editorWindow != null) {
+					editorWindow.selectItem(selectedItemForPointDrag);
+					editorWindow.log("Selected " + pointType + " point " + selectedPathPointIndex + " from " + selectedItemForPointDrag.getName());
+				}
+
+				// Notify ScenePointEditor
+				if (scenePointEditor != null) {
+					scenePointEditor.selectPointFromScene(selectedItemForPointDrag, selectedPathPointIndex, pointType);
+				}
+			}
 		}
 	}
 
@@ -3053,10 +3041,9 @@ public class AdventureGame extends JFrame {
 		System.out.println("   scenePointEditor=" + (scenePointEditor != null ? "REGISTERED" : "NULL"));
 
 		// IMPORTANT: If a point is currently selected, don't process sprite/item clicks
-		// This prevents the sprite from reacting when clicking on points
+		// Just deselect the point
 		if (selectedPathPoint != null) {
-			System.out.println("   -> Point is selected, ignoring sprite/item click");
-			// Just deselect the point when clicking elsewhere
+			System.out.println("   -> Point is selected, deselecting and ignoring sprite/item click");
 			selectedPathPoint = null;
 			selectedPathPointIndex = -1;
 			clearHighlightedPoint();
