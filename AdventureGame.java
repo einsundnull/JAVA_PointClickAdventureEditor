@@ -1870,15 +1870,17 @@ public class AdventureGame extends JFrame {
 				for (int i = 0; i < points.size(); i++) {
 					Point p = points.get(i);
 					if (p.distance(clickPoint) < 15) {
-						// Store point info for drag/release, but don't select yet
+						// Store point info
 						selectedPathPoint = p;
 						selectedPathPointIndex = i;
 						selectedItemForPointDrag = item;
 						selectedCustomClickAreaForPointDrag = area;
 						pointWasDragged = false;
 
-						// IMPORTANT: Return to prevent sprite/item from reacting to the click
-						// The point will be visually selected in handlePathPointRelease
+						// Set highlighted point IMMEDIATELY for visual feedback
+						setHighlightedPoint(item, "CustomClickArea", i);
+
+						// IMPORTANT: Return to prevent sprite/item from reacting
 						return;
 					}
 				}
@@ -1929,6 +1931,9 @@ public class AdventureGame extends JFrame {
 							selectedPathForPointDrag = null;
 							pointWasDragged = false;
 
+							// Set highlighted point IMMEDIATELY for visual feedback
+							setHighlightedPoint(item, "MovingRange", i);
+
 							// IMPORTANT: Return to prevent sprite/item from reacting
 							return;
 						}
@@ -1957,6 +1962,9 @@ public class AdventureGame extends JFrame {
 							selectedMovingRangeForPointDrag = null;
 							selectedPathForPointDrag = path;
 							pointWasDragged = false;
+
+							// Set highlighted point IMMEDIATELY for visual feedback
+							setHighlightedPoint(item, "Path", i);
 
 							// IMPORTANT: Return to prevent sprite/item from reacting
 							return;
@@ -2014,9 +2022,17 @@ public class AdventureGame extends JFrame {
 
 	private void handlePathPointDrag(Point dragPoint) {
 		if (selectedPathPoint != null) {
-			selectedPathPoint.x = dragPoint.x;
-			selectedPathPoint.y = dragPoint.y;
-			pointWasDragged = true; // Mark that point was actually dragged
+			System.out.println("DRAG: Before=(" + selectedPathPoint.x + "," + selectedPathPoint.y + ") To=(" + dragPoint.x + "," + dragPoint.y + ")");
+
+			// Only mark as dragged if position actually changed
+			if (selectedPathPoint.x != dragPoint.x || selectedPathPoint.y != dragPoint.y) {
+				selectedPathPoint.x = dragPoint.x;
+				selectedPathPoint.y = dragPoint.y;
+				pointWasDragged = true;
+				System.out.println("DRAG: Position changed, pointWasDragged=true");
+			} else {
+				System.out.println("DRAG: Position same, pointWasDragged=" + pointWasDragged);
+			}
 
 			// Update CustomClickArea polygon if dragging CustomClickArea point
 			if (selectedCustomClickAreaForPointDrag != null) {
@@ -2124,6 +2140,8 @@ public class AdventureGame extends JFrame {
 	}
 
 	private void handlePathPointRelease() {
+		System.out.println("RELEASE: pointWasDragged=" + pointWasDragged + ", selectedPathPoint=" + (selectedPathPoint != null ? "SET" : "NULL"));
+
 		if (selectedPathPoint != null) {
 			// Determine which editor is active
 			boolean hasEditor = (editorWindow != null || editorWindowSimple != null);
@@ -2259,7 +2277,7 @@ public class AdventureGame extends JFrame {
 
 		// After all saving, handle selection based on whether point was dragged
 		if (pointWasDragged) {
-			// Point was dragged - deselect it
+			// Point was dragged - deselect it and clear highlight
 			selectedPathPoint = null;
 			selectedPathPointIndex = -1;
 			selectedItemForPointDrag = null;
@@ -2267,33 +2285,10 @@ public class AdventureGame extends JFrame {
 			selectedMovingRangeForPointDrag = null;
 			selectedPathForPointDrag = null;
 			pointWasDragged = false;
-		} else {
-			// Point was just clicked (not dragged) - NOW select it for keyboard shortcuts
-			// Determine point type and set highlighted
-			String pointType = null;
-			if (selectedCustomClickAreaForPointDrag != null) {
-				pointType = "CustomClickArea";
-			} else if (selectedMovingRangeForPointDrag != null) {
-				pointType = "MovingRange";
-			} else if (selectedPathForPointDrag != null) {
-				pointType = "Path";
-			}
-
-			if (pointType != null && selectedItemForPointDrag != null) {
-				setHighlightedPoint(selectedItemForPointDrag, pointType, selectedPathPointIndex);
-
-				// Log selection
-				if (editorWindow != null) {
-					editorWindow.selectItem(selectedItemForPointDrag);
-					editorWindow.log("Selected " + pointType + " point " + selectedPathPointIndex + " from " + selectedItemForPointDrag.getName());
-				}
-
-				// Notify ScenePointEditor
-				if (scenePointEditor != null) {
-					scenePointEditor.selectPointFromScene(selectedItemForPointDrag, selectedPathPointIndex, pointType);
-				}
-			}
+			clearHighlightedPoint();
 		}
+		// If NOT dragged: Keep point selected (highlighting is already set in mousePressed)
+		// Don't clear selection - point stays selected for keyboard shortcuts
 	}
 
 	/**

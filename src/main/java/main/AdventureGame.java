@@ -75,6 +75,7 @@ public class AdventureGame extends JFrame {
 	private CustomClickArea selectedCustomClickAreaForPointDrag = null; // CustomClickArea whose point is being dragged
 	private MovingRange selectedMovingRangeForPointDrag = null; // MovingRange whose point is being dragged
 	private Path selectedPathForPointDrag = null; // Path whose point is being dragged
+	private boolean pointWasDragged = false; // Track if point was actually dragged (to distinguish click from drag)
 	private boolean addPointMode = false;
 	private EditorMain addPointModeEditor = null;
 	private UniversalPointEditorDialog pointEditorDialog = null;
@@ -1683,6 +1684,9 @@ public class AdventureGame extends JFrame {
 		if (currentScene == null)
 			return;
 
+		// Reset drag flag - will be set to true if point is actually dragged
+		pointWasDragged = false;
+
 		// Check if clicking on CustomClickArea points first (highest priority)
 		for (Item item : currentScene.getItems()) {
 			if (!isItemVisibleInCurrentMode(item)) continue;
@@ -1865,8 +1869,12 @@ public class AdventureGame extends JFrame {
 
 	private void handlePathPointDrag(Point dragPoint) {
 		if (selectedPathPoint != null) {
-			selectedPathPoint.x = dragPoint.x;
-			selectedPathPoint.y = dragPoint.y;
+			// Only mark as dragged if position actually changed
+			if (selectedPathPoint.x != dragPoint.x || selectedPathPoint.y != dragPoint.y) {
+				selectedPathPoint.x = dragPoint.x;
+				selectedPathPoint.y = dragPoint.y;
+				pointWasDragged = true;
+			}
 
 			// Update CustomClickArea polygon if dragging CustomClickArea point
 			if (selectedCustomClickAreaForPointDrag != null) {
@@ -2099,12 +2107,17 @@ public class AdventureGame extends JFrame {
 				}
 			}
 		}
-		selectedPathPoint = null;
-		selectedPathPointIndex = -1;
-		selectedItemForPointDrag = null;
-		selectedCustomClickAreaForPointDrag = null;
-		selectedMovingRangeForPointDrag = null;
-		selectedPathForPointDrag = null;
+
+		// Only clear selection if point was actually dragged
+		// If it was just a click without movement, keep the point selected
+		if (pointWasDragged) {
+			selectedPathPoint = null;
+			selectedPathPointIndex = -1;
+			selectedItemForPointDrag = null;
+			selectedCustomClickAreaForPointDrag = null;
+			selectedMovingRangeForPointDrag = null;
+			selectedPathForPointDrag = null;
+		}
 	}
 
 	private void handleItemPress(Point clickPoint) {
