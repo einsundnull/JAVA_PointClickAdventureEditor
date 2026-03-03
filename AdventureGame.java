@@ -2131,6 +2131,13 @@ public class AdventureGame extends JFrame {
 						String successMsg = "✓ Auto-saved MovingRange point " + selectedPathPointIndex +
 						                    " to resources/items/" + selectedItemForPointDrag.getName() + ".txt";
 
+						// Also save MovingRange to MovingRangeManager
+						MovingRange range = selectedItemForPointDrag.getPrimaryMovingRange();
+						if (range != null && range.getName() != null) {
+							MovingRangeManager.save(range);
+							successMsg += " | ✓ MovingRange saved to movingranges/" + range.getName() + ".txt";
+						}
+
 						if (editorWindow != null) {
 							editorWindow.log(successMsg);
 							editorWindow.autoSaveCurrentScene();

@@ -41,6 +41,16 @@ public class CustomClickArea {
         updatePolygon();
     }
 
+    /**
+     * Adds a point at a specific index.
+     * @param index The position to insert the point
+     * @param point The point to add
+     */
+    public void addPoint(int index, Point point) {
+        this.points.add(index, point);
+        updatePolygon();
+    }
+
     public void removePoint(int index) {
         if (index >= 0 && index < points.size()) {
             points.remove(index);

@@ -698,19 +698,45 @@ public class ScenePointEditor extends JDialog {
 
         if (tab == 0) { // CustomClickArea
             CustomClickArea area = currentItemWrapper.item.ensurePrimaryCustomClickArea();
-            area.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedCustomClickIndex, area.getPoints().size());
+            area.addPoint(insertIndex, newPoint);
         } else if (tab == 1) { // MovingRange
             MovingRange range = currentItemWrapper.item.ensurePrimaryMovingRange();
-            range.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedMovingRangeIndex, range.getPoints().size());
+            range.addPoint(insertIndex, newPoint);
             saveMovingRange();
         } else if (tab == 2) { // Path
             Path path = currentItemWrapper.item.ensurePrimaryPath();
-            path.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedPathIndex, path.getPoints().size());
+            path.addPoint(insertIndex, newPoint);
         }
 
         saveCurrentItem();
         refreshAllPoints();
         game.repaint();
+    }
+
+    /**
+     * Calculates the insert index for a new point based on the selected point.
+     * If a point is selected, inserts after it (index + 1).
+     * If the last point is selected, inserts at the beginning (index 0).
+     * If no point is selected, appends at the end.
+     *
+     * @param selectedIndex The index of the currently selected point (-1 if none)
+     * @param pointCount The current number of points
+     * @return The index where the new point should be inserted
+     */
+    private int getInsertIndex(int selectedIndex, int pointCount) {
+        if (selectedIndex < 0 || pointCount == 0) {
+            // No point selected or empty list - append at end
+            return pointCount;
+        }
+        if (selectedIndex == pointCount - 1) {
+            // Last point selected - insert at beginning
+            return 0;
+        }
+        // Insert after selected point
+        return selectedIndex + 1;
     }
 
     /**
@@ -905,16 +931,19 @@ public class ScenePointEditor extends JDialog {
 
         if (pointType.equals("CustomClickArea")) {
             CustomClickArea area = currentItemWrapper.item.ensurePrimaryCustomClickArea();
-            area.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedCustomClickIndex, area.getPoints().size());
+            area.addPoint(insertIndex, newPoint);
             System.out.println("✅ CustomClickArea now has " + area.getPoints().size() + " points");
         } else if (pointType.equals("MovingRange")) {
             MovingRange range = currentItemWrapper.item.ensurePrimaryMovingRange();
-            range.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedMovingRangeIndex, range.getPoints().size());
+            range.addPoint(insertIndex, newPoint);
             saveMovingRange();
             System.out.println("✅ MovingRange now has " + range.getPoints().size() + " points");
         } else if (pointType.equals("Path")) {
             Path path = currentItemWrapper.item.ensurePrimaryPath();
-            path.addPoint(newPoint);
+            int insertIndex = getInsertIndex(selectedPathIndex, path.getPoints().size());
+            path.addPoint(insertIndex, newPoint);
             System.out.println("✅ Path now has " + path.getPoints().size() + " points");
         }
 
