@@ -1482,6 +1482,48 @@ public class AdventureGame extends JFrame {
 			}
 		});
 
+		// Key listener for point editing shortcuts (+ and DELETE)
+		gamePanel.addKeyListener(new java.awt.event.KeyAdapter() {
+			@Override
+			public void keyPressed(java.awt.event.KeyEvent e) {
+				// Only handle when an editor is open and a point is selected
+				if (editorWindow == null && editorWindowSimple == null) {
+					return;
+				}
+
+				// Check if a point is selected
+				if (selectedPathPoint == null || selectedItemForPointDrag == null) {
+					return;
+				}
+
+				// Determine point type
+				String pointType = null;
+				if (selectedCustomClickAreaForPointDrag != null) {
+					pointType = "CustomClickArea";
+				} else if (selectedMovingRangeForPointDrag != null) {
+					pointType = "MovingRange";
+				} else if (selectedPathForPointDrag != null) {
+					pointType = "Path";
+				}
+
+				if (pointType == null) {
+					return;
+				}
+
+				// Handle + key (add point)
+				if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ADD ||
+				    e.getKeyCode() == java.awt.event.KeyEvent.VK_PLUS) {
+					e.consume();
+					handlePointInsertShortcut(pointType);
+				}
+				// Handle DELETE key (remove point)
+				else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
+					e.consume();
+					handlePointDeleteShortcut(pointType);
+				}
+			}
+		});
+
 		// Setup Drag & Drop for images
 		gamePanel.setTransferHandler(new TransferHandler() {
 			@Override
@@ -1532,6 +1574,10 @@ public class AdventureGame extends JFrame {
 				return false;
 			}
 		});
+
+		// Make gamePanel focusable for keyboard shortcuts (+ and DELETE)
+		gamePanel.setFocusable(true);
+		gamePanel.requestFocusInWindow();
 
 		add(gamePanel, BorderLayout.CENTER);
 
@@ -2224,6 +2270,157 @@ public class AdventureGame extends JFrame {
 		selectedCustomClickAreaForPointDrag = null;
 		selectedMovingRangeForPointDrag = null;
 		selectedPathForPointDrag = null;
+	}
+
+	/**
+	 * Handles the "+" keyboard shortcut to insert a new point.
+	 * Opens ScenePointEditor and inserts a point at the correct position.
+	 */
+	private void handlePointInsertShortcut(String pointType) {
+		if (selectedItemForPointDrag == null) {
+			return;
+		}
+
+		// Open ScenePointEditor first (only works with Simple Editor)
+		if (editorWindowSimple != null) {
+			editorWindowSimple.openScenePointEditorForItem(selectedItemForPointDrag);
+		}
+
+		// Wait a bit for the editor to open, then add the point
+		javax.swing.SwingUtilities.invokeLater(() -> {
+			// Calculate insert index
+			int pointCount = 0;
+			if (pointType.equals("CustomClickArea")) {
+				CustomClickArea area = selectedItemForPointDrag.getPrimaryCustomClickArea();
+				if (area != null && area.getPoints() != null) {
+					pointCount = area.getPoints().size();
+				}
+			} else if (pointType.equals("MovingRange")) {
+				MovingRange range = selectedItemForPointDrag.getPrimaryMovingRange();
+				if (range != null && range.getPoints() != null) {
+					pointCount = range.getPoints().size();
+				}
+			} else if (pointType.equals("Path")) {
+				Path path = selectedItemForPointDrag.getPrimaryPath();
+				if (path != null && path.getPoints() != null) {
+					pointCount = path.getPoints().size();
+				}
+			}
+
+			// Same logic as getInsertIndex(): insert after selected, or at 0 if last is selected
+			int insertIndex;
+			if (selectedPathPointIndex < 0 || pointCount == 0) {
+				insertIndex = pointCount; // Append at end
+			} else if (selectedPathPointIndex == pointCount - 1) {
+				insertIndex = 0; // Last selected - insert at beginning
+			} else {
+				insertIndex = selectedPathPointIndex + 1; // Insert after selected
+			}
+
+			// Add point at calculated position
+			Point newPoint = new Point(100, 100);
+			if (pointType.equals("CustomClickArea")) {
+				CustomClickArea area = selectedItemForPointDrag.ensurePrimaryCustomClickArea();
+				area.addPoint(insertIndex, newPoint);
+			} else if (pointType.equals("MovingRange")) {
+				MovingRange range = selectedItemForPointDrag.ensurePrimaryMovingRange();
+				range.addPoint(insertIndex, newPoint);
+				MovingRangeManager.save(range);
+			} else if (pointType.equals("Path")) {
+				Path path = selectedItemForPointDrag.ensurePrimaryPath();
+				path.addPoint(insertIndex, newPoint);
+			}
+
+			// Auto-save and log
+			try {
+				ItemSaver.saveItemByName(selectedItemForPointDrag);
+				String logMsg = "✓ Inserted " + pointType + " point at index " + insertIndex + " (+ key)";
+				if (editorWindow != null) {
+					editorWindow.log(logMsg);
+					editorWindow.autoSaveCurrentScene();
+				} else if (editorWindowSimple != null) {
+					editorWindowSimple.log(logMsg);
+					if (currentScene != null) {
+						SceneSaver.saveScene(currentScene);
+					}
+				}
+			} catch (Exception e) {
+				String errorMsg = "ERROR saving: " + e.getMessage();
+				if (editorWindow != null) {
+					editorWindow.log(errorMsg);
+				} else if (editorWindowSimple != null) {
+					editorWindowSimple.log(errorMsg);
+				}
+			}
+
+			gamePanel.repaint();
+		});
+	}
+
+	/**
+	 * Handles the "DELETE" keyboard shortcut to remove the selected point.
+	 * Opens ScenePointEditor and removes the selected point.
+	 */
+	private void handlePointDeleteShortcut(String pointType) {
+		if (selectedItemForPointDrag == null || selectedPathPointIndex < 0) {
+			return;
+		}
+
+		// Open ScenePointEditor first (only works with Simple Editor)
+		if (editorWindowSimple != null) {
+			editorWindowSimple.openScenePointEditorForItem(selectedItemForPointDrag);
+		}
+
+		// Wait a bit for the editor to open, then remove the point
+		javax.swing.SwingUtilities.invokeLater(() -> {
+			// Remove the point
+			if (pointType.equals("CustomClickArea")) {
+				CustomClickArea area = selectedItemForPointDrag.getPrimaryCustomClickArea();
+				if (area != null) {
+					area.removePoint(selectedPathPointIndex);
+				}
+			} else if (pointType.equals("MovingRange")) {
+				MovingRange range = selectedItemForPointDrag.getPrimaryMovingRange();
+				if (range != null) {
+					range.removePoint(selectedPathPointIndex);
+					MovingRangeManager.save(range);
+				}
+			} else if (pointType.equals("Path")) {
+				Path path = selectedItemForPointDrag.getPrimaryPath();
+				if (path != null) {
+					path.removePoint(selectedPathPointIndex);
+				}
+			}
+
+			// Clear selection
+			int deletedIndex = selectedPathPointIndex;
+			selectedPathPoint = null;
+			selectedPathPointIndex = -1;
+
+			// Auto-save and log
+			try {
+				ItemSaver.saveItemByName(selectedItemForPointDrag);
+				String logMsg = "✓ Removed " + pointType + " point at index " + deletedIndex + " (DELETE key)";
+				if (editorWindow != null) {
+					editorWindow.log(logMsg);
+					editorWindow.autoSaveCurrentScene();
+				} else if (editorWindowSimple != null) {
+					editorWindowSimple.log(logMsg);
+					if (currentScene != null) {
+						SceneSaver.saveScene(currentScene);
+					}
+				}
+			} catch (Exception e) {
+				String errorMsg = "ERROR saving: " + e.getMessage();
+				if (editorWindow != null) {
+					editorWindow.log(errorMsg);
+				} else if (editorWindowSimple != null) {
+					editorWindowSimple.log(errorMsg);
+				}
+			}
+
+			gamePanel.repaint();
+		});
 	}
 
 	private void handleItemPress(Point clickPoint) {

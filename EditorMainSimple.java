@@ -3399,6 +3399,26 @@ public class EditorMainSimple extends JFrame {
     }
 
     /**
+     * Opens the Scene Point Editor for a specific item.
+     * Can be called from AdventureGame when using keyboard shortcuts.
+     * @param item The item to edit
+     */
+    public void openScenePointEditorForItem(Item item) {
+        if (selectedSubScene == null) {
+            log("No scene selected");
+            return;
+        }
+        if (item == null) {
+            log("No item specified");
+            return;
+        }
+
+        // Open the Scene Point Editor for the specified item
+        ScenePointEditor editor = new ScenePointEditor(this, selectedSubScene, item);
+        log("✓ Opened Scene Point Editor for item: " + item.getName());
+    }
+
+    /**
      * Opens the Orientation Editor for setting orientation-based images
      */
     private void openOrientationEditor() {
