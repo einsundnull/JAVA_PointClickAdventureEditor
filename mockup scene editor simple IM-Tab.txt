@@ -7,17 +7,17 @@
         │                        │ n   ▼│ │  m = Thumbnails                                                                                                                     
         │                        └──────┘ │       └(Image Drop Function. An image that is dropped triggers a dialog                                                             
         │              ┌────────────────┐ │         that promts you to enter a name for the image.                                                                              
-        │              │ʭ      □        │ │         The image is stored in the image folder and a reference is added to the item file.                                          
-        │              │      □ □       │ │         The item is stored in the item folder.                                                                                      
-        │              │     □   □      │ │  × = Triggers the <DD> dialog.                                                                                                      
-        │              │    □     □  m  │ │                                                                                                                                     
-        │              │     □   □      │ │  Sprite Orientation Logik: The 360° around the image at index(0) is devided by "m" and if the                                       
-        │              │      □ □       │ │  cursor moves in the related area the image with the corresponding index is displayed, if the checkbox "follow" is checked.         
-        │              │       □        │ │                                                                                                                                     
-        │              │                │ │  [x] movable   (Moves within the movingRange on mouse click when checked)                                                           
-        │<E>           └────────────────┘ │  [x] follow    (Uses the image with the orientation index that is related to the angle 360°/m when checked)                         
-        └─────────────────────────────────┘  [x] show      (The Item is visible in the scene when checked)                                                                      
-                                                                                                                                                                                
+        │              │ʭ      □        │ │         The image is stored in the image folder and a reference with the path, name and orientationIndex                            
+        │              │      □ □       │ │         is added to the item file.                                                                                                  
+        │              │     □   □      │ │         The item is stored in the item folder.                                                                                      
+        │              │    □     □  m  │ │  × = Triggers the <DD> dialog.                                                                                                      
+        │              │     □   □      │ │                                                                                                                                     
+        │              │      □ □       │ │  Sprite Orientation Logik: The 360° around the image at index(0) is devided by "m" and if the                                       
+        │              │       □        │ │  cursor moves in the related area the image with the corresponding index is displayed, if the checkbox "follow" is checked.         
+        │              │                │ │                                                                                                                                     
+        │<E>           └────────────────┘ │  [x] movable   (Moves within the movingRange on mouse click when checked)                                                           
+        └─────────────────────────────────┘  [x] follow    (Uses the image with the orientation index that is related to the angle 360°/m when checked)                         
+                                             [x] show      (The Item is visible in the scene when checked)                                                                      
                                                                                                                                                                                 
                                                                                                                                                                                 
                                                                                                                                                                                 
