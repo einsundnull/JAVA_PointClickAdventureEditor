@@ -141,9 +141,6 @@ public class NewActionsEditorDialog extends JDialog {
         bottomPanel.add(rightPanel, BorderLayout.EAST);
 
         add(bottomPanel, BorderLayout.SOUTH);
-    }
-
-        add(bottomPanel, BorderLayout.SOUTH);
 
         // Add initial ConditionsField
         addNewConditionsField();
@@ -165,7 +162,7 @@ public class NewActionsEditorDialog extends JDialog {
     }
 
     private void loadExistingActions() {
-        File actionsFile = new File("resources/actions/" + keyArea.getName() + ".txt");
+        File actionsFile = ResourcePathHelper.resolve("actions/" + keyArea.getName() + ".txt");
         System.out.println("=== LOADING ACTIONS ===");
         System.out.println("File: " + actionsFile.getAbsolutePath());
         System.out.println("Action: " + actionName);
@@ -289,7 +286,7 @@ public class NewActionsEditorDialog extends JDialog {
     }
 
     private void saveActions() {
-        File actionsFile = new File("resources/actions/" + keyArea.getName() + ".txt");
+        File actionsFile = ResourcePathHelper.resolve("actions/" + keyArea.getName() + ".txt");
         System.out.println("=== SAVING ACTIONS ===");
         System.out.println("File: " + actionsFile.getAbsolutePath());
         System.out.println("Action: " + actionName);

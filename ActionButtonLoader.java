@@ -11,7 +11,7 @@ import java.util.List;
  * Loads ActionButtons from action_buttons.txt
  */
 public class ActionButtonLoader {
-    private static final String ACTION_BUTTONS_FILE = "resources/action_buttons/action_buttons.txt";
+    private static final String ACTION_BUTTONS_FILE = ResourcePathHelper.resolvePath("action_buttons/action_buttons.txt");
 
     public static List<ActionButton> loadActionButtons() {
         List<ActionButton> buttons = new ArrayList<>();

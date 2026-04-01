@@ -188,7 +188,7 @@ public class BackgroundEditorDialog extends JDialog {
         try {
             String imagePath = background.getImagePath();
             if (imagePath != null && !imagePath.trim().isEmpty()) {
-                File imageFile = new File("resources/images/" + imagePath);
+                File imageFile = ResourcePathHelper.resolve("images/" + imagePath);
                 if (imageFile.exists()) {
                     ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
                     Image img = icon.getImage().getScaledInstance(180, 120, Image.SCALE_SMOOTH);
@@ -218,7 +218,7 @@ public class BackgroundEditorDialog extends JDialog {
                 File file = droppedFiles.get(0);
                 if (isImageFile(file)) {
                     // Copy file to resources/images
-                    File imagesDir = new File("resources/images");
+                    File imagesDir = ResourcePathHelper.resolve("images");
                     if (!imagesDir.exists()) {
                         imagesDir.mkdirs();
                     }
@@ -273,7 +273,7 @@ public class BackgroundEditorDialog extends JDialog {
         }
 
         try {
-            File imageFile = new File("resources/images/" + imagePath);
+            File imageFile = ResourcePathHelper.resolve("images/" + imagePath);
             if (!imageFile.exists()) {
                 JOptionPane.showMessageDialog(this, "Image file not found: " + imageFile.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);

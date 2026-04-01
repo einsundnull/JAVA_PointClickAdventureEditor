@@ -2932,7 +2932,7 @@ public class AdventureGame extends JFrame {
 		itemName = itemName.trim();
 
 		// Check if item already exists
-		File itemFile = new File("resources/items/" + itemName + ".txt");
+		File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
 		if (itemFile.exists()) {
 			int overwrite = JOptionPane.showConfirmDialog(this, "Item '" + itemName + "' already exists!\nOverwrite?",
 					"Item Exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -2943,7 +2943,7 @@ public class AdventureGame extends JFrame {
 
 		try {
 			// Copy image to resources/images/items/ directory
-			File itemsImagesDir = new File("resources/images/items");
+			File itemsImagesDir = ResourcePathHelper.resolve("images/items");
 			if (!itemsImagesDir.exists()) {
 				itemsImagesDir.mkdirs();
 			}
@@ -2958,7 +2958,7 @@ public class AdventureGame extends JFrame {
 			// Create new item
 			Item newItem = new Item(itemName);
 			newItem.setImageFileName(imageFileName);
-			newItem.setImageFilePath("resources/images/items/" + imageFileName);
+			newItem.setImageFilePath(ResourcePathHelper.resolvePath("images/items/" + imageFileName));
 			newItem.setPosition(dropPoint.x, dropPoint.y);
 			newItem.setInInventory(false);
 
@@ -3500,7 +3500,7 @@ public class AdventureGame extends JFrame {
 			String subSceneName = parts[1];
 
 			// Try to load from PROGRESS first
-			String progressPath = "resources/scenes/" + sceneDir + "/" + subSceneName + "_progress.txt";
+			String progressPath = ResourcePathHelper.resolvePath("scenes/" + sceneDir + "/" + subSceneName + "_progress.txt");
 			java.io.File progressFile = new java.io.File(progressPath);
 
 			if (progressFile.exists()) {
@@ -3583,7 +3583,7 @@ public class AdventureGame extends JFrame {
 		System.out.println("✓ Auto-save ENABLED");
 
 		// 2. Load conditions from current game state
-		Conditions.loadFromProgress("resources/conditions/conditions.txt");
+		Conditions.loadFromProgress(ResourcePathHelper.resolvePath("conditions/conditions.txt"));
 		System.out.println("✓ Conditions loaded from conditions/conditions.txt (CURRENT STATE)");
 
 		// 3. Reload current scene from current state
@@ -3902,7 +3902,7 @@ public class AdventureGame extends JFrame {
 
 			// Save rotated image back to file
 			String bgPath = currentScene.getCurrentBackgroundImagePath(progress);
-			File imageFile = new File("resources/images/" + bgPath);
+			File imageFile = ResourcePathHelper.resolve("images/" + bgPath);
 			if (imageFile.exists()) {
 				String format = bgPath.substring(bgPath.lastIndexOf('.') + 1);
 				javax.imageio.ImageIO.write(rotated, format, imageFile);
@@ -3967,7 +3967,7 @@ public class AdventureGame extends JFrame {
 
 			// Save flipped image back to file
 			String bgPath = currentScene.getCurrentBackgroundImagePath(progress);
-			File imageFile = new File("resources/images/" + bgPath);
+			File imageFile = ResourcePathHelper.resolve("images/" + bgPath);
 			if (imageFile.exists()) {
 				String format = bgPath.substring(bgPath.lastIndexOf('.') + 1);
 				javax.imageio.ImageIO.write(flipped, format, imageFile);

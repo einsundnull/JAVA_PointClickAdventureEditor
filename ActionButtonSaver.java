@@ -10,7 +10,7 @@ import java.util.List;
  * Saves ActionButtons to action_buttons.txt
  */
 public class ActionButtonSaver {
-    private static final String ACTION_BUTTONS_FILE = "resources/action_buttons/action_buttons.txt";
+    private static final String ACTION_BUTTONS_FILE = ResourcePathHelper.resolvePath("action_buttons/action_buttons.txt");
 
     public static void saveActionButtons(List<ActionButton> buttons) throws IOException {
         File file = new File(ACTION_BUTTONS_FILE);

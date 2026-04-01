@@ -142,7 +142,7 @@ public class ItemManagerDialog extends JDialog {
         itemCheckBoxes.clear();
         itemLabels.clear();
 
-        File itemsDir = new File("resources/items");
+        File itemsDir = ResourcePathHelper.resolve("items");
         if (!itemsDir.exists() || !itemsDir.isDirectory()) {
             parent.log("Items directory not found: resources/items");
             return;
@@ -245,7 +245,7 @@ public class ItemManagerDialog extends JDialog {
         itemName = itemName.trim();
 
         // Check if item already exists
-        File itemFile = new File("resources/items/" + itemName + ".txt");
+        File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
         if (itemFile.exists()) {
             JOptionPane.showMessageDialog(this,
                 "Item '" + itemName + "' already exists!",
@@ -257,7 +257,7 @@ public class ItemManagerDialog extends JDialog {
         // Create new item with default values
         try {
             Item newItem = new Item(itemName);
-            newItem.setImageFilePath("resources/images/items/default.png");
+            newItem.setImageFilePath(ResourcePathHelper.resolvePath("images/items/default.png"));
             newItem.setPosition(new Point(100, 100));
             newItem.setSize(100, 100);
             newItem.setInInventory(false);
@@ -343,7 +343,7 @@ public class ItemManagerDialog extends JDialog {
         newItemName = newItemName.trim();
 
         // Check if item already exists
-        File itemFile = new File("resources/items/" + newItemName + ".txt");
+        File itemFile = ResourcePathHelper.resolve("items/" + newItemName + ".txt");
         if (itemFile.exists()) {
             JOptionPane.showMessageDialog(this,
                 "Item '" + newItemName + "' already exists!",
@@ -425,7 +425,7 @@ public class ItemManagerDialog extends JDialog {
             return;
         }
 
-        File itemFile = new File("resources/items/" + itemName + ".txt");
+        File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
         if (itemFile.delete()) {
             parent.log("Deleted item: " + itemName);
             loadAllItems();

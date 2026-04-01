@@ -18,15 +18,15 @@ public class GameStateManager {
      */
     public static void ensureProgressFilesExist() {
         try {
-            File conditionsProgress = new File("resources/conditions-progress.txt");
+            File conditionsProgress = ResourcePathHelper.resolve("conditions-progress.txt");
             if (!conditionsProgress.exists()) {
                 System.out.println("⚠️  conditions-progress.txt missing, creating from defaults...");
-                copyFile("resources/conditions/conditions.txt", "resources/conditions-progress.txt");
+                copyFile(ResourcePathHelper.resolvePath("conditions/conditions.txt"), ResourcePathHelper.resolvePath("conditions-progress.txt"));
             }
 
             // Ensure progress directories exist
-            new File("resources/scenes-progress").mkdirs();
-            new File("resources/items-progress").mkdirs();
+            ResourcePathHelper.resolve("scenes-progress").mkdirs();
+            ResourcePathHelper.resolve("items-progress").mkdirs();
 
             System.out.println("✓ Progress file structure verified");
         } catch (Exception e) {
@@ -44,11 +44,11 @@ public class GameStateManager {
         System.out.println("========================================");
 
         // 1. Copy conditions/conditions.txt → conditions-progress.txt
-        copyFile("resources/conditions/conditions.txt", "resources/conditions-progress.txt");
+        copyFile(ResourcePathHelper.resolvePath("conditions/conditions.txt"), ResourcePathHelper.resolvePath("conditions-progress.txt"));
 
         // 2. Copy all scenes/*.txt → scenes-progress/*.txt
-        File scenesDir = new File("resources/scenes");
-        File scenesProgressDir = new File("resources/scenes-progress");
+        File scenesDir = ResourcePathHelper.resolve("scenes");
+        File scenesProgressDir = ResourcePathHelper.resolve("scenes-progress");
         scenesProgressDir.mkdirs();
 
         if (scenesDir.exists()) {
@@ -56,14 +56,14 @@ public class GameStateManager {
             if (sceneFiles != null) {
                 for (File sceneFile : sceneFiles) {
                     String filename = sceneFile.getName();
-                    copyFile(sceneFile.getPath(), "resources/scenes-progress/" + filename);
+                    copyFile(sceneFile.getPath(), ResourcePathHelper.resolvePath("scenes-progress/" + filename));
                 }
             }
         }
 
         // 3. Copy all items/*.txt → items-progress/*.txt
-        File itemsDir = new File("resources/items");
-        File itemsProgressDir = new File("resources/items-progress");
+        File itemsDir = ResourcePathHelper.resolve("items");
+        File itemsProgressDir = ResourcePathHelper.resolve("items-progress");
         itemsProgressDir.mkdirs();
 
         if (itemsDir.exists()) {
@@ -71,7 +71,7 @@ public class GameStateManager {
             if (itemFiles != null) {
                 for (File itemFile : itemFiles) {
                     String filename = itemFile.getName();
-                    copyFile(itemFile.getPath(), "resources/items-progress/" + filename);
+                    copyFile(itemFile.getPath(), ResourcePathHelper.resolvePath("items-progress/" + filename));
                 }
             }
         }
@@ -106,8 +106,8 @@ public class GameStateManager {
      * Check if progress files exist
      */
     public static boolean progressFilesExist() {
-        File progressConditions = new File("resources/conditions-progress.txt");
-        File scenesProgressDir = new File("resources/scenes-progress");
+        File progressConditions = ResourcePathHelper.resolve("conditions-progress.txt");
+        File scenesProgressDir = ResourcePathHelper.resolve("scenes-progress");
 
         return progressConditions.exists() && scenesProgressDir.exists() && scenesProgressDir.list().length > 0;
     }

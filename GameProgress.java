@@ -6,8 +6,8 @@ import java.io.FileReader;
 
 public class GameProgress {
     private String currentScene;
-    private static final String PROGRESS_FILE = "resources/progress.txt";
-    private static final String DEFAULT_FILE = "resources/progress_default.txt";
+    private static final String PROGRESS_FILE = ResourcePathHelper.resolvePath("progress.txt");
+    private static final String DEFAULT_FILE = ResourcePathHelper.resolvePath("progress_default.txt");
     
     public GameProgress() {
         // Default scene in Simple format: SceneName/SubSceneName

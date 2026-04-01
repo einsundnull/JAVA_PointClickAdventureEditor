@@ -52,26 +52,26 @@
  │                │      ├□<NameOfImage▼>                           ⁞          │      │            │ └show:    true/false                                                                           
                   │      │   ├<OrientationIndex>                    ⁞          │      │            │                                                                                                
                   │      │   │   ├□<NameOfImage▼>                   ⁞          │      │            ├#IMAGES                                                                                         
-                  │      │   │      ├mirror horizontally true/false ⁞          │      │            │ ├@<BL>                                                                                         
-                  │      │   │      ├mirror vertically   true/false ⁞          │      │            │ │  └@<IM>                                                                                      
-                  │      │   │      └rotation Angle      n°         ⁞          │      │            │       ├orientationIndex: m                                                                     
-                  │      │   │                                      ⁞          │      │            │       ├mirror horizontally: true/false                                                         
-                  │      │   ├<OrientationIndex>                    ⁞          │      │            │       ├mirror vertically:   true/false                                                         
-                  │      │       ├                                  ⁞          │      │            │       └rotation Angle:      n°                                                                 
-                  │      │                                          ⁞          │      │            │                                                                                                
-                  │      └Conditions▼                               ⁞          │      │            ├#TEXTS                                                                                          
-                  │         ├<NameOfCondition> true/false           ⁞          │      │            │ ├#HOVER_TEXTS                                                                                  
-                  │                                                 ⁞          │      │            │ │ ├@<BL>                                                                                       
-           <HT>   ├HoverTexts▼                                      ⁞          │      │            │ │ │ └@<TX>                                                                                     
-                  │   ├<NameOfHoverText▼>                           ⁞          │      │            │                                                                                                
-                  │      ├<Text▼>                                   ⁞          │      │            ├#CUSTOM_CLICK_AREA                                                                              
-                  │      │                                          ⁞          │      │            │ ├@<BL>                                                                                         
-                  │      └Conditions▼                               ⁞          │      │            │ │  └@<AR>                                                                                      
-                  │         ├<NameOfCondition> true/false           ⁞          │      │            │                                                                                                
-                  │                                                 ⁞          │      │            ├#MOVING_RANGE                                                                                   
-           <CC>   ├CustomClickAreas▼                                ⁞          │      │            │ ├@<BL>                                                                                         
-                  │   ├<NameOfPointCollections▼>                    ⁞          │      │            │ │  └@<AR>                                                                                      
-                  │        ├Points▼                                 ⁞          │      │                                                                                                             
+                  │      │   │      ├mirror horizontally true/false ⁞          │      │            │ ├@<IM>                                                                                         
+                  │      │   │      ├mirror vertically   true/false ⁞          │      │            │    ├orientationIndex: m                                                                        
+                  │      │   │      └rotation Angle      n°         ⁞          │      │            │    ├mirror horizontally: true/false                                                            
+                  │      │   │                                      ⁞          │      │            │    ├mirror vertically:   true/false                                                            
+                  │      │   ├<OrientationIndex>                    ⁞          │      │            │    └rotation Angle:      n°                                                                    
+                  │      │       ├                                  ⁞          │      │            │                                                                                                
+                  │      │                                          ⁞          │      │                                                                                                             
+                  │      └Conditions▼                               ⁞          │      │                                                                                                             
+                  │         ├<NameOfCondition> true/false           ⁞          │      │                                                                                                             
+                  │                                                 ⁞          │      │                                                                                                             
+           <HT>   ├HoverTexts▼                                      ⁞          │      │                                                                                                             
+                  │   ├<NameOfHoverText▼>                           ⁞          │      │            ├#TEXTS                                                                                          
+                  │      ├<Text▼>                                   ⁞          │      │            │ ├#HOVER_TEXTS                                                                                  
+                  │      │                                          ⁞          │      │            │   └@<TX>                                                                                       
+                  │      └Conditions▼                               ⁞          │      │            │                                                                                                
+                  │         ├<NameOfCondition> true/false           ⁞          │      │            ├#CUSTOM_CLICK_AREA                                                                              
+                  │                                                 ⁞          │      │            │ └@<AR>                                                                                         
+           <CC>   ├CustomClickAreas▼                                ⁞          │      │            │                                                                                                
+                  │   ├<NameOfPointCollections▼>                    ⁞          │      │            ├#MOVING_RANGE                                                                                   
+                  │        ├Points▼                                 ⁞          │      │            │ └@<AR>                                                                                         
                   │        │  ├[x,y,z]                              ⁞          │      │                                                                                                             
                   │        │  ├[x,y,z]                              ⁞          │      │                                                                                                             
                   │        │                                        ⁞          │      │                                                                                                             

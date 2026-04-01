@@ -242,7 +242,7 @@ public class SceneEditorDialog extends JDialog {
             // Check if name changed
             if (!newName.equals(sceneName)) {
                 // Check if new name already exists
-                File newFile = new File("resources/scenes/" + newName + ".txt");
+                File newFile = ResourcePathHelper.resolve("scenes/" + newName + ".txt");
                 if (newFile.exists()) {
                     JOptionPane.showMessageDialog(this, "A scene with name '" + newName + "' already exists!", "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -471,7 +471,7 @@ public class SceneEditorDialog extends JDialog {
                     File file = droppedFiles.get(0);
                     if (isImageFile(file)) {
                         // Copy file to resources/images
-                        File imagesDir = new File("resources/images");
+                        File imagesDir = ResourcePathHelper.resolve("images");
                         if (!imagesDir.exists()) {
                             imagesDir.mkdirs();
                         }
@@ -503,7 +503,7 @@ public class SceneEditorDialog extends JDialog {
         }
 
         private void browseForImage() {
-            File imagesDir = new File("resources/images");
+            File imagesDir = ResourcePathHelper.resolve("images");
             if (!imagesDir.exists()) {
                 imagesDir.mkdirs();
             }
@@ -572,7 +572,7 @@ public class SceneEditorDialog extends JDialog {
 
             try {
                 // Load image from resources/images
-                File imageFile = new File("resources/images/" + imagePath);
+                File imageFile = ResourcePathHelper.resolve("images/" + imagePath);
                 if (!imageFile.exists()) {
                     JOptionPane.showMessageDialog(this,
                             "Image file not found: " + imageFile.getPath(),
@@ -723,7 +723,7 @@ public class SceneEditorDialog extends JDialog {
             try {
                 String imagePath = image.getImagePath();
                 if (imagePath != null && !imagePath.trim().isEmpty()) {
-                    File imageFile = new File("resources/images/" + imagePath);
+                    File imageFile = ResourcePathHelper.resolve("images/" + imagePath);
                     if (imageFile.exists()) {
                         ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
                         Image img = icon.getImage().getScaledInstance(180, 100, Image.SCALE_SMOOTH);

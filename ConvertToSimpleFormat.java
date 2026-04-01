@@ -39,7 +39,7 @@ public class ConvertToSimpleFormat {
         String[] oldSceneDirs = {"sceneBeach", "sceneWood", "sceneTown"};
 
         for (String dirName : oldSceneDirs) {
-            File dir = new File("resources/scenes/" + dirName);
+            File dir = ResourcePathHelper.resolve("scenes/" + dirName);
             if (dir.exists() && dir.isDirectory()) {
                 // Delete all files in directory
                 File[] files = dir.listFiles();
@@ -139,13 +139,13 @@ public class ConvertToSimpleFormat {
         System.out.println("\n--- Creating new Item files ---");
 
         // Delete old item files (backed up)
-        File oldCup = new File("resources/items/cup.txt");
+        File oldCup = ResourcePathHelper.resolve("items/cup.txt");
         if (oldCup.exists()) {
             oldCup.delete();
             System.out.println("  Deleted old: cup.txt");
         }
 
-        File oldCupProgress = new File("resources/items/cup_progress.txt");
+        File oldCupProgress = ResourcePathHelper.resolve("items/cup_progress.txt");
         if (oldCupProgress.exists()) {
             oldCupProgress.delete();
             System.out.println("  Deleted old: cup_progress.txt");

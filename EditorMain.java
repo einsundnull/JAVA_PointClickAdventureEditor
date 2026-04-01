@@ -637,7 +637,7 @@ public class EditorMain extends JFrame {
 			return;
 
 		try {
-			String filename = "resources/scenes/" + currentScene.getName() + ".txt";
+			String filename = ResourcePathHelper.resolvePath("scenes/" + currentScene.getName() + ".txt");
 			SceneSaver.saveScene(currentScene, filename);
 			log("Auto-saved to " + filename);
 		} catch (Exception e) {
@@ -670,7 +670,7 @@ public class EditorMain extends JFrame {
 		}
 
 		try {
-			String filename = "resources/scenes/" + currentScene.getName() + ".txt";
+			String filename = ResourcePathHelper.resolvePath("scenes/" + currentScene.getName() + ".txt");
 			log("Saving scene to: " + filename);
 
 			SceneSaver.saveScene(currentScene, filename);
@@ -763,7 +763,7 @@ public class EditorMain extends JFrame {
 		}
 
 		String sceneName = currentScene.getName();
-		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+		File sceneFile = ResourcePathHelper.resolve("scenes/" + sceneName + ".txt");
 
 		if (!sceneFile.exists()) {
 			log("ERROR: Scene file not found: " + sceneFile.getAbsolutePath());
@@ -783,7 +783,7 @@ public class EditorMain extends JFrame {
 	}
 
 	private void openResourcesFolder() {
-		File resourcesFolder = new File("resources");
+		File resourcesFolder = ResourcePathHelper.resolve("");
 
 		if (!resourcesFolder.exists()) {
 			log("ERROR: Resources folder not found");
@@ -956,7 +956,7 @@ public class EditorMain extends JFrame {
 		}
 
 		try {
-			String filename = "resources/scenes/" + currentScene.getName() + ".txt";
+			String filename = ResourcePathHelper.resolvePath("scenes/" + currentScene.getName() + ".txt");
 			SceneSaver.saveScene(currentScene, filename);
 			log("✓ Auto-saved: " + filename);
 		} catch (Exception e) {
@@ -979,7 +979,7 @@ public class EditorMain extends JFrame {
 
 	private void loadAllScenes() {
 		sceneListModel.clear();
-		File scenesDir = new File("resources/scenes");
+		File scenesDir = ResourcePathHelper.resolve("scenes");
 
 		if (!scenesDir.exists()) {
 			log("⚠️  Scenes directory not found, creating it: " + scenesDir.getAbsolutePath());
@@ -1044,7 +1044,7 @@ public class EditorMain extends JFrame {
 			sceneName = sceneName.trim();
 
 			// Check if already exists
-			File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+			File sceneFile = ResourcePathHelper.resolve("scenes/" + sceneName + ".txt");
 			if (sceneFile.exists()) {
 				JOptionPane.showMessageDialog(this, "Scene '" + sceneName + "' already exists!", "Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -1466,7 +1466,7 @@ public class EditorMain extends JFrame {
 				try {
 					String bgImage = SceneReferenceManager.getSceneBackgroundImage(sceneName);
 					if (bgImage != null && !bgImage.isEmpty()) {
-						File imageFile = new File("resources/images/" + bgImage);
+						File imageFile = ResourcePathHelper.resolve("images/" + bgImage);
 						if (imageFile.exists()) {
 							ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
 							Image img = icon.getImage().getScaledInstance(75, 45, Image.SCALE_SMOOTH);
@@ -1522,7 +1522,7 @@ public class EditorMain extends JFrame {
 		String originalSceneName = sceneListModel.getElementAt(selectedIndex);
 
 		// Check if original scene file exists
-		File originalFile = new File("resources/scenes/" + originalSceneName + ".txt");
+		File originalFile = ResourcePathHelper.resolve("scenes/" + originalSceneName + ".txt");
 		if (!originalFile.exists()) {
 			log("ERROR: Original scene file not found: " + originalFile.getAbsolutePath());
 			JOptionPane.showMessageDialog(this,
@@ -1534,11 +1534,11 @@ public class EditorMain extends JFrame {
 		String copySceneName = originalSceneName + "_copy";
 
 		// Check for name conflict
-		File copyFile = new File("resources/scenes/" + copySceneName + ".txt");
+		File copyFile = ResourcePathHelper.resolve("scenes/" + copySceneName + ".txt");
 		int counter = 1;
 		while (copyFile.exists()) {
 			copySceneName = originalSceneName + "_copy" + counter;
-			copyFile = new File("resources/scenes/" + copySceneName + ".txt");
+			copyFile = ResourcePathHelper.resolve("scenes/" + copySceneName + ".txt");
 			counter++;
 		}
 
@@ -1619,7 +1619,7 @@ public class EditorMain extends JFrame {
 		String originalItemName = originalItem.getName();
 
 		// Check if original item file exists
-		File originalFile = new File("resources/items/" + originalItemName + ".txt");
+		File originalFile = ResourcePathHelper.resolve("items/" + originalItemName + ".txt");
 		if (!originalFile.exists()) {
 			log("⚠️  Original item file not found: " + originalFile.getAbsolutePath());
 			log("⚠️  Will copy from in-memory item data");
@@ -1628,7 +1628,7 @@ public class EditorMain extends JFrame {
 		String copyItemName = originalItemName + "_copy";
 
 		// Ensure items directory exists
-		File itemsDir = new File("resources/items");
+		File itemsDir = ResourcePathHelper.resolve("items");
 		if (!itemsDir.exists()) {
 			boolean created = itemsDir.mkdirs();
 			if (!created) {
@@ -1641,11 +1641,11 @@ public class EditorMain extends JFrame {
 		}
 
 		// Check for name conflict
-		File copyFile = new File("resources/items/" + copyItemName + ".txt");
+		File copyFile = ResourcePathHelper.resolve("items/" + copyItemName + ".txt");
 		int counter = 1;
 		while (copyFile.exists()) {
 			copyItemName = originalItemName + "_copy" + counter;
-			copyFile = new File("resources/items/" + copyItemName + ".txt");
+			copyFile = ResourcePathHelper.resolve("items/" + copyItemName + ".txt");
 			counter++;
 		}
 
@@ -1847,16 +1847,16 @@ public class EditorMain extends JFrame {
 	 */
 	private void ensureDirectoriesExist() {
 		String[] directories = {
-			"resources",
-			"resources/scenes",
-			"resources/scenes-progress",
-			"resources/items",
-			"resources/items-progress",
-			"resources/actions",
-			"resources/actions-progress",
-			"resources/images",
-			"resources/dialogs",
-			"resources/manual2"
+			ResourcePathHelper.resolvePath(""),
+			ResourcePathHelper.resolvePath("scenes"),
+			ResourcePathHelper.resolvePath("scenes-progress"),
+			ResourcePathHelper.resolvePath("items"),
+			ResourcePathHelper.resolvePath("items-progress"),
+			ResourcePathHelper.resolvePath("actions"),
+			ResourcePathHelper.resolvePath("actions-progress"),
+			ResourcePathHelper.resolvePath("images"),
+			ResourcePathHelper.resolvePath("dialogs"),
+			ResourcePathHelper.resolvePath("manual2")
 		};
 
 		for (String dirPath : directories) {

@@ -14,7 +14,7 @@ import java.util.List;
  * Stores in resources/buttons/buttons.txt
  */
 public class ButtonsDataManager {
-    private static final String BUTTONS_FILE = "resources/buttons/buttons.txt";
+    private static final String BUTTONS_FILE = ResourcePathHelper.resolvePath("buttons/buttons.txt");
     private static List<ButtonData> buttons = new ArrayList<>();
 
     static {

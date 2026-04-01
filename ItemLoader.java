@@ -917,7 +917,7 @@ public class ItemLoader {
      * This is the DEFAULT version of the item
      */
     public static Item loadItemByName(String itemName) throws IOException {
-        String filename = "resources/items/" + itemName + ".txt";
+        String filename = ResourcePathHelper.resolvePath("items/" + itemName + ".txt");
         System.out.println("✓ Loading item from DEFAULT: " + filename);
         return loadItem(filename);
     }

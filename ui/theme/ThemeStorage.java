@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
+import main.ResourcePathHelper;
+
 /**
  * Storage for theme preferences.
  * Persists theme choice (light/dark) across sessions.
@@ -22,7 +24,7 @@ public class ThemeStorage {
             Properties props = new Properties();
             props.setProperty(THEME_KEY, isDark ? "dark" : "light");
 
-            File file = new File(SETTINGS_FILE);
+            File file = ResourcePathHelper.resolveFromRoot(SETTINGS_FILE);
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 props.store(fos, "PointClick Adventure Editor - Theme Settings");
             }
@@ -37,7 +39,7 @@ public class ThemeStorage {
      */
     public static boolean loadTheme() {
         try {
-            File file = new File(SETTINGS_FILE);
+            File file = ResourcePathHelper.resolveFromRoot(SETTINGS_FILE);
             if (!file.exists()) {
                 return false; // Default to light theme
             }
@@ -59,7 +61,7 @@ public class ThemeStorage {
      * Delete theme storage (reset to default).
      */
     public static void reset() {
-        File file = new File(SETTINGS_FILE);
+        File file = ResourcePathHelper.resolveFromRoot(SETTINGS_FILE);
         if (file.exists()) {
             file.delete();
         }

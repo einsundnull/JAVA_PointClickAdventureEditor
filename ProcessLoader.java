@@ -17,7 +17,7 @@ public class ProcessLoader {
      * @return Loaded Process object, or null if not found
      */
     public static Process loadProcess(String processName) {
-        String fileName = "resources/processes/" + processName + ".txt";
+        String fileName = ResourcePathHelper.resolvePath("processes/" + processName + ".txt");
         File file = new File(fileName);
 
         if (!file.exists()) {
@@ -224,7 +224,7 @@ public class ProcessLoader {
      * Check if a process file exists
      */
     public static boolean processExists(String processName) {
-        String fileName = "resources/processes/" + processName + ".txt";
+        String fileName = ResourcePathHelper.resolvePath("processes/" + processName + ".txt");
         return new File(fileName).exists();
     }
 

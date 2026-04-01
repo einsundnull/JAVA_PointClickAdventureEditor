@@ -1553,7 +1553,7 @@ public class EditorMainSimple extends JFrame {
         itemName = itemName.trim();
 
         // Check if item already exists
-        File itemFile = new File("resources/items/" + itemName + ".txt");
+        File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
         if (itemFile.exists()) {
             JOptionPane.showMessageDialog(this,
                 "Item '" + itemName + "' already exists!",
@@ -1603,7 +1603,7 @@ public class EditorMainSimple extends JFrame {
         newName = newName.trim();
 
         // Check if item already exists
-        File itemFile = new File("resources/items/" + newName + ".txt");
+        File itemFile = ResourcePathHelper.resolve("items/" + newName + ".txt");
         if (itemFile.exists()) {
             JOptionPane.showMessageDialog(this,
                 "Item '" + newName + "' already exists!",
@@ -1685,13 +1685,13 @@ public class EditorMainSimple extends JFrame {
             String itemName = selectedItem.getName();
 
             // Delete file
-            File itemFile = new File("resources/items/" + itemName + ".txt");
+            File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
             if (itemFile.exists()) {
                 itemFile.delete();
             }
 
             // Delete progress file if exists
-            File progressFile = new File("resources/items/" + itemName + "_progress.txt");
+            File progressFile = ResourcePathHelper.resolve("items/" + itemName + "_progress.txt");
             if (progressFile.exists()) {
                 progressFile.delete();
             }
@@ -1745,7 +1745,7 @@ public class EditorMainSimple extends JFrame {
 
     private void openResourcesDirectory() {
         try {
-            java.awt.Desktop.getDesktop().open(new File("resources"));
+            java.awt.Desktop.getDesktop().open(ResourcePathHelper.resolve(""));
             log("✓ Opened resources directory");
         } catch (Exception ex) {
             log("ERROR opening resources: " + ex.getMessage());
@@ -1786,12 +1786,12 @@ public class EditorMainSimple extends JFrame {
 
     private void ensureDirectoriesExist() {
         String[] dirs = {
-            "resources/scenes",
-            "resources/items",
-            "resources/images/items",
-            "resources/keyAreas",
-            "resources/dialogs",
-            "resources/conditions"
+            ResourcePathHelper.resolvePath("scenes"),
+            ResourcePathHelper.resolvePath("items"),
+            ResourcePathHelper.resolvePath("images/items"),
+            ResourcePathHelper.resolvePath("keyAreas"),
+            ResourcePathHelper.resolvePath("dialogs"),
+            ResourcePathHelper.resolvePath("conditions")
         };
 
         for (String dir : dirs) {
@@ -2096,11 +2096,11 @@ public class EditorMainSimple extends JFrame {
 
                 if (imagePath != null && !imagePath.trim().isEmpty()) {
                     // Try to load from resources/images/items/
-                    File imageFile = new File("resources/images/items/" + imagePath);
+                    File imageFile = ResourcePathHelper.resolve("images/items/" + imagePath);
 
                     // Fallback to resources/images/
                     if (!imageFile.exists()) {
-                        imageFile = new File("resources/images/" + imagePath);
+                        imageFile = ResourcePathHelper.resolve("images/" + imagePath);
                     }
 
                     if (imageFile.exists()) {
@@ -2214,9 +2214,9 @@ public class EditorMainSimple extends JFrame {
                     // 1. resources/images/scenes/[filename]
                     // 2. resources/images/[filename]
                     // 3. [full path]
-                    File imgFile = new File("resources/images/scenes/" + thumbnailPath);
+                    File imgFile = ResourcePathHelper.resolve("images/scenes/" + thumbnailPath);
                     if (!imgFile.exists()) {
-                        imgFile = new File("resources/images/" + thumbnailPath);
+                        imgFile = ResourcePathHelper.resolve("images/" + thumbnailPath);
                     }
                     if (!imgFile.exists()) {
                         imgFile = new File(thumbnailPath);
@@ -2580,11 +2580,11 @@ public class EditorMainSimple extends JFrame {
             itemImagePathField.setText(imagePath);
 
             // Try to load from resources/images/items/
-            File imageFile = new File("resources/images/items/" + imagePath);
+            File imageFile = ResourcePathHelper.resolve("images/items/" + imagePath);
 
             // Fallback to resources/images/
             if (!imageFile.exists()) {
-                imageFile = new File("resources/images/" + imagePath);
+                imageFile = ResourcePathHelper.resolve("images/" + imagePath);
             }
 
             if (imageFile.exists()) {
@@ -2653,7 +2653,7 @@ public class EditorMainSimple extends JFrame {
                         File file = files.get(0);
 
                         // Copy to resources/images/items/
-                        File itemsImagesDir = new File("resources/images/items");
+                        File itemsImagesDir = ResourcePathHelper.resolve("images/items");
                         itemsImagesDir.mkdirs();
 
                         File targetFile = new File(itemsImagesDir, file.getName());

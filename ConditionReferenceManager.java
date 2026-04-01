@@ -206,7 +206,7 @@ public class ConditionReferenceManager {
 	 */
 	public static boolean removeFromDefaults(String conditionName) throws IOException {
 		// Check if old conditions-defaults.txt exists
-		File oldDefaultsFile = new File("resources/conditions-defaults.txt");
+		File oldDefaultsFile = ResourcePathHelper.resolve("conditions-defaults.txt");
 		if (oldDefaultsFile.exists()) {
 			List<String> lines = Files.readAllLines(oldDefaultsFile.toPath());
 			List<String> newLines = new ArrayList<>();
@@ -238,8 +238,8 @@ public class ConditionReferenceManager {
 	 */
 	public static void removeFromProgressFiles(String conditionName) throws IOException {
 		String[] progressFiles = {
-			"resources/progress.txt",
-			"resources/progress-default.txt"
+			ResourcePathHelper.resolvePath("progress.txt"),
+			ResourcePathHelper.resolvePath("progress-default.txt")
 		};
 
 		for (String filename : progressFiles) {

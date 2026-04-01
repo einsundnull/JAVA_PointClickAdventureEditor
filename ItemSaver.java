@@ -293,7 +293,7 @@ public class ItemSaver {
      * This is the DEFAULT version that will be loaded by the editor
      */
     public static void saveItemByName(Item item) throws IOException {
-        String filename = "resources/items/" + item.getName() + ".txt";
+        String filename = ResourcePathHelper.resolvePath("items/" + item.getName() + ".txt");
         saveItem(item, filename);
         System.out.println("✓ Saved to DEFAULT: " + filename);
     }

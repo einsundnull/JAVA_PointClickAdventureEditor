@@ -16,12 +16,12 @@ public class MigrateToSimpleFormat {
 
         try {
             // Update progress.txt
-            updateProgressFile("resources/progress.txt");
+            updateProgressFile(ResourcePathHelper.resolvePath("progress.txt"));
 
             // Update progress_default.txt if it exists
-            java.io.File defaultFile = new java.io.File("resources/progress_default.txt");
+            java.io.File defaultFile = ResourcePathHelper.resolve("progress_default.txt");
             if (defaultFile.exists()) {
-                updateProgressFile("resources/progress_default.txt");
+                updateProgressFile(ResourcePathHelper.resolvePath("progress_default.txt"));
             }
 
             System.out.println("\n✓ Migration complete!");

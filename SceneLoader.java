@@ -9,7 +9,7 @@ import java.util.Map;
 public class SceneLoader {
     
     public static Scene loadScene(String sceneName, GameProgress progress) throws IOException {
-        return loadScene(sceneName, progress, "resources/scenes/" + sceneName + ".txt", false);
+        return loadScene(sceneName, progress, ResourcePathHelper.resolvePath("scenes/" + sceneName + ".txt"), false);
     }
 
     /**
@@ -577,7 +577,7 @@ public class SceneLoader {
      */
     @Deprecated
     private static Scene loadSceneFromProgressLegacy(String sceneName, GameProgress progress) throws IOException {
-        String progressFilename = "resources/scenes/" + sceneName + "_progress.txt";
+        String progressFilename = ResourcePathHelper.resolvePath("scenes/" + sceneName + "_progress.txt");
         File progressFile = new File(progressFilename);
 
         if (progressFile.exists()) {

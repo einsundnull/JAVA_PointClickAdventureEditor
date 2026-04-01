@@ -139,6 +139,34 @@ public class ResourcePathHelper {
     }
 
     /**
+     * Resolve a path relative to the resources/ folder.
+     * @param relativePath e.g. "scenes/myScene" or "items/item.txt"
+     * @return File pointing to projectRoot/resources/relativePath
+     */
+    public static File resolve(String relativePath) {
+        return new File(findProjectRoot(), "resources/" + relativePath);
+    }
+
+    /**
+     * Resolve a path relative to resources/ and return as String path.
+     * @param relativePath e.g. "scenes/myScene"
+     * @return String path to projectRoot/resources/relativePath
+     */
+    public static String resolvePath(String relativePath) {
+        return resolve(relativePath).getPath();
+    }
+
+    /**
+     * Resolve a path relative to the project root (not resources/).
+     * Used for files like editor_theme.properties that live at root level.
+     * @param relativePath e.g. "editor_theme.properties"
+     * @return File pointing to projectRoot/relativePath
+     */
+    public static File resolveFromRoot(String relativePath) {
+        return new File(findProjectRoot(), relativePath);
+    }
+
+    /**
      * Get the absolute path to the project root.
      */
     public static String getProjectRootPath() {

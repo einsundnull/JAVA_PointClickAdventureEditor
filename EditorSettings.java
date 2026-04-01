@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class EditorSettings {
 
-    private static final String SETTINGS_FILE = "resources/editor_settings.txt";
+    private static final String SETTINGS_FILE = ResourcePathHelper.resolvePath("editor_settings.txt");
 
     private Map<String, String> settings;
 

@@ -185,10 +185,10 @@ public class ConditionsManagerDialog extends JDialog {
 		tableModel.setRowCount(0);
 
 		// Load PROGRESS values from conditions/conditions.txt
-		Map<String, Boolean> progressValues = loadConditionsFromFile("resources/conditions/conditions.txt");
+		Map<String, Boolean> progressValues = loadConditionsFromFile(ResourcePathHelper.resolvePath("conditions/conditions.txt"));
 
 		// Load DEFAULT values from conditions/conditions_defaults.txt
-		Map<String, Boolean> defaultValues = loadConditionsFromFile("resources/conditions/conditions_defaults.txt");
+		Map<String, Boolean> defaultValues = loadConditionsFromFile(ResourcePathHelper.resolvePath("conditions/conditions_defaults.txt"));
 
 		// Combine all condition names from both files
 		java.util.Set<String> allNames = new java.util.TreeSet<>();
@@ -539,7 +539,7 @@ public class ConditionsManagerDialog extends JDialog {
 
 	private Map<String, Boolean> loadDefaultValues() {
 		Map<String, Boolean> defaults = new HashMap<>();
-		File file = new File("resources/conditions-defaults.txt");
+		File file = ResourcePathHelper.resolve("conditions-defaults.txt");
 
 		if (!file.exists()) {
 			return defaults;
@@ -582,7 +582,7 @@ public class ConditionsManagerDialog extends JDialog {
 			}
 
 			// Save to conditions_defaults.txt
-			saveConditionsToFile("resources/conditions/conditions_defaults.txt", defaultValues, "DEFAULT TEMPLATE VALUES");
+			saveConditionsToFile(ResourcePathHelper.resolvePath("conditions/conditions_defaults.txt"), defaultValues, "DEFAULT TEMPLATE VALUES");
 			log("✓ Saved DEFAULT values to conditions/conditions_defaults.txt");
 
 			JOptionPane.showMessageDialog(this,
@@ -611,7 +611,7 @@ public class ConditionsManagerDialog extends JDialog {
 			}
 
 			// Save to conditions.txt
-			saveConditionsToFile("resources/conditions/conditions.txt", progressValues, "CURRENT GAME STATE");
+			saveConditionsToFile(ResourcePathHelper.resolvePath("conditions/conditions.txt"), progressValues, "CURRENT GAME STATE");
 			log("✓ Saved PROGRESS values to conditions/conditions.txt");
 
 			// Also update RAM for immediate effect

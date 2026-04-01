@@ -304,7 +304,7 @@ public class ButtonManagerDialog extends JDialog {
             return;
         }
 
-        JFileChooser fileChooser = new JFileChooser(new File("resources/buttons"));
+        JFileChooser fileChooser = new JFileChooser(ResourcePathHelper.resolve("buttons"));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Images", "png", "jpg", "jpeg", "gif"));
 
         int result = fileChooser.showOpenDialog(this);
@@ -322,7 +322,7 @@ public class ButtonManagerDialog extends JDialog {
 
     private void openResourcesDirectory() {
         try {
-            java.awt.Desktop.getDesktop().open(new File("resources"));
+            java.awt.Desktop.getDesktop().open(ResourcePathHelper.resolve(""));
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error opening directory: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -330,7 +330,7 @@ public class ButtonManagerDialog extends JDialog {
 
     private void openImageResourcesDirectory() {
         try {
-            File dir = new File("resources/images");
+            File dir = ResourcePathHelper.resolve("images");
             if (!dir.exists()) dir.mkdirs();
             java.awt.Desktop.getDesktop().open(dir);
         } catch (Exception ex) {
@@ -340,7 +340,7 @@ public class ButtonManagerDialog extends JDialog {
 
     private void openButtonResourcesDirectory() {
         try {
-            File dir = new File("resources/buttons");
+            File dir = ResourcePathHelper.resolve("buttons");
             if (!dir.exists()) dir.mkdirs();
             java.awt.Desktop.getDesktop().open(dir);
         } catch (Exception ex) {

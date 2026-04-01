@@ -241,11 +241,11 @@ public class ItemOrientationEditor extends JFrame {
 
             if (panel == defaultImagePanel) {
                 // Default image goes to resources/images/items/
-                targetDir = "resources/images/items";
+                targetDir = ResourcePathHelper.resolvePath("images/items");
                 targetFilename = currentItem.getName() + getFileExtension(imageFile);
             } else {
                 // Orientation images go to resources/images/itemsOrientation/
-                targetDir = "resources/images/itemsOrientation";
+                targetDir = ResourcePathHelper.resolvePath("images/itemsOrientation");
 
                 // Determine orientation suffix
                 String suffix = "";
@@ -399,7 +399,7 @@ public class ItemOrientationEditor extends JFrame {
      */
     private void openResourcesFolder() {
         try {
-            File resourcesDir = new File("resources/images/itemsOrientation");
+            File resourcesDir = ResourcePathHelper.resolve("images/itemsOrientation");
             if (!resourcesDir.exists()) {
                 resourcesDir.mkdirs();
             }

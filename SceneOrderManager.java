@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class SceneOrderManager {
 
-    private static final String ORDER_FILE = "resources/scenes/scene_order.txt";
+    private static final String ORDER_FILE = ResourcePathHelper.resolvePath("scenes/scene_order.txt");
 
     /**
      * Load the scene order from file.

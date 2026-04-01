@@ -18,7 +18,7 @@ public class ProcessSaver {
      * @return true if successful, false otherwise
      */
     public static boolean saveProcess(Process process) {
-        String fileName = "resources/processes/" + process.getProcessName() + ".txt";
+        String fileName = ResourcePathHelper.resolvePath("processes/" + process.getProcessName() + ".txt");
         File file = new File(fileName);
 
         // Create directory if needed

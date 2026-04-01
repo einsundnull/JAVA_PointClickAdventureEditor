@@ -272,7 +272,7 @@ public class SceneSaver {
      * This is the DEFAULT version that will be loaded by the editor
      */
     public static void saveScene(Scene scene) throws IOException {
-        String filename = "resources/scenes/" + scene.getName() + ".txt";
+        String filename = ResourcePathHelper.resolvePath("scenes/" + scene.getName() + ".txt");
         saveScene(scene, filename);
         System.out.println("✓ Saved to DEFAULT: " + filename);
     }

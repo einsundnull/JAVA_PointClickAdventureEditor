@@ -16,9 +16,9 @@ import java.util.Set;
  * KEINE Quellcode-Änderungen mehr notwendig!
  */
 public class Conditions {
-    private static final String CONDITIONS_FILE = "resources/conditions/conditions.txt";
-    private static final String CONDITIONS_DEFAULTS_FILE = "resources/conditions-defaults.txt";
-    private static final String CONDITIONS_PROGRESS_FILE = "resources/conditions/conditions_progress.txt";
+    private static final String CONDITIONS_FILE = ResourcePathHelper.resolvePath("conditions/conditions.txt");
+    private static final String CONDITIONS_DEFAULTS_FILE = ResourcePathHelper.resolvePath("conditions-defaults.txt");
+    private static final String CONDITIONS_PROGRESS_FILE = ResourcePathHelper.resolvePath("conditions/conditions_progress.txt");
 
     // Dynamische Map für alle Conditions
     private static Map<String, Boolean> conditions = new LinkedHashMap<>();
@@ -295,7 +295,7 @@ public class Conditions {
      */
     public static void saveConditionsToProgress() {
         try {
-            File file = new File("resources/conditions/conditions.txt");
+            File file = ResourcePathHelper.resolve("conditions/conditions.txt");
             file.getParentFile().mkdirs();
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -318,7 +318,7 @@ public class Conditions {
      * Lädt Conditions aus conditions-progress.txt
      */
     public static void loadConditionsFromProgress() {
-        loadFromProgress("resources/conditions-progress.txt");
+        loadFromProgress(ResourcePathHelper.resolvePath("conditions-progress.txt"));
         System.out.println("✓ Loaded conditions from conditions-progress.txt");
     }
 
@@ -390,7 +390,7 @@ public class Conditions {
      * Lädt von: resources/conditions/conditions_defaults.txt
      */
     public static void loadFromDefaults() {
-        loadFromProgress("resources/conditions/conditions_defaults.txt");
+        loadFromProgress(ResourcePathHelper.resolvePath("conditions/conditions_defaults.txt"));
         System.out.println("✓ Loaded conditions from conditions/conditions_defaults.txt (DEFAULT/TEMPLATE)");
     }
 
@@ -399,7 +399,7 @@ public class Conditions {
      * Speichert in: resources/conditions/conditions_defaults.txt
      */
     public static void saveToDefaults(String currentScene) {
-        saveToProgress("resources/conditions/conditions_defaults.txt", currentScene);
+        saveToProgress(ResourcePathHelper.resolvePath("conditions/conditions_defaults.txt"), currentScene);
         System.out.println("✓ Saved conditions to conditions/conditions_defaults.txt (DEFAULT/TEMPLATE)");
     }
 

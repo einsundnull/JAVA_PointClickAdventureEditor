@@ -20,8 +20,6 @@ import java.util.List;
  */
 public class FileHandlingSimple {
 
-    private static final String SCENES_BASE_DIR = "resources/scenes";
-
     // ==================== Scene Operations ====================
 
     /**
@@ -31,7 +29,7 @@ public class FileHandlingSimple {
     public static List<String> getAllScenes() {
         List<String> sceneNames = new ArrayList<>();
 
-        File scenesDir = new File(SCENES_BASE_DIR);
+        File scenesDir = ResourcePathHelper.resolve("scenes");
         if (!scenesDir.exists() || !scenesDir.isDirectory()) {
             System.out.println("FileHandlingSimple: Scenes directory does not exist");
             return sceneNames;
@@ -56,7 +54,7 @@ public class FileHandlingSimple {
     public static List<String> getSubScenes(String sceneName) {
         List<String> subSceneNames = new ArrayList<>();
 
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
         if (!sceneDir.exists() || !sceneDir.isDirectory()) {
             System.out.println("FileHandlingSimple: Scene directory does not exist: " + sceneName);
             return subSceneNames;
@@ -88,7 +86,7 @@ public class FileHandlingSimple {
             return false;
         }
 
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
 
         if (sceneDir.exists()) {
             System.err.println("FileHandlingSimple: Scene already exists: " + sceneName);
@@ -116,7 +114,7 @@ public class FileHandlingSimple {
             return false;
         }
 
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
 
         if (!sceneDir.exists()) {
             System.err.println("FileHandlingSimple: Scene does not exist: " + sceneName);
@@ -157,8 +155,8 @@ public class FileHandlingSimple {
             return false;
         }
 
-        File oldDir = new File(SCENES_BASE_DIR, oldName);
-        File newDir = new File(SCENES_BASE_DIR, newName);
+        File oldDir = new File(ResourcePathHelper.resolve("scenes"), oldName);
+        File newDir = new File(ResourcePathHelper.resolve("scenes"), newName);
 
         if (!oldDir.exists()) {
             System.err.println("FileHandlingSimple: Scene does not exist: " + oldName);
@@ -191,7 +189,7 @@ public class FileHandlingSimple {
      * @throws IOException If loading fails
      */
     public static Scene loadSubScene(String sceneName, String subSceneName, GameProgress gameProgress) throws IOException {
-        String filePath = SCENES_BASE_DIR + "/" + sceneName + "/" + subSceneName + ".txt";
+        String filePath = ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + subSceneName + ".txt";
 
         System.out.println("FileHandlingSimple: Loading subscene from: " + filePath);
 
@@ -214,12 +212,12 @@ public class FileHandlingSimple {
         }
 
         // Ensure scene directory exists
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
         if (!sceneDir.exists()) {
             sceneDir.mkdirs();
         }
 
-        String filePath = SCENES_BASE_DIR + "/" + sceneName + "/" + subScene.getName() + ".txt";
+        String filePath = ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + subScene.getName() + ".txt";
 
         System.out.println("FileHandlingSimple: Saving subscene to DEFAULT: " + filePath);
 
@@ -249,7 +247,7 @@ public class FileHandlingSimple {
         }
 
         // Ensure scene directory exists
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
         if (!sceneDir.exists()) {
             sceneDir.mkdirs();
         }
@@ -289,8 +287,8 @@ public class FileHandlingSimple {
             return false;
         }
 
-        File subSceneFile = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + subSceneName + ".txt");
-        File progressFile = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + subSceneName + "_progress.txt");
+        File subSceneFile = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + subSceneName + ".txt");
+        File progressFile = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + subSceneName + "_progress.txt");
 
         boolean deleted = false;
 
@@ -323,8 +321,8 @@ public class FileHandlingSimple {
             return false;
         }
 
-        File oldFile = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + oldName + ".txt");
-        File newFile = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + newName + ".txt");
+        File oldFile = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + oldName + ".txt");
+        File newFile = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + newName + ".txt");
 
         if (!oldFile.exists()) {
             System.err.println("FileHandlingSimple: SubScene does not exist: " + oldName);
@@ -341,8 +339,8 @@ public class FileHandlingSimple {
             System.out.println("FileHandlingSimple: Renamed subscene: " + oldName + " → " + newName);
 
             // Also rename progress file if exists
-            File oldProgress = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + oldName + "_progress.txt");
-            File newProgress = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + newName + "_progress.txt");
+            File oldProgress = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + oldName + "_progress.txt");
+            File newProgress = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + newName + "_progress.txt");
             if (oldProgress.exists()) {
                 oldProgress.renameTo(newProgress);
             }
@@ -359,7 +357,7 @@ public class FileHandlingSimple {
      * @return true if exists
      */
     public static boolean sceneExists(String sceneName) {
-        File sceneDir = new File(SCENES_BASE_DIR, sceneName);
+        File sceneDir = new File(ResourcePathHelper.resolve("scenes"), sceneName);
         return sceneDir.exists() && sceneDir.isDirectory();
     }
 
@@ -370,7 +368,7 @@ public class FileHandlingSimple {
      * @return true if exists
      */
     public static boolean subSceneExists(String sceneName, String subSceneName) {
-        File subSceneFile = new File(SCENES_BASE_DIR + "/" + sceneName + "/" + subSceneName + ".txt");
+        File subSceneFile = new File(ResourcePathHelper.resolvePath("scenes") + "/" + sceneName + "/" + subSceneName + ".txt");
         return subSceneFile.exists();
     }
 }

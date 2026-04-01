@@ -253,7 +253,7 @@ public class SceneReferenceManager {
 	 */
 	public static List<String> getAllSceneNames() {
 		List<String> sceneNames = new ArrayList<>();
-		File scenesDir = new File("resources/scenes");
+		File scenesDir = ResourcePathHelper.resolve("scenes");
 
 		if (!scenesDir.exists()) {
 			return sceneNames;
@@ -275,7 +275,7 @@ public class SceneReferenceManager {
 	 * Deletes a scene file
 	 */
 	public static boolean deleteSceneFile(String sceneName) {
-		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+		File sceneFile = ResourcePathHelper.resolve("scenes/" + sceneName + ".txt");
 		return sceneFile.delete();
 	}
 
@@ -283,8 +283,8 @@ public class SceneReferenceManager {
 	 * Renames a scene file
 	 */
 	public static boolean renameSceneFile(String oldName, String newName) {
-		File oldFile = new File("resources/scenes/" + oldName + ".txt");
-		File newFile = new File("resources/scenes/" + newName + ".txt");
+		File oldFile = ResourcePathHelper.resolve("scenes/" + oldName + ".txt");
+		File newFile = ResourcePathHelper.resolve("scenes/" + newName + ".txt");
 
 		if (newFile.exists()) {
 			return false; // New name already exists
@@ -298,7 +298,7 @@ public class SceneReferenceManager {
 	 * Supports both old format (#Backgroundimage:) and new format (#BackgroundImages:)
 	 */
 	public static String getSceneBackgroundImage(String sceneName) throws IOException {
-		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+		File sceneFile = ResourcePathHelper.resolve("scenes/" + sceneName + ".txt");
 		if (!sceneFile.exists()) {
 			return null;
 		}
@@ -362,7 +362,7 @@ public class SceneReferenceManager {
 	 * -imagename.png
 	 */
 	public static void setSceneBackgroundImage(String sceneName, String imagePath) throws IOException {
-		File sceneFile = new File("resources/scenes/" + sceneName + ".txt");
+		File sceneFile = ResourcePathHelper.resolve("scenes/" + sceneName + ".txt");
 		if (!sceneFile.exists()) {
 			return;
 		}

@@ -483,7 +483,7 @@ public class ItemEditorDialog extends JDialog {
 	private void loadAllItems() {
 		itemListModel.clear();
 
-		File itemsDir = new File("resources/items");
+		File itemsDir = ResourcePathHelper.resolve("items");
 		if (!itemsDir.exists()) {
 			itemsDir.mkdirs();
 			parent.log("Created items directory");
@@ -625,7 +625,7 @@ public class ItemEditorDialog extends JDialog {
 			itemName = itemName.trim();
 
 			// Check if already exists
-			File itemFile = new File("resources/items/" + itemName + ".txt");
+			File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
 			if (itemFile.exists()) {
 				JOptionPane.showMessageDialog(this, "Item '" + itemName + "' already exists!", "Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -635,7 +635,7 @@ public class ItemEditorDialog extends JDialog {
 			// Create new item
 			Item newItem = new Item(itemName);
 			newItem.setImageFileName("default.png");
-			newItem.setImageFilePath("resources/images/items/default.png");
+			newItem.setImageFilePath(ResourcePathHelper.resolvePath("images/items/default.png"));
 
 			try {
 				ItemSaver.saveItemByName(newItem);
@@ -656,7 +656,7 @@ public class ItemEditorDialog extends JDialog {
 		}
 
 		String itemName = selectedItem.getName();
-		File itemFile = new File("resources/items/" + itemName + ".txt");
+		File itemFile = ResourcePathHelper.resolve("items/" + itemName + ".txt");
 		if (itemFile.delete()) {
 			itemListModel.removeElement(itemName);
 			selectedItem = null;
@@ -823,7 +823,7 @@ public class ItemEditorDialog extends JDialog {
 	}
 
 	private void openItemsFolder() {
-		File itemsFolder = new File("resources/items");
+		File itemsFolder = ResourcePathHelper.resolve("items");
 		if (!itemsFolder.exists()) {
 			itemsFolder.mkdirs();
 		}
@@ -1317,7 +1317,7 @@ public class ItemEditorDialog extends JDialog {
 					File file = droppedFiles.get(0);
 					if (isImageFile(file)) {
 						// Copy file to resources/images/items/
-						File itemsImagesDir = new File("resources/images/items");
+						File itemsImagesDir = ResourcePathHelper.resolve("images/items");
 						if (!itemsImagesDir.exists()) {
 							itemsImagesDir.mkdirs();
 							parent.log("Created directory: resources/images/items/");
@@ -1407,11 +1407,11 @@ public class ItemEditorDialog extends JDialog {
 
 			try {
 				// Load image from resources/images/items/
-				File imageFile = new File("resources/images/items/" + imagePath);
+				File imageFile = ResourcePathHelper.resolve("images/items/" + imagePath);
 
 				// Fallback to resources/images/ for backward compatibility
 				if (!imageFile.exists()) {
-					imageFile = new File("resources/images/" + imagePath);
+					imageFile = ResourcePathHelper.resolve("images/" + imagePath);
 				}
 
 				if (!imageFile.exists()) {
@@ -1554,11 +1554,11 @@ public class ItemEditorDialog extends JDialog {
 				String imagePath = image.getImagePath();
 				if (imagePath != null && !imagePath.trim().isEmpty()) {
 					// Try to load from resources/images/items/
-					File imageFile = new File("resources/images/items/" + imagePath);
+					File imageFile = ResourcePathHelper.resolve("images/items/" + imagePath);
 
 					// Fallback to resources/images/ for backward compatibility
 					if (!imageFile.exists()) {
-						imageFile = new File("resources/images/" + imagePath);
+						imageFile = ResourcePathHelper.resolve("images/" + imagePath);
 					}
 
 					if (imageFile.exists()) {

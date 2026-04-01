@@ -17,7 +17,7 @@ import java.util.Map;
  * Each MovingRange is stored in a separate file: movingranges/[name].txt
  */
 public class MovingRangeManager {
-    private static final String FOLDER = "resources/movingranges/";
+    private static final String FOLDER = ResourcePathHelper.resolvePath("movingranges") + "/";
     private static Map<String, MovingRange> cache = new LinkedHashMap<>();
 
     static {

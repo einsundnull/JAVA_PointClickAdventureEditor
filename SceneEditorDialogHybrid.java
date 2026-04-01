@@ -738,7 +738,7 @@ public class SceneEditorDialogHybrid extends JDialog {
                 // Try to load thumbnail
                 String imagePath = value.getImagePath();
                 if (imagePath != null && !imagePath.isEmpty()) {
-                    File imgFile = new File("resources/images/" + imagePath);
+                    File imgFile = ResourcePathHelper.resolve("images/" + imagePath);
                     if (imgFile.exists() && !imageCache.containsKey(imagePath)) {
                         try {
                             ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
@@ -782,7 +782,7 @@ public class SceneEditorDialogHybrid extends JDialog {
                 // Try to load thumbnail
                 String imagePath = value.getImageFilePath();
                 if (imagePath != null && !imagePath.isEmpty()) {
-                    File imgFile = new File("resources/images/" + imagePath);
+                    File imgFile = ResourcePathHelper.resolve("images/" + imagePath);
                     if (imgFile.exists() && !imageCache.containsKey(imagePath)) {
                         try {
                             ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());

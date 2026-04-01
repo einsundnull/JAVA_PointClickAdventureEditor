@@ -20,7 +20,7 @@ public class ActionsLoader {
      */
     public static Map<String, List<ConditionsField>> loadActions(String entityName) {
         Map<String, List<ConditionsField>> actionsMap = new HashMap<>();
-        File actionsFile = new File("resources/actions/" + entityName + ".txt");
+        File actionsFile = ResourcePathHelper.resolve("actions/" + entityName + ".txt");
 
         if (!actionsFile.exists()) {
             System.out.println("No actions file found for: " + entityName);
